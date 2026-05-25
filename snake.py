@@ -41,6 +41,24 @@ SNAKE_TEMPLATE = """
             font-size: 14px;
         }
         
+        /* كلاس الاهتزاز عند الخسارة */
+        .shake {
+            animation: shakeAnim 0.3s linear infinite;
+        }
+        @keyframes shakeAnim {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
         .nokia-phone {
             background: #3a4d5c;
             border: 6px solid #25333d;
@@ -62,6 +80,12 @@ SNAKE_TEMPLATE = """
             position: relative;
             box-sizing: border-box;
             touch-action: none;
+            transition: background-color 0.1s ease;
+        }
+
+        /* كلاس الوميض عند الأكل */
+        .flash {
+            background-color: #a4b930 !important;
         }
 
         .score-container {
@@ -82,7 +106,7 @@ SNAKE_TEMPLATE = """
         }
 
         canvas { 
-            background-color: #8c9f21; 
+            background-color: transparent; 
             display: block; 
             max-width: 100%;
             height: auto;
@@ -177,7 +201,7 @@ SNAKE_TEMPLATE = """
     <br>
     <a href="/" class="back-btn"><i class="fas fa-arrow-right"></i> القائمة الرئيسية</a>
 
-    <div class="nokia-phone">
+    <div class="nokia-phone" id="phoneWrapper">
         <div class="nokia-screen" id="touchArea">
             <div class="score-container">
                 <span id="snakeScore">النقاط: 0</span>
@@ -221,6 +245,55 @@ SNAKE_TEMPLATE = """
         let score, snake, food, d, gameInterval;
         let isGameOver = false;
 
+        // ================= تفعيل مولد الأصوات الكلاسيكية المدمج =================
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            
+            // استئناف السياق الصوتي إذا قيدّه المتصفح بالخطأ
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            // جعل الصوت "مربعاً وبكسلياً" تماماً كالنغمات القديمة
+            osc.type = 'square'; 
+
+            if (type === 'eat') {
+                // نغمة أكل سريعة وحادة تصعد للأعلى
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.08);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.08);
+            } else if (type === 'lose') {
+                // نغمة خسارة تهبط للأسفل تدريجياً
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'win') {
+                // نغمة فوز احتفالية ثلاثية متتالية
+                const now = audioCtx.currentTime;
+                osc.frequency.setValueAtTime(523.25, now); // نوتة C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // نوتة E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // نوتة G5
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.35);
+                osc.start();
+                osc.stop(now + 0.35);
+            }
+        }
+        // ===================================================================
+
         function initGame() {
             score = 0;
             isGameOver = false;
@@ -249,29 +322,15 @@ SNAKE_TEMPLATE = """
             }
         }
 
-        // تحسين شامل وموثوق 100% لالتقاط أزرار لوحة مفاتيح الكمبيوتر بكافة اللغات وحالات الحروف
         document.onkeydown = function(e) {
             if(isGameOver) return;
-            
             const key = e.keyCode || e.which;
             const keyChar = e.key ? e.key.toLowerCase() : "";
 
-            // 1. اتجاه اليسار: سهم يسار، حرف A (إنجليزي أو عربي ص)، رقم 4 بالآلة الحاسبة أو لوحة المفاتيح
-            if ((key === 37 || keyChar === 'a' || keyChar === 'printed' || keyChar === 'ص' || key === 100 || key === 52) && d !== "RIGHT") {
-                d = "LEFT";
-            }
-            // 2. اتجاه الأعلى: سهم فوق، حرف W (إنجليزي أو عربي ص)، رقم 8 بالآلة الحاسبة أو لوحة المفاتيح
-            else if ((key === 38 || keyChar === 'w' || keyChar === 'ص' || key === 104 || key === 56) && d !== "DOWN") {
-                d = "UP";
-            }
-            // 3. اتجاه اليمين: سهم يمين، حرف D (إنجليزي أو عربي ي)، رقم 6 بالآلة الحاسبة أو لوحة المفاتيح
-            else if ((key === 39 || keyChar === 'd' || keyChar === 'ي' || key === 102 || key === 54) && d !== "LEFT") {
-                d = "RIGHT";
-            }
-            // 4. اتجاه الأسفل: سهم تحت، حرف S (إنجليزي أو عربي س)، رقم 2 بالآلة الحاسبة أو لوحة المفاتيح
-            else if ((key === 40 || keyChar === 's' || keyChar === 'س' || key === 98 || key === 50) && d !== "UP") {
-                d = "DOWN";
-            }
+            if ((key === 37 || keyChar === 'a' || keyChar === 'ص' || key === 100 || key === 52) && d !== "RIGHT") d = "LEFT";
+            else if ((key === 38 || keyChar === 'w' || keyChar === 'ص' || key === 104 || key === 56) && d !== "DOWN") d = "UP";
+            else if ((key === 39 || keyChar === 'd' || keyChar === 'ي' || key === 102 || key === 54) && d !== "LEFT") d = "RIGHT";
+            else if ((key === 40 || keyChar === 's' || keyChar === 'س' || key === 98 || key === 50) && d !== "UP") d = "DOWN";
         };
 
         function changeDirection(dir) {
@@ -282,7 +341,6 @@ SNAKE_TEMPLATE = """
             if(dir === "DOWN" && d !== "UP") d = "DOWN";
         }
 
-        // محرك اللمس السحابي (Swipe Gestures) للهواتف الذكية
         const touchArea = document.getElementById('touchArea');
         let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
 
@@ -301,13 +359,9 @@ SNAKE_TEMPLATE = """
             const xDiff = touchEndX - touchStartX;
             const yDiff = touchEndY - touchStartY;
             if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                if (Math.abs(xDiff) > 30) {
-                    if (xDiff > 0) { changeDirection('RIGHT'); } else { changeDirection('LEFT'); }
-                }
+                if (Math.abs(xDiff) > 30) { if (xDiff > 0) { changeDirection('RIGHT'); } else { changeDirection('LEFT'); } }
             } else {
-                if (Math.abs(yDiff) > 30) {
-                    if (yDiff > 0) { changeDirection('DOWN'); } else { changeDirection('UP'); }
-                }
+                if (Math.abs(yDiff) > 30) { if (yDiff > 0) { changeDirection('DOWN'); } else { changeDirection('UP'); } }
             }
         }
 
@@ -344,6 +398,12 @@ SNAKE_TEMPLATE = """
             if(snakeX === food.x && snakeY === food.y) {
                 score += 10;
                 document.getElementById('snakeScore').innerText = "النقاط: " + score;
+                playSound('eat'); // صوت الأكل
+                
+                // تأثير بصري وميض للشاشة
+                touchArea.classList.add('flash');
+                setTimeout(() => touchArea.classList.remove('flash'), 80);
+                
                 generateFood();
             } else {
                 snake.pop();
@@ -359,6 +419,13 @@ SNAKE_TEMPLATE = """
         function endGame() {
             clearInterval(gameInterval);
             isGameOver = true;
+            playSound('lose'); // صوت الخسارة
+            
+            // تأثير بصري اهتزاز للهاتف
+            const phone = document.getElementById('phoneWrapper');
+            phone.classList.add('shake');
+            setTimeout(() => phone.classList.remove('shake'), 300);
+
             document.getElementById('finalScoreText').innerText = "النقاط الحالية: " + score;
             document.getElementById('gameOverScreen').style.display = 'flex';
         }
@@ -366,6 +433,14 @@ SNAKE_TEMPLATE = """
         function resetGame() {
             let nameInput = document.getElementById('playerName').value.trim();
             let finalName = nameInput ? nameInput : "لاعب نوكيا";
+            
+            // فحص كسر الرقم القياسي لعزف نغمة الفوز الاحتفالية
+            let scores = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || [];
+            let isHighScore = scores.length < 3 || score > scores[scores.length - 1].score;
+            if (isHighScore && score > 0) {
+                playSound('win');
+            }
+
             saveScore(finalName, score);
             document.getElementById('playerName').value = "";
             initGame();
