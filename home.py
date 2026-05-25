@@ -226,7 +226,7 @@ HOME_TEMPLATE = """
             <img src="/static/avatar.png" alt="Albrawe" class="dev-avatar-img" onerror="this.src='https://cloudflare.com'">
             
             <h2 class="dev-name">Albrawe</h2>
-            <div class="dev-title">Game Architecture Engineer & Software Specialist</div>
+            <div class="dev-title"> Architecture Engineer & Software Engineer</div>
             
             <div class="info-section">
                 <div class="info-line">⚡ <strong>نبذة عني:</strong> بناء وتطوير تطبيقات الويب الكاملة، وتصميم وتعديل اسكربتات البايثون مع حماية الأكواد السحابية من الثغرات البرمجية.</div>
