@@ -217,7 +217,7 @@ HOME_TEMPLATE = """
             <a href="/tetris" class="menu-item" style="color: #d29922;"><i class="fas fa-cubes"></i> لعبة التترس البكسلية 🧱</a>
             <a href="/scripts" class="menu-item" style="color: #388bfd;"><i class="fab fa-python"></i> إسكربتات بايثون ⚙️</a>
             <a href="/report" class="menu-item" style="color: #f85149;"><i class="fas fa-tools"></i> الإبلاغ عن مشكلة بالموقع 🛠️</a>
-            <a href="https://t.me" target="_blank" class="menu-item" style="color: #58a6ff;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام 🌐</a>
+            <a href="https://t.me/I_Albrawe" target="_blank" class="menu-item" style="color: #58a6ff;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام 🌐</a>
         </div>
     </div>
 
@@ -229,11 +229,11 @@ HOME_TEMPLATE = """
                 <div class="dot dot-g"></div>
             </div>
             
-            <!-- 🎯 تم تفعيل محرك الجلب الديناميكي لقراءة صورتك الحية من التليجرام مباشرة مع جدار حماية احتياطي -->
-            <img src="https://unavatar.io" alt="Albrawe" class="dev-avatar-img" onerror="this.src='https://cloudflare.com'">
+            <!-- 🎯 تم توجيه الكود ليقرأ الصورة المرفوعة من مجلد static المحلي الخاص بمشروعك بنجاح للثبات الدائم -->
+            <img src="/static/avatar.png" alt="Albrawe" class="dev-avatar-img" onerror="this.src='https://cloudflare.com'">
             
             <h2 class="dev-name">Albrawe</h2>
-            <div class="dev-title">Game Architecture Engineer & Software Specialist</div>
+            <div class="dev-title"> Architecture Engineer & Software Engineer</div>
             
             <div class="info-section">
                 <div class="info-line">⚡ <strong>نبذة عني:</strong> بناء وتطوير تطبيقات الويب الكاملة، وتصميم وتعديل اسكربتات البايثون مع حماية الأكواد السحابية من الثغرات البرمجية.</div>
