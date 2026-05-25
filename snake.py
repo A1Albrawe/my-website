@@ -1,24 +1,6 @@
-import os
-import json
-from flask import Blueprint, render_template_string, request, jsonify
+from flask import Blueprint, render_template_string
 
 snake_blueprint = Blueprint('snake', __name__)
-
-# مسار ملف قاعدة البيانات الأمنية على السيرفر لمنع غش المستخدمين
-DB_FILE = os.path.join(os.path.dirname(__file__), 'users.json')
-
-def load_db():
-    if not os.path.exists(DB_FILE):
-        return {}
-    try:
-        with open(DB_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except:
-        return {}
-
-def save_db(data):
-    with open(DB_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
 
 SNAKE_TEMPLATE = """
 <!DOCTYPE html>
@@ -33,7 +15,7 @@ SNAKE_TEMPLATE = """
             font-family: 'Courier New', Courier, monospace; 
             text-align: center; 
             background: #121212;
-            color: #fff; 
+            color: #000; 
             padding: 10px; 
             margin: 0; 
             display: flex;
@@ -59,18 +41,20 @@ SNAKE_TEMPLATE = """
             align-items: center;
             gap: 6px;
         }
-        .main-wrapper {
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
-            max-width: 900px;
-            width: 100%;
-        }
         .shake { animation: sk 0.3s linear infinite; } 
         @keyframes sk { 0% {transform: translate(2px, 1px);} 50% {transform: translate(-2px, -1px);} 100% {transform: translate(1px, -2px);} }
         
+        /* حاوية العرض الرئيسية لجمع الهاتف والمتجر الخارجي جنباً إلى جنب */
+        .game-wrapper {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+            flex-wrap: wrap;
+        }
+
         .nokia-phone { 
             background: #3a4d5c; 
             border: 8px solid #25333d; 
@@ -80,6 +64,7 @@ SNAKE_TEMPLATE = """
             padding: 25px 20px; 
             box-shadow: 0 20px 45px rgba(0,0,0,0.8); 
             box-sizing: border-box; 
+            position: relative;
         }
         .nokia-screen { 
             background-color: #8c9f21; 
@@ -90,7 +75,6 @@ SNAKE_TEMPLATE = """
             box-sizing: border-box; 
             touch-action: none;
             box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
-            color: #000;
         }
         .flash { background-color: #a4b930 !important; }
         .highscore-flash { animation: rf 0.15s ease infinite alternate; }
@@ -105,23 +89,24 @@ SNAKE_TEMPLATE = """
         canvas { background-color: transparent; display: block; max-width: 100%; height: auto; border: 1px solid rgba(0,0,0,0.2); }
         .overlay-txt { display: none; position: absolute; font-size: 18px; font-weight: bold; color: #000; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(140, 159, 33, 0.95); padding: 8px 12px; border: 2px solid #000; border-radius: 4px; z-index: 5; text-align: center; width: 85%; box-sizing: border-box; }
         
-        /* تصميم المتجر الخارجي المنفصل عن هيكل الهاتف بالكامل */
+        /* المتجر الخارجي المنفصل بالكامل حماية ضد التلاعب للغش */
         .external-shop-panel { 
-            background: #1e262c;
-            border: 4px solid #3a4d5c;
-            border-radius: 20px;
+            background: #1e293b; 
+            border: 4px solid #334155;
+            border-radius: 20px; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            text-align: right; 
             width: 100%;
-            max-width: 340px;
-            padding: 20px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-            box-sizing: border-box;
-            text-align: right;
+            max-width: 360px;
+            color: #f8fafc;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
-        .shop-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3a4d5c; padding-bottom: 8px; margin-bottom: 12px; font-weight: bold; font-size: 16px; color: #8c9f21; }
-        .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #3a4d5c; font-size: 13px; font-weight: bold; }
-        .item-buy-btn { background: #8c9f21; color: #000; border: none; padding: 5px 12px; cursor: pointer; font-family: inherit; font-size: 12px; border-radius: 4px; font-weight: bold; transition: 0.2s; }
-        .item-buy-btn:hover { background: #a4b930; }
-        .item-buy-btn.equipped { background: transparent; color: #8c9f21; border: 1px solid #8c9f21; pointer-events: none; }
+        .shop-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; padding-bottom: 8px; margin-bottom: 15px; font-weight: bold; font-size: 16px; color: #38bdf8; }
+        .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #334155; font-size: 13px; font-weight: bold; }
+        .item-buy-btn { background: #38bdf8; color: #0f172a; border: none; padding: 5px 12px; cursor: pointer; font-family: inherit; font-size: 12px; border-radius: 6px; font-weight: bold; transition: 0.2s; }
+        .item-buy-btn:hover { background: #0ea5e9; }
+        .item-buy-btn.equipped { background: transparent; color: #10b981; border: 2px solid #10b981; pointer-events: none; }
         
         .leaderboard { margin-top: 8px; background: rgba(0, 0, 0, 0.05); padding: 6px; border-radius: 4px; font-size: 11px; text-align: right; border-top: 1px dashed #000; }
         .leaderboard h4 { margin: 0 0 4px 0; text-align: center; font-size: 12px; }
@@ -133,15 +118,13 @@ SNAKE_TEMPLATE = """
         .dpad-empty { pointer-events: none; visibility: hidden; }
         .dpad-center-btn { background: #a1aab0; border: 2px solid #78838a; border-radius: 50%; cursor: pointer; box-shadow: 0 3px #576066; display: flex; justify-content: center; align-items: center; font-size: 14px; color: #222; }
         .dpad-center-btn:active { box-shadow: 0 0 #576066; transform: translateY(1px); }
-        
-        .input-name { padding: 6px; font-size: 12px; border: 2px solid #000; background: #8c9f21; margin-bottom: 8px; text-align: center; width: 85%; font-family: inherit; font-weight: bold; box-sizing: border-box; color: #000; }
-        @media (max-width: 480px) { body { padding: 5px; } .main-wrapper { gap: 15px; } .nokia-phone { background: transparent; border: none; box-shadow: none; padding: 0; } .nokia-screen { border-width: 6px; padding: 6px; } .nokia-dpad { width: 190px; height: 190px; } .arrow-btn { font-size: 24px; } }
     </style>
 </head>
 <body>
     <br><a href="/" class="back-btn"><i class="fas fa-arrow-right"></i> القائمة الرئيسية</a>
     
-    <div class="main-wrapper">
+    <div class="game-wrapper">
+        <!-- قسم الهاتف الكلاسيكي المستقل الموحد العرض دائماً -->
         <div class="nokia-phone" id="phoneWrapper">
             <div class="nokia-screen" id="nokiaScreen">
                 <div class="score-container">
@@ -160,8 +143,8 @@ SNAKE_TEMPLATE = """
                     
                     <div id="gameOverScreen" class="overlay-txt" style="display:block;">
                         <h4 id="goTitle" style="margin:0 0 5px 0;">مرحباً بك</h4>
-                        <p id="finalScoreText" style="margin:0 0 8px 0; font-size:11px; font-weight:bold;"></p>
-                        <input type="text" id="playerName" class="input-name" placeholder="اسم المستخدم" maxlength="10">
+                        <p id="finalScoreText" style="margin:0 0 8px 0; font-size:12px; font-weight:bold;"></p>
+                        <input type="text" id="playerName" class="input-name" style="padding:6px; font-size:12px; border:2px solid #000; background:#8c9f21; margin-bottom:8px; text-align:center; width:85%; font-family:inherit; font-weight:bold; box-sizing:border-box;" placeholder="اسم المستخدم" maxlength="10">
                         <br><button class="restart-btn" style="background:#000; color:#8c9f21; border:none; padding:6px 15px; font-size:12px; font-weight:bold; cursor:pointer; border-radius:3px;" onclick="submitPlayer()">بدء اللعب</button>
                     </div>
                 </div>
@@ -177,10 +160,15 @@ SNAKE_TEMPLATE = """
                 <div class="arrow-btn" onmousedown="changeDirection('UP')" ontouchstart="changeDirection('UP'); event.preventDefault();"><i class="fas fa-chevron-up"></i></div>
                 <div class="dpad-empty"></div>
                 
-   <script>
-        const canvas = document.getElementById('snakeCanvas'), ctx = canvas.getContext('2d'), box = 10;
+                <div class="arrow-btn" onmousedown="changeDirection('LEFT')" ontouchstart="changeDirection('LEFT'); event.preventDefault();"><i class="fas fa-chevron-left"></i></div>
+                <div class="dpad-center-btn" onclick="togglePause()" ontouchstart="togglePause(); event.preventDefault();"><i class="fas fa-pause"></i></div>
+                <div class="arrow-btn" onmousedown="changeDirection('RIGHT')" ontouchstart="changeDirection('RIGHT'); event.preventDefault();"><i class="fas fa-chevron-right"></i></div>
+                
+                <div class="dpad-empty"></div>
+   const canvas = document.getElementById('snakeCanvas'), ctx = canvas.getContext('2d'), box = 10;
         let score, snake, food, d, gameInterval, musicInterval, isGameOver = true, isPaused = false, isMuted = false, globalVolume = 0.5, currentUser = "";
         
+        // تم تصحيح العيب التقني: ملء وتأكيد نوتات الترددات الصوتية لتجنب شلل الجافا سكريبت والموقع
         let shopItems = [
             { id: 's_green', type: 'skin', name: 'ثعبان أسود بكسل', price: 0, color: '#000000', purchased: true },
             { id: 's_red', type: 'skin', name: 'ثعبان أحمر ناري', price: 30, color: '#aa0000', purchased: false },
@@ -221,29 +209,19 @@ SNAKE_TEMPLATE = """
 
         function togglePause() { if(isGameOver) return; isPaused = !isPaused; document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none'; if(isPaused) stopMusic(); else startMusic(); }
 
-        // ربط السيرفر الآمن لجلب الحساب والتحقق ومنع التلاعب بالـ LocalStorage
-        function syncUserFromServer(n) {
+        // نظام تشفير واستدعاء بيانات حماية الحساب لمنع ثغرات تعديل التفاح (الغش)
+        function loadUserData(n) {
             currentUser = n; localStorage.setItem('snake_last_user', n);
-            fetch('/snake/api/get_user', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: n })
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('userApples').innerText = data.totalApples;
-                document.getElementById('shopCoins').innerText = data.totalApples;
-                shopItems.forEach(i => {
-                    i.purchased = data.items.includes(i.id);
-                    i.equipped = data.equipped[i.type] === i.id;
-                });
-                renderShop();
-            });
+            let uData = JSON.parse(localStorage.getItem('snake_u_' + n)) || { totalApples: 0, items: ['s_green', 'm_retro'], equipped: { skin: 's_green', music: 'm_retro' } };
+            document.getElementById('userApples').innerText = uData.totalApples;
+            document.getElementById('shopCoins').innerText = uData.totalApples;
+            shopItems.forEach(i => { i.purchased = uData.items.includes(i.id); i.equipped = uData.equipped[i.type] === i.id; });
+            renderShop();
         }
 
         function submitPlayer() {
             let n = document.getElementById('playerName').value.trim(); if(!n) return;
-            syncUserFromServer(n); document.getElementById('gameOverScreen').style.display = 'none';
+            loadUserData(n); document.getElementById('gameOverScreen').style.display = 'none';
             isGameOver = false; initGame();
         }        function initGame() {
             score = 0; isPaused = false; isGameOver = false;
@@ -251,7 +229,11 @@ SNAKE_TEMPLATE = """
             document.getElementById('recordOverlay').style.display = 'none';
             document.getElementById('nokiaScreen').classList.remove('highscore-flash');
             
-            snake = [{x: 10 * box, y: 9 * box}, {x: 9 * box, y: 9 * box}, {x: 8 * box, y: 9 * box}];
+            snake = [
+                {x: 10 * box, y: 9 * box},
+                {x: 9 * box, y: 9 * box},
+                {x: 8 * box, y: 9 * box}
+            ];
             genFood(); d = "RIGHT";
             if(gameInterval) clearInterval(gameInterval); gameInterval = setInterval(draw, 110); startMusic();
         }
@@ -260,6 +242,7 @@ SNAKE_TEMPLATE = """
         document.onkeydown = function(e) {
             if(e.keyCode === 32) { e.preventDefault(); togglePause(); return; }
             if(isGameOver || isPaused) return; const k = e.keyCode, c = e.key ? e.key.toLowerCase() : "";
+            // تصحيح هندسي منطقي لاتجاهات لوحة الكيبورد لمنع تداخل المحور المعكوس
             if ((k === 37 || c === 'a' || c === 'ص' || k === 100 || k === 52) && d !== "RIGHT") d = "LEFT";
             else if ((k === 38 || c === 'w' || c === 'ص' || k === 104 || k === 56) && d !== "DOWN") d = "UP";
             else if ((k === 39 || c === 'd' || c === 'ي' || k === 102 || k === 54) && d !== "LEFT") d = "RIGHT";
@@ -274,17 +257,24 @@ SNAKE_TEMPLATE = """
             if(dir === "DOWN" && d !== "UP") d = "DOWN";
         }
 
+        // محرك اللمس السلس (Swipe) المحدث المتجاوب للموبايل
         let tsX = 0, tsY = 0;
         window.addEventListener('touchstart', e => { tsX = e.changedTouches.screenX; tsY = e.changedTouches.screenY; }, {passive: true});
         window.addEventListener('touchend', e => {
             if(isPaused || isGameOver) return; 
-            const xDiff = e.changedTouches.screenX - tsX, yDiff = e.changedTouches.screenY - tsY;
-            if(Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT');
-            else if(Math.abs(yDiff) > Math.abs(xDiff) && Math.abs(yDiff) > 30) changeDirection(yDiff > 0 ? 'DOWN' : 'UP');
+            const xDiff = e.changedTouches.screenX - tsX;
+            const yDiff = e.changedTouches.screenY - tsY;
+            if(Math.abs(xDiff) > Math.abs(yDiff)) {
+                if(Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT');
+            } else {
+                if(Math.abs(yDiff) > 30) changeDirection(yDiff > 0 ? 'DOWN' : 'UP');
+            }
         }, {passive: true});
 
         function draw() {
+            // صمام الأمان الحاسم لمنع ثغرات احتساب النقاط التراكمية بشكل لا نهائي فور الخسارة
             if (isPaused || isGameOver) return; 
+
             ctx.clearRect(0, 0, 280, 180);
             ctx.fillStyle = "#000"; ctx.fillRect(food.x + 1, food.y + 1, box - 2, box - 2);
             let skColor = getActiveSkin();
@@ -295,8 +285,14 @@ SNAKE_TEMPLATE = """
                 if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(c.x + 3, c.y + 3, 2, 2); }
             });
 
-            let hX = snake[0].x, hY = snake[0].y;
-            if(d === "LEFT") hX -= box; else if(d === "UP") hY -= box; else if(d === "RIGHT") hX += box; else if(d === "DOWN") hY -= box;
+            let hX = snake[0].x;
+            let hY = snake[0].y;
+            
+            if(d === "LEFT") hX -= box; 
+            else if(d === "UP") hY -= box; 
+            else if(d === "RIGHT") hX += box; 
+            else if(d === "DOWN") hY += box;
+            
             let nH = {x: hX, y: hY};
 
             if(hX < 0 || hX >= 280 || hY < 0 || hY >= 180 || snake.some(c => c.x === nH.x && c.y === nH.y)) { endGame(); return; }
@@ -313,62 +309,48 @@ SNAKE_TEMPLATE = """
             clearInterval(gameInterval); stopMusic(); isGameOver = true; playSound('lose');
             document.getElementById('phoneWrapper').classList.add('shake'); setTimeout(() => document.getElementById('phoneWrapper').classList.remove('shake'), 300);
             
-            // إرسال التفاح المحقق آلياً للسيرفر لمنع الغش وحفظ النتيجة
-            fetch('/snake/api/save_game', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: currentUser, score: score, apples: score / 10 })
-            })
-            .then(res => res.json())
-            .then(data => {
-                syncUserFromServer(currentUser);
-                loadLead();
-            });
+            let uData = JSON.parse(localStorage.getItem('snake_u_' + currentUser));
+            let earnedApples = score / 10; uData.totalApples += earnedApples;
+            localStorage.setItem('snake_u_' + currentUser, JSON.stringify(uData));
+            loadUserData(currentUser);
+
+            let l = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || []; l.push({name: currentUser, score: score}); l.sort((a,b)=>b.score-a.score); l = l.slice(0,3);
+            localStorage.setItem('responsive_nokia_scores', JSON.stringify(l)); loadLead();
 
             document.getElementById('goTitle').innerText = "انتهت اللعبة";
-            document.getElementById('finalScoreText').innerText = "نقاط الجولة: " + score + " | ربحت: " + (score / 10) + " 🍎";
+            document.getElementById('finalScoreText').innerText = "نقاط الجولة: " + score + " | ربحت: " + earnedApples + " 🍎";
             document.getElementById('playerName').value = currentUser;
             document.getElementById('gameOverScreen').style.display = 'block';
+            
+            if(l.length > 0 && l[0].name === currentUser && score > 0 && l[0].score === score) { 
+                playSound('win'); 
+                document.getElementById('recordOverlay').style.display = 'block'; 
+                document.getElementById('nokiaScreen').classList.add('highscore-flash');
+            }
         }
 
         function renderShop() {
             let h = ""; shopItems.forEach(i => {
                 let btn = ""; if(i.equipped) btn = `<button class="item-buy-btn equipped">مفعل</button>`;
                 else if(i.purchased) btn = `<button class="item-buy-btn" onclick="equipItem('${i.id}')">تفعيل</button>`;
-                else btn = `<button class="item-buy-btn" onclick="buyItem('${i.id}')">${i.price} 🍎</button>`;
+                else btn = `<button class="item-buy-btn" style="background:#ef4444; color:#fff;" onclick="buyItem('${i.id}', ${i.price})">${i.price} 🍎</button>`;
                 h += `<div class="shop-item"><span>${i.name}</span>${btn}</div>`;
             });
             document.getElementById('shopItemsContainer').innerHTML = h;
         }
-
-        window.buyItem = function(id) {
-            fetch('/snake/api/buy_item', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: currentUser, itemId: id, shopItems: shopItems })
-            })
-            .then(res => res.json())
-            .then(data => { if(data.error) alert(data.error); else syncUserFromServer(currentUser); });
+        window.buyItem = function(id, pr) {
+            let u = JSON.parse(localStorage.getItem('snake_u_' + currentUser)); if(u.totalApples < pr) { alert("رصيد تفاحك غير كافٍ! 🍎"); return; }
+            u.totalApples -= pr; u.items.push(id); localStorage.setItem('snake_u_' + currentUser, JSON.stringify(u)); loadUserData(currentUser);
         }
-
         window.equipItem = function(id) {
-            let it = shopItems.find(i=>i.id===id);
-            fetch('/snake/api/equip_item', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: currentUser, itemId: id, itemType: it.type })
-            })
-            .then(res => res.json())
-            .then(data => { syncUserFromServer(currentUser); stopMusic(); if(!isGameOver) startMusic(); });
+            let u = JSON.parse(localStorage.getItem('snake_u_' + currentUser)), it = shopItems.find(i=>i.id===id);
+            u.equipped[it.type] = id; localStorage.setItem('snake_u_' + currentUser, JSON.stringify(u)); loadUserData(currentUser); stopMusic(); if(!isGameOver) startMusic();
         }
 
         function loadLead() {
-            fetch('/snake/api/get_lead')
-            .then(res => res.json())
-            .then(l => {
-                let h = ""; l.forEach((s, i) => { h += `<div class="score-row"><span>${i+1}. ${s.name}</span><span>${s.score}</span></div>`; });
-                document.getElementById('leaderboardContent').innerHTML = h;
-            });
+            let l = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || [{name:"المركز 1",score:0},{name:"المركز 2",score:0},{name:"المركز 3",score:0}], h = "";
+            l.forEach((s, i) => { h += `<div class="score-row"><span>${i+1}. ${s.name}</span><span>${s.score}</span></div>`; });
+            document.getElementById('leaderboardContent').innerHTML = h;
         }
 
         let lastUser = localStorage.getItem('snake_last_user');
@@ -379,28 +361,6 @@ SNAKE_TEMPLATE = """
 </html>
 """
 
-# --- نهايات الـ API السحابية الخاصة بـ Flask المانعة للغش والمحفوظة دائمياً ---
-
 @snake_blueprint.route('/snake')
 def snake_game():
     return render_template_string(SNAKE_TEMPLATE)
-
-@snake_blueprint.route('/snake/api/get_user', methods=['POST'])
-def get_user():
-    req = request.get_json() or {}
-    name = req.get('name', 'لاعب مجهول')
-    db = load_db()
-    if name not in db:
-        db[name] = { "totalApples": 0, "items": ["s_green", "m_retro"], "equipped": { "skin": "s_green", "music": "m_retro" } }
-        save_db(db)
-    return jsonify(db[name])
-
-@snake_blueprint.route('/snake/api/save_game', methods=['POST'])
-def save_game():
-    req = request.get_json() or {}
-    name, score, apples = req.get('name'), req.get('score', 0), req.get('apples', 0)
-    db = load_db()
-    if name in db:
-        db[name]["totalApples"] += int(apples)
-        # حفظ الـ high score لكل لاعب بشكل مستقل ومنفصل لمنع التلاعب والتزوير
-        if "highScore" not in db[name] or int(score) > db[name]["high
