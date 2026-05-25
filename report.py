@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template_string
 
+# إعادة تهيئة مسار التقرير المفرغ بالكامل لتعليق التفاعل إجبارياً
 report_blueprint = Blueprint('report', __name__)
 
 REPORT_TEMPLATE = """
@@ -74,16 +75,33 @@ REPORT_TEMPLATE = """
     </div>
 
     <div class="main-container">
-        <div class="maintenance-card">
+        <div class="maintenance-card" id="maintenanceCardBox">
             <div class="warn-icon">⚙️</div>
-            <h2 style="color:#f0f6fc; margin:0 0 10px 0;">تحت الصيانة</h2>
-            <!-- تم تدمير حقول الفورم نهائياً لمنع أي كتابة أو نقر أو تفاعل من أي هاتف -->
+            <h2 style="color:#f0f6fc; margin:0 0 10px 0;">تحت الصيانة الصارمة</h2>
             <p style="color:#f85149; font-weight:bold; font-size:16px; margin:0; line-height:1.6;">
                 تم تعليق التفاعل وإيقاف استقبال الشكاوى والبلاغات مؤقتاً.<br>
-                هذا القسم مغلق وتحت الصيانة الفنية الصارمة الآن.
+                هذا القسم مغلق تماماً بقرار من الإدارة.
             </p>
         </div>
     </div>
+
+    <script>
+        // 🎯 جدار الحماية الميكانيكي الإجباري:
+        // بمجرد فتح الصفحة، يقوم المتصفح فوراً بحذف وتدمير أي فورم أو حقول إدخال قديمة مخزنة في كاش الهاتف
+        window.addEventListener('DOMContentLoaded', () => {
+            const oldForm = document.getElementById('chatForm');
+            if(oldForm) { oldForm.remove(); }
+            
+            const inputField = document.getElementById('issueDetails');
+            if(inputField) { inputField.remove(); }
+            
+            const userField = document.getElementById('userName');
+            if(userField) { userField.remove(); }
+            
+            const container = document.getElementById('chatBoxContainer');
+            if(container) { container.remove(); }
+        });
+    </script>
 </body>
 </html>
 """
