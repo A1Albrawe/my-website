@@ -83,7 +83,7 @@ SNAKE_TEMPLATE_BODY = """
                         <button class="mute-btn" id="muteToggle" onclick="toggleMute()"><i class="fas fa-volume-up"></i></button>
                         <input type="range" id="volumeSlider" class="volume-bar" min="0" max="1" step="0.1" value="0.5" oninput="updateVolume(this.value)">
                     </div>
-                    <span>NALBRAWE</span>
+                    <span>ALBRAWE</span>
                 </div>
                 
                 <div class="canvas-container">
