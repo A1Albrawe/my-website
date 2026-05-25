@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template_string
 
-# تغيير اسم الرابط والمسار البرمجي رسمياً ليتطابق مع متطلباتك
+# تثبيت المسار والعنوان الرسمي المطلوب Albrawe - Snake
 snake_blueprint = Blueprint('Albrawe - Snake', __name__)
 
 SNAKE_TEMPLATE = """
@@ -143,6 +143,9 @@ SNAKE_TEMPLATE = """
         let score = 0, snake = [], food = {x: 0, y: 0}, d = "RIGHT", gameInterval = null, musicInterval = null;
         let isGameOver = true, isPaused = false, isMuted = false, globalVolume = 0.5, currentUser = "";
         
+        // جدار الحماية ضد ثغرة العداد اللانهائي لمنع تكرار اللمس الإطاري للتفاحة
+        let canScore = true; 
+
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const musicNotes = [659.25, 587.33, 392.00, 440.00, 523.25, 493.88, 293.66, 329.63];
 
@@ -181,7 +184,7 @@ SNAKE_TEMPLATE = """
             isGameOver = false; initGame();
         }
         function initGame() {
-            score = 0; isPaused = false; isGameOver = false;
+            score = 0; isPaused = false; isGameOver = false; canScore = true;
             document.getElementById('snakeScore').innerText = "النقاط: " + score;
             document.getElementById('recordOverlay').style.display = 'none';
             document.getElementById('nokiaScreen').classList.remove('highscore-flash');
@@ -198,6 +201,7 @@ SNAKE_TEMPLATE = """
         function genFood() { 
             food = { x: Math.floor(Math.random() * 26) * box, y: Math.floor(Math.random() * 16) * box }; 
             for(let i = 0; i < snake.length; i++) { if(snake[i].x === food.x && snake[i].y === food.y) genFood(); } 
+            canScore = true; // فتح جدار الحماية والسماح باحتساب نقاط للموقع عند توليد تفاحة جديدة
         }
 
         document.onkeydown = function(e) {
@@ -230,7 +234,6 @@ SNAKE_TEMPLATE = """
         }, {passive: true});
 
         function draw() {
-            // صمام الأمان لمنع ثغرة زيادة النقاط بعد الخسارة إلى ما لا نهاية
             if (isPaused || isGameOver) return; 
 
             ctx.clearRect(0, 0, 260, 170);
@@ -242,7 +245,7 @@ SNAKE_TEMPLATE = """
                 if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(c.x + 3, c.y + 3, 2, 2); }
             });
 
-            // 🎯 تم التصحيح الهندسي الشامل: قراءة رأس الأفعى كأول عنصر مصفوفة [0] لمنع تجميد الحركة نهائياً
+            // جلب الرأس البرمجي الصحيح من أول عنصر بالمصفوفة
             let hX = snake[0].x;
             let hY = snake[0].y;
             
@@ -255,13 +258,16 @@ SNAKE_TEMPLATE = """
 
             if(hX < 0 || hX >= 260 || hY < 0 || hY >= 170 || snake.some(c => c.x === nH.x && c.y === nH.y)) { endGame(); return; }
 
-            // زيادة محددة بمقدار 10 نقاط فقط مع أكل الطعام
+            // 🎯 تم غلق وتأمين الثغرة: لا يتم الاحتساب إلا إذا كان القفل مفتوحاً ويغلق فوراً لمنع التكرار اللانهائي
             if(hX === food.x && hY === food.y) {
-                score += 10; 
-                document.getElementById('snakeScore').innerText = "النقاط: " + score; 
-                playSound('eat');
-                document.getElementById('touchArea').classList.add('flash'); setTimeout(() => document.getElementById('touchArea').classList.remove('flash'), 60);
-                genFood();
+                if(canScore) {
+                    score += 10; 
+                    document.getElementById('snakeScore').innerText = "النقاط: " + score; 
+                    playSound('eat');
+                    document.getElementById('touchArea').classList.add('flash'); setTimeout(() => document.getElementById('touchArea').classList.remove('flash'), 60);
+                    canScore = false; // غلق القفل فوراً لحظر تكرار الإطارات
+                    genFood(); // نقل الطعام وتوليد تفاحة جديدة تفتح القفل تلقائياً
+                }
             } else { 
                 snake.pop(); 
             }
@@ -280,7 +286,7 @@ SNAKE_TEMPLATE = """
             document.getElementById('playerName').value = currentUser;
             document.getElementById('gameOverScreen').style.display = 'block';
             
-            if(l.length > 0 && l.name === currentUser && score > 0 && l.score === score) { 
+            if(l.length > 0 && l[0].name === currentUser && score > 0 && l[0].score === score) { 
                 playSound('win'); 
                 document.getElementById('recordOverlay').style.display = 'block'; 
                 document.getElementById('nokiaScreen').classList.add('highscore-flash');
