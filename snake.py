@@ -8,7 +8,7 @@ SNAKE_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة ثعبان نوكيا المحدثة - Albrawe</title>
+    <title>لعبة ثعبان نوكيا المتطورة - Albrawe</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { 
@@ -44,12 +44,8 @@ SNAKE_TEMPLATE = """
         .shake { animation: shakeAnim 0.3s linear infinite; }
         @keyframes shakeAnim {
             0% { transform: translate(2px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
             20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(0px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
             50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
 
@@ -88,13 +84,25 @@ SNAKE_TEMPLATE = """
             margin-bottom: 8px;
         }
 
+        /* حاوية التحكم بالصوت داخل الشاشة الخضراء */
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
         .mute-btn {
             background: none;
             border: none;
             font-size: 16px;
             cursor: pointer;
             color: #000;
-            padding: 0 5px;
+            padding: 0;
+        }
+        .volume-bar {
+            width: 60px;
+            accent-color: #000;
+            cursor: pointer;
+            height: 4px;
         }
 
         .canvas-container {
@@ -111,35 +119,43 @@ SNAKE_TEMPLATE = """
             height: auto;
         }
 
-        .nokia-keypad {
-            margin-top: 15px;
+        /* لوحة الأسهم الدائرية الكبيرة (D-Pad) البديلة للأرقام القديمة */
+        .nokia-dpad {
+            margin-top: 20px;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            padding: 0 10px;
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            width: 180px;
+            height: 180px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        .key-btn {
+        .arrow-btn {
             background: #cbd3d8;
             border: 2px solid #a1aab0;
-            border-radius: 15px;
-            height: 50px;
+            border-radius: 12px;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-weight: bold;
+            font-size: 22px;
+            color: #222;
             cursor: pointer;
-            box-shadow: 0 3px #78838a, inset 0 1px rgba(255,255,255,0.5);
-            color: #333;
-            font-size: 16px;
+            box-shadow: 0 4px #78838a, inset 0 1px rgba(255,255,255,0.5);
             user-select: none;
             -webkit-user-select: none;
         }
-        .key-btn:active {
+        .arrow-btn:active {
             box-shadow: 0 1px #78838a;
-            transform: translateY(2px);
+            transform: translateY(3px);
         }
-        .key-btn span { font-size: 9px; color: #666; font-family: sans-serif; }
+        .dpad-empty { pointer-events: none; visibility: hidden; }
+        .dpad-center {
+            background: #a1aab0;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: none;
+        }
 
         .leaderboard {
             margin-top: 12px;
@@ -169,19 +185,18 @@ SNAKE_TEMPLATE = """
         .input-name {
             padding: 6px; font-size: 14px; border: 2px solid #000; background: #8c9f21;
             margin-bottom: 8px; text-align: center; width: 80%; font-family: inherit; font-weight: bold;
-            box-sizing: border-box;
         }
         .restart-btn {
             background: #000; color: #8c9f21; border: none; padding: 8px 20px;
             font-size: 14px; font-weight: bold; cursor: pointer; font-family: inherit;
-            border-radius: 3px;
         }
 
         @media (max-width: 480px) {
             body { padding: 5px; }
             .nokia-phone { background: transparent; border: none; box-shadow: none; padding: 5px; }
             .nokia-screen { border-width: 6px; padding: 8px; }
-            .key-btn { height: 55px; background: #e0e5e8; }
+            .nokia-dpad { width: 210px; height: 210px; } /* تكبير لوحة الأسهم على الجوال للمس أدق */
+            .arrow-btn { font-size: 26px; }
         }
     </style>
 </head>
@@ -193,7 +208,13 @@ SNAKE_TEMPLATE = """
         <div class="nokia-screen" id="touchArea">
             <div class="score-container">
                 <span id="snakeScore">النقاط: 0</span>
-                <button class="mute-btn" id="muteToggle" onclick="toggleMute()"><i class="fas fa-volume-up"></i></button>
+                
+                <!-- بار التحكم المطور في مستويات الصوت والـ Mute -->
+                <div class="audio-controls">
+                    <button class="mute-btn" id="muteToggle" onclick="toggleMute()"><i class="fas fa-volume-up"></i></button>
+                    <input type="range" id="volumeSlider" class="volume-bar" min="0" max="1" step="0.1" value="0.5" oninput="updateVolume(this.value)">
+                </div>
+                
                 <span>NOKIA</span>
             </div>
             
@@ -214,16 +235,19 @@ SNAKE_TEMPLATE = """
             </div>
         </div>
 
-        <div class="nokia-keypad">
-            <div class="key-btn">1 <span>.,-</span></div>
-            <div class="key-btn" onmousedown="changeDirection('UP')" ontouchstart="changeDirection('UP'); event.preventDefault();">2 <span>▲ فوق</span></div>
-            <div class="key-btn">3 <span>def</span></div>
-            <div class="key-btn" onmousedown="changeDirection('LEFT')" ontouchstart="changeDirection('LEFT'); event.preventDefault();">4 <span>◀ يسار</span></div>
-            <div class="key-btn">5 <span>jkl</span></div>
-            <div class="key-btn" onmousedown="changeDirection('RIGHT')" ontouchstart="changeDirection('RIGHT'); event.preventDefault();">6 <span>يمين ▶</span></div>
-            <div class="key-btn">7 <span>pqrs</span></div>
-            <div class="key-btn" onmousedown="changeDirection('DOWN')" ontouchstart="changeDirection('DOWN'); event.preventDefault();">8 <span>▼ تحت</span></div>
-            <div class="key-btn">9 <span>wxyz</span></div>
+        <!-- لوحة الأسهم التوجيهية الحصرية والجديدة كلياً في هيكل الجوال -->
+        <div class="nokia-dpad">
+            <div class="dpad-empty"></div>
+            <div class="arrow-btn" onmousedown="changeDirection('UP')" ontouchstart="changeDirection('UP'); event.preventDefault();"><i class="fas fa-chevron-up"></i></div>
+            <div class="dpad-empty"></div>
+            
+            <div class="arrow-btn" onmousedown="changeDirection('LEFT')" ontouchstart="changeDirection('LEFT'); event.preventDefault();"><i class="fas fa-chevron-left"></i></div>
+            <div class="dpad-center"></div>
+            <div class="arrow-btn" onmousedown="changeDirection('RIGHT')" ontouchstart="changeDirection('RIGHT'); event.preventDefault();"><i class="fas fa-chevron-right"></i></div>
+            
+            <div class="dpad-empty"></div>
+            <div class="arrow-btn" onmousedown="changeDirection('DOWN')" ontouchstart="changeDirection('DOWN'); event.preventDefault();"><i class="fas fa-chevron-down"></i></div>
+            <div class="dpad-empty"></div>
         </div>
     </div>
     <script>
@@ -234,21 +258,45 @@ SNAKE_TEMPLATE = """
         let score, snake, food, d, gameInterval;
         let isGameOver = false;
         let isMuted = false;
+        let globalVolume = 0.5; // القيمة الافتراضية لشريط الصوت
 
-        // ================= تفعيل النغمة الجديدة ونظام الكتم الكامل =================
+        // ================= تفعيل النغمة التناظرية والتحكم في الـ Volume البار السحابي =================
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let musicInterval;
+
+        function updateVolume(val) {
+            globalVolume = parseFloat(val);
+            if (globalVolume === 0) {
+                isMuted = true;
+                document.getElementById('muteToggle').innerHTML = '<i class="fas fa-volume-mute"></i>';
+                stopMusicLoop();
+            } else {
+                isMuted = false;
+                document.getElementById('muteToggle').innerHTML = '<i class="fas fa-volume-up"></i>';
+                if (!gameInterval || isGameOver) return;
+                startMusicLoop();
+            }
+        }
 
         function toggleMute() {
             isMuted = !isMuted;
             const btn = document.getElementById('muteToggle');
-            btn.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-            if (isMuted) stopMusicLoop();
-            else if (!isGameOver) startMusicLoop();
+            const slider = document.getElementById('volumeSlider');
+            
+            if (isMuted) {
+                btn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                slider.value = 0;
+                stopMusicLoop();
+            } else {
+                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                globalVolume = 0.5;
+                slider.value = 0.5;
+                if (!isGameOver) startMusicLoop();
+            }
         }
 
         function playSound(type) {
-            if (!audioCtx || isMuted) return;
+            if (!audioCtx || isMuted || globalVolume === 0) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             const osc = audioCtx.createOscillator();
@@ -260,13 +308,13 @@ SNAKE_TEMPLATE = """
             if (type === 'eat') {
                 osc.frequency.setValueAtTime(600, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.06);
-                gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1 * globalVolume, audioCtx.currentTime);
                 gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.06);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.06);
             } else if (type === 'lose') {
                 osc.frequency.setValueAtTime(220, audioCtx.currentTime);
                 osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.5);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.3 * globalVolume, audioCtx.currentTime);
                 gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.5);
             } else if (type === 'win') {
@@ -274,14 +322,14 @@ SNAKE_TEMPLATE = """
                 osc.frequency.setValueAtTime(587.33, now);
                 osc.frequency.setValueAtTime(698.46, now + 0.1);
                 osc.frequency.setValueAtTime(880.00, now + 0.2);
-                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.setValueAtTime(0.2 * globalVolume, now);
                 gain.gain.linearRampToValueAtTime(0, now + 0.35);
                 osc.start(); osc.stop(now + 0.35);
             }
         }
 
         function playBackgroundMusic() {
-            if (!audioCtx || isGameOver || isMuted) return;
+            if (!audioCtx || isGameOver || isMuted || globalVolume === 0) return;
             const notes = [
                 { f: 440, d: 0.2 }, { f: 494, d: 0.2 }, { f: 523, d: 0.2 }, { f: 587, d: 0.2 },
                 { f: 659, d: 0.2 }, { f: 587, d: 0.2 }, { f: 523, d: 0.2 }, { f: 494, d: 0.2 }
@@ -292,7 +340,7 @@ SNAKE_TEMPLATE = """
                 const gain = audioCtx.createGain();
                 osc.type = 'triangle'; 
                 osc.frequency.setValueAtTime(note.f, timePointer);
-                gain.gain.setValueAtTime(0.02, timePointer); 
+                gain.gain.setValueAtTime(0.03 * globalVolume, timePointer); 
                 gain.gain.linearRampToValueAtTime(0, timePointer + note.d - 0.02);
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.start(timePointer); osc.stop(timePointer + note.d);
@@ -302,7 +350,7 @@ SNAKE_TEMPLATE = """
 
         function startMusicLoop() {
             stopMusicLoop();
-            if (isMuted) return;
+            if (isMuted || globalVolume === 0) return;
             playBackgroundMusic();
             musicInterval = setInterval(playBackgroundMusic, 1600);
         }
@@ -328,11 +376,11 @@ SNAKE_TEMPLATE = """
             gameInterval = setInterval(draw, 110);
             startMusicLoop();
         }
-
         function generateFood() {
             food = { x: Math.floor(Math.random() * 30) * box, y: Math.floor(Math.random() * 20) * box };
             for(let cell of snake) { if(cell.x === food.x && cell.y === food.y) generateFood(); }
         }
+
         document.onkeydown = function(e) {
             if(isGameOver) return;
             const key = e.keyCode || e.which;
@@ -375,7 +423,7 @@ SNAKE_TEMPLATE = """
                 if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(snake[i].x + 3, snake[i].y + 3, 2, 2); }
             }
 
-            // تم تصحيح مصفوفة رأس الأفعى المتغير لضمان عدم حدوث الاختفاء مجدداً
+            // الاستبقاء الآمن السليم على إحداثيات الرأس لمنع الاختفاء الفجائي الكود الرياضي
             let snakeX = snake[0].x;
             let snakeY = snake[0].y;
             
