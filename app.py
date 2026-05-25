@@ -6,10 +6,10 @@ from report import report_blueprint
 
 app = Flask(__name__)
 
-# مفتاح التشفير السري لتأمين جلسات الباسورد ومنع الاختراق
+# مفتاح التشفير السري لتأمين جلسات الباسورد ومنع تزوير الاختراق
 app.secret_key = "ALBRAWE_CYBER_KEY_SECURITY_2026"
 
-# تسجيل المسارات والألعاب الأساسية
+# تسجيل المسارات والألعاب الأساسية للموقع
 app.register_blueprint(home_blueprint)
 app.register_blueprint(snake_blueprint)
 app.register_blueprint(tetris_blueprint)
@@ -101,9 +101,9 @@ ADMIN_HTML = """
                     let complHtml = '<span style="color:#8b949e;">لا يوجد</span>';
                     if(userComplaints.length > 0) {
                         complHtml = "";
-                        userComplaints.forEach(c => { complHtml += `<div class="report-txt">⚠️ [${c.date}]: ${c.details}</div>`; });
+                        userComplaints.forEach(c => { complHtml += `<div class="report-txt">⚠️ [\${c.date}]: \${c.details}</div>`; });
                     }
-                    html += `<tr><td>\${user.username}</td><td>\${deviceBadge}</td><td>\${user.loginTime}</td><td>\${user.duration || 0} ثانية</td><td>🐍 \${user.snakeTime || 0}ث | 🧱 \${user.tetrisTime || 0}ث</td><td>\${complHtml}</td></tr>`;
+                    html += `<tr><td style="font-weight:bold; color:#fff;">\${user.username}</td><td>\${deviceBadge}</td><td>\${user.loginTime}</td><td style="color:#58a6ff; font-weight:bold;">\${user.duration || 0} ثانية</td><td>🐍 \${user.snakeTime || 0}ث | 🧱 \${user.tetrisTime || 0}ث</td><td>\${complHtml}</td></tr>`;
                 });
             }
             document.getElementById('logsTableBody').innerHTML = html;
@@ -150,7 +150,7 @@ LOGIN_HTML = """
 </html>
 """
 
-# 🎯 تفعيل امتداد الرابط المباشر /PASS داخل نواة السيرفر الرئيسية
+# تفعيل الامتداد المباشر البرمجي /PASS داخل السيرفر السحابي
 @app.route('/PASS', methods=['GET', 'POST'])
 def admin_page():
     if request.method == 'POST':
