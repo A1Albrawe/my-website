@@ -9,7 +9,7 @@
   ],
   "routes": [
     {
-      "src": "/report",
+      "src": "/maintenance",
       "dest": "report.py"
     },
     {
