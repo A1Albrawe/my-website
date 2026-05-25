@@ -2,8 +2,7 @@ from flask import Blueprint, render_template_string
 
 admin_blueprint = Blueprint('admin', __name__)
 
-# ⚠️ تم تشفير المسار البرمجي ليكون معقداً وسرياً تماماً ولا يستطيع أحد تخمينه سواك
-# يمكنك كتابة الرابط في متصفحك هكذا بعد اسم موقعك: /albrawe-secure-panel-2026
+# قالب واجهة لوحة التحكم السرية للمطور والمبنية بالتصميم السيبراني الداكن المتناسق
 ADMIN_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -66,7 +65,7 @@ ADMIN_TEMPLATE = """
 </html>
 """
 
-# تفعيل المسار السري الحصري لك بداخل السيرفر لضمان العزل الكامل عن بقية القوائم والزوار
-@admin_blueprint.route('/albrawe-secure-panel-2026')
+# 🎯 تفعيل المسار الحصري والسري المباشر الجديد الخاص بك لحماية وتأمين الشكاوى
+@admin_blueprint.route('/PASS')
 def admin_page():
     return render_template_string(ADMIN_TEMPLATE)
