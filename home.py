@@ -148,19 +148,17 @@ HOME_TEMPLATE = """
         .dot-y { background: #d29922; }
         .dot-g { background: #3fb950; }
 
-        .dev-avatar {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: #21262d;
+        /* تضمين وتنسيق صورتك الشخصية الاحترافية المرفقة داخل الواجهة السحابية */
+        .dev-avatar-img {
+            width: 110px;
+            height: 110px;
+            border-radius: 16px;
+            object-fit: cover;
             border: 2px solid #58a6ff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            color: #58a6ff;
+            display: block;
             margin: 0 auto 20px auto;
-            box-shadow: 0 0 15px rgba(88, 166, 255, 0.2);
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.3);
+            background: #0d1117;
         }
 
         .dev-name { margin: 0; font-size: 24px; color: #f0f6fc; text-align: center; font-weight: bold; }
@@ -192,6 +190,13 @@ HOME_TEMPLATE = """
             font-weight: bold;
         }
 
+        .action-buttons-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
         .quick-btn {
             background: #238636;
             color: #ffffff;
@@ -205,14 +210,23 @@ HOME_TEMPLATE = """
             align-items: center;
             gap: 8px;
             text-decoration: none;
-            transition: 0.2s;
-            width: 100%;
             justify-content: center;
             box-sizing: border-box;
+            transition: 0.2s;
         }
         .quick-btn:hover {
             background: #2ea44f;
             box-shadow: 0 0 10px rgba(46, 164, 79, 0.4);
+        }
+
+        /* زر التليجرام الرسمي الحصري المتناسق مع الهوية البرمجية للموقع */
+        .telegram-btn {
+            background: #1f6feb;
+            border: 1px solid #388bfd;
+        }
+        .telegram-btn:hover {
+            background: #388bfd;
+            box-shadow: 0 0 10px rgba(56, 139, 253, 0.4);
         }
     </style>
 </head>
@@ -223,7 +237,7 @@ HOME_TEMPLATE = """
         <span style="font-weight: bold; font-size: 16px; color: #f0f6fc; font-family: monospace;">console.log("Albrawe");</span>
     </div>
 
-    <!-- ستارة القائمة الجانبية المطورة بالأسلوب البرمجي الشامل -->
+    <!-- ستارة القائمة الجانبية السيبرانية المحدثة -->
     <div class="sidebar-curtain" id="sidebarCurtain">
         <button class="close-btn" onclick="toggleSidebarCurtain(false)"><i class="fas fa-terminal"></i> exit_menu</button>
         
@@ -232,11 +246,11 @@ HOME_TEMPLATE = """
             <a href="/snake" class="menu-item" style="color: #3fb950;"><i class="fas fa-gamepad"></i> nokia_snake.py 🐍</a>
             <a href="/tetris" class="menu-item" style="color: #d29922;"><i class="fas fa-cubes"></i> retro_tetris.js 🧱</a>
             <a href="/report" class="menu-item" style="color: #f85149;"><i class="fas fa-bug"></i> report_bug.log 🛠️</a>
+            <a href="https://t.me/I_Albrawe" target="_blank" class="menu-item" style="color: #58a6ff;"><i class="fab fa-telegram-plane"></i> telegram_contact 🌐</a>
         </div>
     </div>
 
     <div class="main-container">
-        <!-- لوحة التفاصيل الشخصية المحترفة في المنتصف -->
         <div class="dev-portfolio-card">
             <div class="terminal-header">
                 <div class="dot dot-r"></div>
@@ -244,7 +258,9 @@ HOME_TEMPLATE = """
                 <div class="dot dot-g"></div>
             </div>
             
-            <div class="dev-avatar"><i class="fas fa-user-code"></i></div>
+            <!-- تم استدعاء وتثبيت الصورة المرفقة كعنصر أساسي في واجهة المستخدم -->
+            <img src="https://telegra.ph" alt="Albrawe" class="dev-avatar-img" onerror="this.src='https://cloudflare.com'">
+            
             <h2 class="dev-name">المطور البراوي | Albrawe</h2>
             <div class="dev-title">Full-Stack Developer & Game Architecture Engineer</div>
             
@@ -261,7 +277,11 @@ HOME_TEMPLATE = """
                 </div>
             </div>
             
-            <button class="quick-btn" onclick="toggleSidebarCurtain(true)"><i class="fas fa-arrow-left"></i> تصفح واختبر مشاريعي البرمجية</button>
+            <div class="action-buttons-group">
+                <button class="quick-btn" onclick="toggleSidebarCurtain(true)"><i class="fas fa-arrow-left"></i> تصفح واختبر مشاريعي البرمجية</button>
+                <!-- ربط حساب التليجرام الرسمي المباشر الخاص بك في منتصف الشاشة -->
+                <a href="https://t.me/I_Albrawe" target="_blank" class="quick-btn telegram-btn"><i class="fab fa-telegram-plane"></i> تواصل معي عبر تليجرام الرسمي</a>
+            </div>
         </div>
     </div>
     <script>
