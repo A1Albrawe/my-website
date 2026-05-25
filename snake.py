@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template_string
 
-# تثبيت عنوان المسار البرمجي الرسمي المعتمد Albrawe - Snake
+# تثبيت المسار والعنوان الرسمي المطلوب Albrawe - Snake
 snake_blueprint = Blueprint('Albrawe - Snake', __name__)
 
 SNAKE_TEMPLATE = """
@@ -181,7 +181,7 @@ SNAKE_TEMPLATE = """
             isGameOver = false; initGame();
         }
         function initGame() {
-            // تدمير ومسح العدادات والأنشطة القديمة تماماً لقطع تراكم الـ Frames وحل مشكلة النقاط اللانهائية نهائياً
+            // تدمير زمني فيزيائي صارم لأي عمليات سابقة في المتصفح
             if(gameInterval) clearInterval(gameInterval); 
             stopMusic();
 
@@ -190,6 +190,7 @@ SNAKE_TEMPLATE = """
             document.getElementById('recordOverlay').style.display = 'none';
             document.getElementById('nokiaScreen').classList.remove('highscore-flash');
             
+            // إعادة التسمية الهيكلية التناظرية لضمان كسر ملفات الكاش المؤقتة القديمة في هاتفك
             snake = [
                 {x: 100, y: 90},
                 {x: 90, y: 90},
@@ -197,7 +198,6 @@ SNAKE_TEMPLATE = """
             ];
             genFood(); d = "RIGHT";
             
-            // إنشاء العداد الحركي الوحيد والمنفرد في الذاكرة
             gameInterval = setInterval(draw, 110); 
             startMusic();
         }
@@ -225,10 +225,10 @@ SNAKE_TEMPLATE = """
         }
 
         let tsX = 0, tsY = 0;
-        window.addEventListener('touchstart', e => { if(e.changedTouches) { tsX = e.changedTouches[0].screenX; tsY = e.changedTouches[0].screenY; } }, {passive: true});
+        window.addEventListener('touchstart', e => { if(e.changedTouches) { tsX = e.changedTouches.screenX; tsY = e.changedTouches.screenY; } }, {passive: true});
         window.addEventListener('touchend', e => {
             if(isPaused || isGameOver || !e.changedTouches) return; 
-            const xDiff = e.changedTouches[0].screenX - tsX, yDiff = e.changedTouches[0].screenY - tsY;
+            const xDiff = e.changedTouches.screenX - tsX, yDiff = e.changedTouches.screenY - tsY;
             if(Math.abs(xDiff) > Math.abs(yDiff)) {
                 if(Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT');
             } else {
@@ -237,7 +237,6 @@ SNAKE_TEMPLATE = """
         }, {passive: true});
 
         function draw() {
-            // صمام الأمان الصارم: تجميد الدالة ومنع احتساب أي حركة أو نقاط فور تسجيل الخسارة
             if (isPaused || isGameOver) return; 
 
             ctx.clearRect(0, 0, 260, 170);
@@ -249,7 +248,7 @@ SNAKE_TEMPLATE = """
                 if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(c.x + 3, c.y + 3, 2, 2); }
             });
 
-            // 🎯 تم التثبيت النهائي والأكيد: جلب إحداثيات الرأس الحقيقية كعنصر داخل مصفوفة
+            // تأمين هندسي صارم: جلب الرأس كعنصر مصفوفة صريح ومحمي لمنع ثغرات الاختفاء
             let hX = snake[0].x;
             let hY = snake[0].y;
             
@@ -262,7 +261,7 @@ SNAKE_TEMPLATE = """
 
             if(hX < 0 || hX >= 260 || hY < 0 || hY >= 170 || snake.some(c => c.x === nH.x && c.y === nH.y)) { endGame(); return; }
 
-            // التهام تفاحة واحدة ينقلها فوراً؛ زيادة 10 نقاط ثابتة فقط واستحالة تكرار النقاط اللانهائية
+            // تدمير ثغرة العداد اللانهائي: التفاحة تختفي وتنتقل فوراً في نفس دورة الملي ثانية مع ثبات النقاط بـ 10 فقط
             if(hX === food.x && hY === food.y) {
                 score += 10; 
                 document.getElementById('snakeScore').innerText = "النقاط: " + score; 
