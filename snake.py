@@ -8,7 +8,7 @@ SNAKE_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة ثعبان نوكيا الشاملة - Albrawe</title>
+    <title>لعبة ثعبان نوكيا المحدثة - Albrawe</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { 
@@ -41,9 +41,7 @@ SNAKE_TEMPLATE = """
             font-size: 14px;
         }
         
-        .shake {
-            animation: shakeAnim 0.3s linear infinite;
-        }
+        .shake { animation: shakeAnim 0.3s linear infinite; }
         @keyframes shakeAnim {
             0% { transform: translate(2px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-1deg); }
@@ -52,9 +50,6 @@ SNAKE_TEMPLATE = """
             40% { transform: translate(1px, -1px) rotate(1deg); }
             50% { transform: translate(-1px, 2px) rotate(-1deg); }
             60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(2px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(2px, 2px) rotate(0deg); }
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
 
@@ -67,7 +62,6 @@ SNAKE_TEMPLATE = """
             padding: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             box-sizing: border-box;
-            transition: all 0.3s ease;
         }
 
         .nokia-screen {
@@ -79,21 +73,28 @@ SNAKE_TEMPLATE = """
             position: relative;
             box-sizing: border-box;
             touch-action: none;
-            transition: background-color 0.1s ease;
         }
 
-        .flash {
-            background-color: #a4b930 !important;
-        }
+        .flash { background-color: #a4b930 !important; }
 
         .score-container {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-weight: bold;
             font-size: 15px;
             border-bottom: 2px solid #000;
             padding-bottom: 5px;
             margin-bottom: 8px;
+        }
+
+        .mute-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #000;
+            padding: 0 5px;
         }
 
         .canvas-container {
@@ -192,6 +193,7 @@ SNAKE_TEMPLATE = """
         <div class="nokia-screen" id="touchArea">
             <div class="score-container">
                 <span id="snakeScore">النقاط: 0</span>
+                <button class="mute-btn" id="muteToggle" onclick="toggleMute()"><i class="fas fa-volume-up"></i></button>
                 <span>NOKIA</span>
             </div>
             
@@ -214,13 +216,13 @@ SNAKE_TEMPLATE = """
 
         <div class="nokia-keypad">
             <div class="key-btn">1 <span>.,-</span></div>
-            <div class="key-btn" onclick="changeDirection('UP')" ontouchstart="changeDirection('UP'); event.preventDefault();">2 <span>▲ فوق</span></div>
+            <div class="key-btn" onmousedown="changeDirection('UP')" ontouchstart="changeDirection('UP'); event.preventDefault();">2 <span>▲ فوق</span></div>
             <div class="key-btn">3 <span>def</span></div>
-            <div class="key-btn" onclick="changeDirection('LEFT')" ontouchstart="changeDirection('LEFT'); event.preventDefault();">4 <span>◀ يسار</span></div>
+            <div class="key-btn" onmousedown="changeDirection('LEFT')" ontouchstart="changeDirection('LEFT'); event.preventDefault();">4 <span>◀ يسار</span></div>
             <div class="key-btn">5 <span>jkl</span></div>
-            <div class="key-btn" onclick="changeDirection('RIGHT')" ontouchstart="changeDirection('RIGHT'); event.preventDefault();">6 <span>يمين ▶</span></div>
+            <div class="key-btn" onmousedown="changeDirection('RIGHT')" ontouchstart="changeDirection('RIGHT'); event.preventDefault();">6 <span>يمين ▶</span></div>
             <div class="key-btn">7 <span>pqrs</span></div>
-            <div class="key-btn" onclick="changeDirection('DOWN')" ontouchstart="changeDirection('DOWN'); event.preventDefault();">8 <span>▼ تحت</span></div>
+            <div class="key-btn" onmousedown="changeDirection('DOWN')" ontouchstart="changeDirection('DOWN'); event.preventDefault();">8 <span>▼ تحت</span></div>
             <div class="key-btn">9 <span>wxyz</span></div>
         </div>
     </div>
@@ -231,13 +233,22 @@ SNAKE_TEMPLATE = """
         
         let score, snake, food, d, gameInterval;
         let isGameOver = false;
+        let isMuted = false;
 
-        // ================= نظام الصوت المتقدم من نوكيا والموسيقى الخلفية =================
+        // ================= تفعيل النغمة الجديدة ونظام الكتم الكامل =================
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let musicInterval;
 
+        function toggleMute() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('muteToggle');
+            btn.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+            if (isMuted) stopMusicLoop();
+            else if (!isGameOver) startMusicLoop();
+        }
+
         function playSound(type) {
-            if (!audioCtx) return;
+            if (!audioCtx || isMuted) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             const osc = audioCtx.createOscillator();
@@ -247,40 +258,39 @@ SNAKE_TEMPLATE = """
             osc.type = 'square'; 
 
             if (type === 'eat') {
-                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.08);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.06);
+                gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.06);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.06);
             } else if (type === 'lose') {
-                osc.frequency.setValueAtTime(261.63, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(65.41, audioCtx.currentTime + 0.4);
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.5);
                 gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
             } else if (type === 'win') {
                 const now = audioCtx.currentTime;
-                osc.frequency.setValueAtTime(523.25, now);
-                osc.frequency.setValueAtTime(659.25, now + 0.1);
-                osc.frequency.setValueAtTime(783.99, now + 0.2);
-                gain.gain.setValueAtTime(0.12, now);
+                osc.frequency.setValueAtTime(587.33, now);
+                osc.frequency.setValueAtTime(698.46, now + 0.1);
+                osc.frequency.setValueAtTime(880.00, now + 0.2);
+                gain.gain.setValueAtTime(0.1, now);
                 gain.gain.linearRampToValueAtTime(0, now + 0.35);
                 osc.start(); osc.stop(now + 0.35);
             }
         }
 
         function playBackgroundMusic() {
-            if (!audioCtx || isGameOver) return;
+            if (!audioCtx || isGameOver || isMuted) return;
             const notes = [
-                { f: 659.25, d: 0.15 }, { f: 587.33, d: 0.15 }, { f: 392.00, d: 0.3 },
-                { f: 440.00, d: 0.3 },  { f: 523.25, d: 0.15 }, { f: 493.88, d: 0.15 },
-                { f: 293.66, d: 0.3 },  { f: 329.63, d: 0.3 }
+                { f: 440, d: 0.2 }, { f: 494, d: 0.2 }, { f: 523, d: 0.2 }, { f: 587, d: 0.2 },
+                { f: 659, d: 0.2 }, { f: 587, d: 0.2 }, { f: 523, d: 0.2 }, { f: 494, d: 0.2 }
             ];
             let timePointer = audioCtx.currentTime;
             notes.forEach(note => {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.type = 'square';
+                osc.type = 'triangle'; 
                 osc.frequency.setValueAtTime(note.f, timePointer);
                 gain.gain.setValueAtTime(0.02, timePointer); 
                 gain.gain.linearRampToValueAtTime(0, timePointer + note.d - 0.02);
@@ -292,8 +302,9 @@ SNAKE_TEMPLATE = """
 
         function startMusicLoop() {
             stopMusicLoop();
+            if (isMuted) return;
             playBackgroundMusic();
-            musicInterval = setInterval(playBackgroundMusic, 1900);
+            musicInterval = setInterval(playBackgroundMusic, 1600);
         }
 
         function stopMusicLoop() { if (musicInterval) clearInterval(musicInterval); }
@@ -304,6 +315,7 @@ SNAKE_TEMPLATE = """
             isGameOver = false;
             document.getElementById('snakeScore').innerText = "النقاط: " + score;
             document.getElementById('gameOverScreen').style.display = 'none';
+            
             snake = [
                 {x: 10 * box, y: 10 * box},
                 {x: 9 * box, y: 10 * box},
@@ -311,6 +323,7 @@ SNAKE_TEMPLATE = """
             ];
             generateFood();
             d = "RIGHT";
+            
             if(gameInterval) clearInterval(gameInterval);
             gameInterval = setInterval(draw, 110);
             startMusicLoop();
@@ -362,8 +375,14 @@ SNAKE_TEMPLATE = """
                 if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(snake[i].x + 3, snake[i].y + 3, 2, 2); }
             }
 
-            let snakeX = snake.x, snakeY = snake.y;
-            if(d === "LEFT") snakeX -= box; if(d === "UP") snakeY -= box; if(d === "RIGHT") snakeX += box; if(d === "DOWN") snakeY += box;
+            // تم تصحيح مصفوفة رأس الأفعى المتغير لضمان عدم حدوث الاختفاء مجدداً
+            let snakeX = snake[0].x;
+            let snakeY = snake[0].y;
+            
+            if(d === "LEFT") snakeX -= box;
+            if(d === "UP") snakeY -= box;
+            if(d === "RIGHT") snakeX += box;
+            if(d === "DOWN") snakeY += box;
 
             let newHead = {x: snakeX, y: snakeY};
             if(snakeX < 0 || snakeX >= 300 || snakeY < 0 || snakeY >= 200 || collision(newHead, snake)) { endGame(); return; }
