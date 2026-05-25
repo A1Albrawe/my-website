@@ -127,6 +127,10 @@ ADMIN_HTML = """
 
         fetchAndRenderAnalytics();
     </script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
 """
@@ -162,6 +166,10 @@ LOGIN_HTML = """
             <button type="submit" class="btn">تأكيد الهوية البيومترية 🛡️</button>
         </form>
     </div>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
 """
