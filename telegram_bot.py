@@ -1,19 +1,32 @@
-import requests
+import json
+import urllib.request
 from flask import Blueprint, request, jsonify
 
-# إنشاء Blueprint رسمي ومستقل لنظام التليجرام متوافق مع سيرفرات Vercel
+# إنشاء Blueprint رسمي ومستقل لنظام التليجرام متوافق كلياً مع معايير Vercel
 tg_bot_blueprint = Blueprint('tg_bot', __name__)
 
 # تثبيت بيانات حسابك السري والتوكين الفعلي الخاص بك
 ADMIN_CHAT_ID = "1178062571"
 BOT_TOKEN = "1892403076:AAHOyUXyGNkNlYvDfJKuWrHZ4hUg3m22GYs"
 
-# دالة مساعدة معزولة لإرسال الرسائل والمحادثات الحية إلى حسابك في تليجرام بأمان
+# دالة مساعدة معزولة ومبنية على urllib الأساسية لضمان عدم انهيار السيرفر نهائياً
 def send_to_telegram(text):
     url = f"https://telegram.org{BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": ADMIN_CHAT_ID, "text": text, "parse_mode": "Markdown"}
+    payload = {
+        "chat_id": ADMIN_CHAT_ID,
+        "text": text,
+        "parse_mode": "Markdown"
+    }
     try:
-        requests.post(url, json=payload, timeout=5)
+        data = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(
+            url, 
+            data=data, 
+            headers={'Content-Type': 'application/json'},
+            method='POST'
+        )
+        with urllib.request.urlopen(req, timeout=5) as response:
+            pass
     except Exception:
         pass
 # مسار استقبال الشكاوى والمحادثات الحية من واجهة الموقع وتمريرها إليك فوراً
@@ -33,12 +46,12 @@ def send_msg_from_site():
         f"👤 *الاسم:* {user}\n"
         f"🏷️ *النوع:* {msg_type}\n"
         f"💬 *الرسالة:* {details}\n\n"
-        f"📌 يمكنك فتح حساب المستخدم أو التواصل معه عبر التليجرام إذا كان اسمه مسجلاً."
+        f"📌 يمكنك التواصل مع المستخدم عبر التليجرام إذا كان اسمه مسجلاً."
     )
     
     send_to_telegram(tg_text)
     return jsonify({"status": "success", "message": "تم الإرسال بنجاح"})
-# مسارات الأمان المعزولة المفرغة لضمان استقرار السيرفر وعدم قراءة أي ردود وهمية تتسبب في تحطيم الموقع
+# مسارات معزولة مفرغة لضمان التوافق التام مع البنية التحتية السحابية لـ Vercel
 @tg_bot_blueprint.route('/api/telegram_webhook', methods=['POST'])
 def telegram_webhook():
     return "OK", 200
