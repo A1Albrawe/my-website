@@ -210,11 +210,11 @@ HOME_TEMPLATE = """
         }
 
         .quick-btn {
-            background: #238636;
+            background: #1f6feb;
             color: #ffffff;
-            border: 1px solid #2ea44f;
-            padding: 12px 24px;
-            font-size: 14px;
+            border: 1px solid #388bfd;
+            padding: 14px 24px;
+            font-size: 15px;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
@@ -225,19 +225,11 @@ HOME_TEMPLATE = """
             justify-content: center;
             box-sizing: border-box;
             transition: 0.2s;
+            width: 100%;
         }
         .quick-btn:hover {
-            background: #2ea44f;
-            box-shadow: 0 0 10px rgba(46, 164, 79, 0.4);
-        }
-
-        .telegram-btn {
-            background: #1f6feb;
-            border: 1px solid #388bfd;
-        }
-        .telegram-btn:hover {
             background: #388bfd;
-            box-shadow: 0 0 10px rgba(56, 139, 253, 0.4);
+            box-shadow: 0 0 12px rgba(56, 139, 253, 0.4);
         }
     </style>
 </head>
@@ -248,15 +240,15 @@ HOME_TEMPLATE = """
         <span class="neon-text-style">Albrawe</span>
     </div>
 
-    <!-- تم إرجاع كافة الأسماء والمسميات الأصلية داخل الستارة الجانبية بدقة -->
     <div class="sidebar-curtain" id="sidebarCurtain">
         <button class="close-btn" onclick="toggleSidebarCurtain(false)"><i class="fas fa-times"></i> إغلاق القائمة</button>
         
         <div class="menu-links">
             <a href="/" class="menu-item"><i class="fas fa-home"></i> البوابة الرئيسية</a>
-            <a href="/snake" class="menu-item" style="color: #3fb950;"><i class="fas fa-gamepad"></i> لعبة الثعبان الكلاسيكية 🐍</a>
-            <a href="/tetris" class="menu-item" style="color: #d29922;"><i class="fas fa-cubes"></i> لعبة التترس البكسلية 🧱</a>
+            <a href="/snake" class="menu-item" style="color: #3fb950;"><i class="fas fa-gamepad"></i> لعبة الثعبان  🐍</a>
+            <a href="/tetris" class="menu-item" style="color: #d29922;"><i class="fas fa-cubes"></i> لعبة التترس  🧱</a>
             <a href="/report" class="menu-item" style="color: #f85149;"><i class="fas fa-tools"></i> الإبلاغ عن مشكلة بالموقع 🛠️</a>
+            <!-- تصحيح رابط التليجرام في القائمة الجانبية -->
             <a href="https://t.me" target="_blank" class="menu-item" style="color: #58a6ff;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام 🌐</a>
         </div>
     </div>
@@ -272,11 +264,11 @@ HOME_TEMPLATE = """
             <img src="https://telegra.ph" alt="Albrawe" class="dev-avatar-img" onerror="this.src='https://cloudflare.com'">
             
             <h2 class="dev-name">Albrawe</h2>
-            <div class="dev-title">Game Architecture Engineer & Software Specialist</div>
+            <div class="dev-title"> Architecture Engineer & Software Engineer</div>
             
             <div class="info-section">
-                <div class="info-line">⚡ <strong>نبذة عني:</strong> بناء وتطوير تطبيقات الويب الكاملة، وتصميم الألعاب الكلاسيكية بأسلوب البكسل مع حماية الأكواد السحابية من الثغرات البرمجية.</div>
-                <div class="info-line">🚀 <strong>مجالات الخبرة:</strong> هندسة خوادم الويب المتكاملة، معالجة البيانات المحلية الآمنة، والواجهات المتجاوبة الذكية.</div>
+                <div class="info-line">⚡ <strong>نبذة عني:</strong> بناء وتطوير تطبيقات الويب الكاملة، وتصميم وتعديل اسكربتات البايثون مع حماية الأكواد السحابية من الثغرات البرمجية.</div>
+                <div class="info-line">🚀 <strong>مجالات الخبرة:</strong> هندسة خوادم الويب المتكاملة، معالجة البيانات المحلية ، والواجهات الذكية.</div>
                 <div class="info-line">🛠️ <strong>التقنيات الأساسية:</strong></div>
                 <div class="skills-container">
                     <span class="skill-badge">Python (Flask)</span>
@@ -288,8 +280,8 @@ HOME_TEMPLATE = """
             </div>
             
             <div class="action-buttons-group">
-                <button class="quick-btn" onclick="toggleSidebarCurtain(true)"><i class="fas fa-arrow-left"></i> تصفح واختبر المشاريع البرمجية</button>
-                <a href="https://t.me" target="_blank" class="quick-btn telegram-btn"><i class="fab fa-telegram-plane"></i> تواصل معي عبر تليجرام الرسمي</a>
+                <!-- تم إبقاء زر التليجرام المصلح والوحيد في الأسفل بمساره القياسي الصحيح -->
+                <a href="https://t.me" target="_blank" class="quick-btn"><i class="fab fa-telegram-plane"></i> تواصل معي عبر تليجرام الرسمي</a>
             </div>
         </div>
     </div>
