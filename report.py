@@ -5,11 +5,11 @@ from flask import Blueprint, request, jsonify, render_template_string
 # إنشاء البلوبرينت الموحد لنظام الشات المتكامل والتليجرام المتوافق مع Vercel
 report_blueprint = Blueprint('report', __name__)
 
-# 🎯 تفعيل وتثبيت بيانات حسابك والتوكن الجديد القياسي والموثق
+# تفعيل وتثبيت بيانات حسابك والتوكن الجديد القياسي والموثق
 ADMIN_CHAT_ID = "1178062571"
 BOT_TOKEN = "8196656039:AAGtnN77ZnuZmZ3iP4T5nY9VflXjxqM2E8o"
 
-# دالة إرسال الرسائل الفورية المبنية على urllib القياسية لضمان استقرار السيرفر 100%
+# دالة إرسال الرسائل الفورية المزودة بـ User-Agent لفك قفل حظر السيرفرات السحابية
 def send_to_telegram(text):
     url = f"https://telegram.org{BOT_TOKEN}/sendMessage"
     payload = {
@@ -19,10 +19,14 @@ def send_to_telegram(text):
     }
     try:
         data = json.dumps(payload).encode('utf-8')
+        # تم دمج الـ Headers والـ User-Agent لإجبار خادم تليجرام و Vercel على تمرير الرسالة فوراً
         req = urllib.request.Request(
             url, 
             data=data, 
-            headers={'Content-Type': 'application/json'},
+            headers={
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            },
             method='POST'
         )
         with urllib.request.urlopen(req, timeout=5) as response:
