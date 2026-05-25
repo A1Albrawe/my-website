@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template_string
 
-# تثبيت عنوان الرابط والمسار البرمجي المعتمد Albrawe - Snake
+# تثبيت عنوان المسار البرمجي الرسمي المعتمد Albrawe - Snake
 snake_blueprint = Blueprint('Albrawe - Snake', __name__)
 
 SNAKE_TEMPLATE = """
@@ -142,8 +142,6 @@ SNAKE_TEMPLATE = """
         const canvas = document.getElementById('snakeCanvas'), ctx = canvas.getContext('2d'), box = 10;
         let score = 0, snake = [], food = {x: 0, y: 0}, d = "RIGHT", gameInterval = null, musicInterval = null;
         let isGameOver = true, isPaused = false, isMuted = false, globalVolume = 0.5, currentUser = "";
-        
-        let canScore = true; 
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const musicNotes = [659.25, 587.33, 392.00, 440.00, 523.25, 493.88, 293.66, 329.63];
@@ -183,11 +181,11 @@ SNAKE_TEMPLATE = """
             isGameOver = false; initGame();
         }
         function initGame() {
-            // 🎯 كود التصفير الميكانيكي (Hard Reset) لقتل وتصفير أي تداخل إطارات قديم تماماً من المتصفح
+            // تدمير ومسح العدادات والأنشطة القديمة تماماً لقطع تراكم الـ Frames وحل مشكلة النقاط اللانهائية نهائياً
             if(gameInterval) clearInterval(gameInterval); 
             stopMusic();
 
-            score = 0; isPaused = false; isGameOver = false; canScore = true;
+            score = 0; isPaused = false; isGameOver = false;
             document.getElementById('snakeScore').innerText = "النقاط: " + score;
             document.getElementById('recordOverlay').style.display = 'none';
             document.getElementById('nokiaScreen').classList.remove('highscore-flash');
@@ -199,7 +197,7 @@ SNAKE_TEMPLATE = """
             ];
             genFood(); d = "RIGHT";
             
-            // ربط وبدء العداد الزمني الجديد والمنفرد كلياً في الذاكرة
+            // إنشاء العداد الحركي الوحيد والمنفرد في الذاكرة
             gameInterval = setInterval(draw, 110); 
             startMusic();
         }
@@ -207,7 +205,6 @@ SNAKE_TEMPLATE = """
         function genFood() { 
             food = { x: Math.floor(Math.random() * 26) * box, y: Math.floor(Math.random() * 16) * box }; 
             for(let i = 0; i < snake.length; i++) { if(snake[i].x === food.x && snake[i].y === food.y) genFood(); } 
-            canScore = true; 
         }
 
         document.onkeydown = function(e) {
@@ -228,10 +225,10 @@ SNAKE_TEMPLATE = """
         }
 
         let tsX = 0, tsY = 0;
-        window.addEventListener('touchstart', e => { if(e.changedTouches) { tsX = e.changedTouches.screenX; tsY = e.changedTouches.screenY; } }, {passive: true});
+        window.addEventListener('touchstart', e => { if(e.changedTouches) { tsX = e.changedTouches[0].screenX; tsY = e.changedTouches[0].screenY; } }, {passive: true});
         window.addEventListener('touchend', e => {
             if(isPaused || isGameOver || !e.changedTouches) return; 
-            const xDiff = e.changedTouches.screenX - tsX, yDiff = e.changedTouches.screenY - tsY;
+            const xDiff = e.changedTouches[0].screenX - tsX, yDiff = e.changedTouches[0].screenY - tsY;
             if(Math.abs(xDiff) > Math.abs(yDiff)) {
                 if(Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT');
             } else {
@@ -240,7 +237,7 @@ SNAKE_TEMPLATE = """
         }, {passive: true});
 
         function draw() {
-            // صمام الأمان: تجميد الدالة فورياً ومنع تنفيذ أي كود حركي أو عدّي عند توقف أو خسارة اللعبة
+            // صمام الأمان الصارم: تجميد الدالة ومنع احتساب أي حركة أو نقاط فور تسجيل الخسارة
             if (isPaused || isGameOver) return; 
 
             ctx.clearRect(0, 0, 260, 170);
@@ -252,7 +249,7 @@ SNAKE_TEMPLATE = """
                 if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(c.x + 3, c.y + 3, 2, 2); }
             });
 
-            // 🎯 تم التثبيت المعماري الصحيح: جلب الإحداثيات من أول عنصر في مصفوفة الثعبان [0]
+            // 🎯 تم التثبيت النهائي والأكيد: جلب إحداثيات الرأس الحقيقية كعنصر داخل مصفوفة
             let hX = snake[0].x;
             let hY = snake[0].y;
             
@@ -265,16 +262,13 @@ SNAKE_TEMPLATE = """
 
             if(hX < 0 || hX >= 260 || hY < 0 || hY >= 170 || snake.some(c => c.x === nH.x && c.y === nH.y)) { endGame(); return; }
 
-            // زيادة محددة برمجياً بمقدار 10 نقاط فقط مع قفل فوري يحظر تكرار الإطارات
+            // التهام تفاحة واحدة ينقلها فوراً؛ زيادة 10 نقاط ثابتة فقط واستحالة تكرار النقاط اللانهائية
             if(hX === food.x && hY === food.y) {
-                if(canScore) {
-                    score += 10; 
-                    document.getElementById('snakeScore').innerText = "النقاط: " + score; 
-                    playSound('eat');
-                    document.getElementById('touchArea').classList.add('flash'); setTimeout(() => document.getElementById('touchArea').classList.remove('flash'), 60);
-                    canScore = false; 
-                    genFood(); 
-                }
+                score += 10; 
+                document.getElementById('snakeScore').innerText = "النقاط: " + score; 
+                playSound('eat');
+                document.getElementById('touchArea').classList.add('flash'); setTimeout(() => document.getElementById('touchArea').classList.remove('flash'), 60);
+                genFood(); 
             } else { 
                 snake.pop(); 
             }
