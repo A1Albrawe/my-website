@@ -64,9 +64,7 @@ REPORT_TEMPLATE = """
             font-size: 50px;
             color: #f85149;
             margin-bottom: 15px;
-            animation: pulse 1.5s infinite alternate;
         }
-        @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -77,12 +75,12 @@ REPORT_TEMPLATE = """
 
     <div class="main-container">
         <div class="maintenance-card">
-            <div class="warn-icon">🛠️</div>
-            <h2 style="color:#f0f6fc; margin:0 0 10px 0;">القسم مغلق</h2>
-            <!-- 🎯 تم تجميد التعامل وقفل حقول الاستقبال لعرض لوحة الصيانة الثابتة والمحمية -->
+            <div class="warn-icon">⚙️</div>
+            <h2 style="color:#f0f6fc; margin:0 0 10px 0;">تحت الصيانة</h2>
+            <!-- 🎯 تم مسح دوال الاستقبال والحفظ وقطع قنوات الاتصال بالكامل وتثبيت لوحة التعليق -->
             <p style="color:#f85149; font-weight:bold; font-size:16px; margin:0; line-height:1.6;">
-                عذراً، هذا القسم تحت الصيانة حالياً.<br>
-                تم إيقاف استقبال الشكاوى والبلاغات والتعامل مع الخادم مؤقتاً.
+                تم تعليق التفاعل وإيقاف استقبال الشكاوى والبلاغات مؤقتاً.<br>
+                هذا القسم مغلق وتحت الصيانة الفنية الصارمة الآن.
             </p>
         </div>
     </div>
