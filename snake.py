@@ -70,7 +70,7 @@ SNAKE_TEMPLATE = """
 <body>
     <div class="header-nav">
         <a href="/" class="back-btn">◀ العودة للرئيسية</a>
-        <span style="font-weight:bold; color:#fff;">🐍 لعبة الثعبان السحابية الموحدة</span>
+        <span style="font-weight:bold; color:#fff;">🐍 لعبة الثعبان السحابية </span>
     </div>
 """
 SNAKE_TEMPLATE_BODY = """
@@ -83,7 +83,7 @@ SNAKE_TEMPLATE_BODY = """
                         <button class="mute-btn" id="muteToggle" onclick="toggleMute()"><i class="fas fa-volume-up"></i></button>
                         <input type="range" id="volumeSlider" class="volume-bar" min="0" max="1" step="0.1" value="0.5" oninput="updateVolume(this.value)">
                     </div>
-                    <span>NOKIA</span>
+                    <span>NALBRAWE</span>
                 </div>
                 
                 <div class="canvas-container">
