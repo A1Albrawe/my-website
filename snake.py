@@ -1,7 +1,36 @@
-from flask import Blueprint, render_template_string
+from flask import Blueprint, render_template_string, request, jsonify
 
-# استخدام نفس اسم البلوبرينت القياسي المسجل في ملف app.py لضمان عدم التحطم
+# إنشاء البلوبرينت القياسي للعبة الثعبان
 snake_blueprint = Blueprint('snake', __name__)
+
+# مصفوفة سحابية مركزية مؤمنة داخل السيرفر لحفظ توب 3 لاعبين على مستوى العالم
+GLOBAL_LEADERBOARD = [
+    {"name": "البروي 👑", "score": 150},
+    {"name": "لاعب 2", "score": 0},
+    {"name": "لاعب 3", "score": 0}
+]
+
+# مسار سحابي لاستدعاء لوحة الصدارة الموحدة لكل المستخدمين
+@snake_blueprint.route('/api/get_leaderboard', methods=['GET'])
+def get_leaderboard():
+    return jsonify(GLOBAL_LEADERBOARD)
+
+# مسار سحابي لاستقبال النتيجة الجديدة وتدقيقها وترتيبها عالمياً في السيرفر
+@snake_blueprint.route('/api/submit_score', methods=['POST'])
+def submit_score():
+    global GLOBAL_LEADERBOARD
+    data = request.get_json() or {}
+    name = data.get('name', 'لاعب مجهول').strip()
+    score = int(data.get('score', 0))
+    
+    if score > 0 and name:
+        GLOBAL_LEADERBOARD.append({"name": name, "score": score})
+        # ترتيب المصفوفة من الأعلى للأقل وقصها لتستعرض أفضل 3 لاعبين فقط عالمياً
+        GLOBAL_LEADERBOARD.sort(key=lambda x: x['score'], reverse=True)
+        GLOBAL_LEADERBOARD = GLOBAL_LEADERBOARD[:3]
+        
+    return jsonify({"status": "success", "leaderboard": GLOBAL_LEADERBOARD})
+
 
 SNAKE_TEMPLATE = """
 <!DOCTYPE html>
@@ -12,83 +41,25 @@ SNAKE_TEMPLATE = """
     <title>Albrawe - Snake</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
-        body { 
-            font-family: 'Courier New', Courier, monospace; 
-            text-align: center; 
-            background: #0d1117;
-            color: #c9d1d9; 
-            padding: 0; 
-            margin: 0; 
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-        .header-nav {
-            background-color: #161b22;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #58a6ff;
-        }
-        .back-btn {
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #58a6ff;
-            padding: 6px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .nokia-phone { 
-            background: #161b22; 
-            border: 3px solid #30363d; 
-            border-top: 4px solid #58a6ff;
-            border-radius: 20px; 
-            width: 100%;
-            max-width: 370px; 
-            padding: 25px 20px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6); 
-            box-sizing: border-box; 
-            position: relative;
-        }
-        .nokia-screen { 
-            background-color: #0d1117; 
-            border: 2px solid #30363d; 
-            border-radius: 10px; 
-            padding: 10px; 
-            position: relative; 
-            box-sizing: border-box; 
-            touch-action: none;
-        }
+        body { font-family: 'Courier New', Courier, monospace; text-align: center; background: #0d1117; color: #c9d1d9; padding: 0; margin: 0; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
+        .header-nav { background-color: #161b22; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #58a6ff; }
+        .back-btn { background: #21262d; border: 1px solid #30363d; color: #58a6ff; padding: 6px 15px; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .main-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .nokia-phone { background: #161b22; border: 3px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 20px; width: 100%; max-width: 370px; padding: 25px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); box-sizing: border-box; position: relative; }
+        .nokia-screen { background-color: #0d1117; border: 2px solid #30363d; border-radius: 10px; padding: 10px; position: relative; box-sizing: border-box; touch-action: none; }
         .flash { background-color: #238636 !important; }
         .highscore-flash { animation: rf 0.15s ease infinite alternate; }
         @keyframes rf { 0% { background-color: #0d1117; } 100% { background-color: #21262d; border-color: #ffd700; } }
-        
         .score-container { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 13px; border-bottom: 1px solid #30363d; padding-bottom: 6px; margin-bottom: 10px; color: #58a6ff; }
         .audio-controls { display: flex; align-items: center; gap: 4px; }
         .mute-btn { background: none; border: none; font-size: 14px; cursor: pointer; color: #58a6ff; padding: 0; }
         .volume-bar { width: 55px; accent-color: #58a6ff; height: 3px; cursor: pointer; }
-        
         .canvas-container { width: 100%; display: flex; justify-content: center; position: relative; }
         canvas { background-color: #161b22; display: block; max-width: 100%; height: auto; border: 1px solid #30363d; border-radius: 4px; }
         .overlay-txt { display: none; position: absolute; font-size: 18px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(22, 27, 34, 0.95); border: 2px solid #58a6ff; padding: 12px; border-radius: 8px; text-align: center; width: 85%; box-sizing: border-box; z-index: 5; }
-        
         .leaderboard { margin-top: 10px; background: rgba(0, 0, 0, 0.2); padding: 8px; border-radius: 6px; font-size: 11px; text-align: right; border: 1px solid #30363d; }
         .leaderboard h4 { margin: 0 0 6px 0; text-align: center; font-size: 12px; color: #79c0ff; }
         .score-row { display: flex; justify-content: space-between; padding: 2px 0; font-weight: bold; color: #c9d1d9; }
-        
         .nokia-dpad { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 160px; height: 160px; margin-left: auto; margin-right: auto; }
         .arrow-btn { background: #21262d; border: 1px solid #30363d; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #58a6ff; cursor: pointer; box-shadow: 0 4px #0d1117; user-select: none; -webkit-user-select: none; }
         .arrow-btn:active { transform: translateY(2px); box-shadow: 0 1px #0d1117; }
@@ -99,8 +70,10 @@ SNAKE_TEMPLATE = """
 <body>
     <div class="header-nav">
         <a href="/" class="back-btn">◀ العودة للرئيسية</a>
-        <span style="font-weight:bold; color:#fff;">🐍 لعبة الثعبان المكتملة</span>
+        <span style="font-weight:bold; color:#fff;">🐍 لعبة الثعبان السحابية الموحدة</span>
     </div>
+"""
+SNAKE_TEMPLATE_BODY = """
     <div class="main-container">
         <div class="nokia-phone" id="phoneWrapper">
             <div class="nokia-screen" id="nokiaScreen">
@@ -116,7 +89,7 @@ SNAKE_TEMPLATE = """
                 <div class="canvas-container">
                     <canvas id="snakeCanvas" width="240" height="160"></canvas>
                     <div id="pauseOverlay" class="overlay-txt">مؤقت ⏸️</div>
-                    <div id="recordOverlay" class="overlay-txt" style="background:#ffd700; color:#000; border-color:#000;">🏆 رقم قياسي جديد! 🏆</div>
+                    <div id="recordOverlay" class="overlay-txt" style="background:#ffd700; color:#000; border-color:#000;">🏆 رقم قياسي عالمي جديد! 🏆</div>
                     
                     <div id="gameOverScreen" class="overlay-txt" style="display:block;">
                         <h4 id="goTitle" style="margin:0 0 5px 0; color:#58a6ff;">مرحباً بك</h4>
@@ -127,7 +100,7 @@ SNAKE_TEMPLATE = """
                 </div>
 
                 <div class="leaderboard">
-                    <h4>🏆 لوحة أفضل نتائج اللاعبين</h4>
+                    <h4>🏆 لوحة صدارة أفضل نتائج اللاعبين عالمياً</h4>
                     <div id="leaderboardContent"></div>
                 </div>
             </div>
@@ -152,7 +125,7 @@ SNAKE_TEMPLATE = """
         const canvas = document.getElementById('snakeCanvas'), ctx = canvas.getContext('2d'), box = 10;
         let score = 0, snake = [], food = {x: 0, y: 0}, d = "RIGHT", gameInterval = null, musicInterval = null;
         let isGameOver = true, isPaused = false, isMuted = false, globalVolume = 0.5, currentUser = "";
-        let canScore = true; // صمام الأمان المنطقي لغلق الثغرة
+        let canScore = true;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const musicNotes = [659.25, 587.33, 392.00, 440.00, 523.25, 493.88, 293.66, 329.63];
@@ -182,7 +155,6 @@ SNAKE_TEMPLATE = """
         
         function startMusic() { stopMusic(); if(!isMuted && globalVolume > 0 && !isPaused) { playMusic(); musicInterval = setInterval(playMusic, musicNotes.length * 200); } }
         function stopMusic() { if(musicInterval) clearInterval(musicInterval); }
-
         function togglePause() { if(isGameOver) return; isPaused = !isPaused; document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none'; if(isPaused) stopMusic(); else startMusic(); }
 
         function submitPlayer() {
@@ -192,7 +164,6 @@ SNAKE_TEMPLATE = """
             isGameOver = false; initGame();
         }
         function initGame() {
-            // تدمير ومسح حاسم للعدادات القديمة لقطع تراكم الإطارات ومنع ثغرة العداد اللانهائي
             if(gameInterval) clearInterval(gameInterval); 
             stopMusic();
 
@@ -201,11 +172,7 @@ SNAKE_TEMPLATE = """
             document.getElementById('recordOverlay').style.display = 'none';
             document.getElementById('nokiaScreen').classList.remove('highscore-flash');
             
-            snake = [
-                {x: 100, y: 80},
-                {x: 90, y: 80},
-                {x: 80, y: 80}
-            ];
+            snake = [{x: 100, y: 80}, {x: 90, y: 80}, {x: 80, y: 80}];
             genFood(); d = "RIGHT";
             gameInterval = setInterval(draw, 120); 
             startMusic();
@@ -214,7 +181,7 @@ SNAKE_TEMPLATE = """
         function genFood() { 
             food = { x: Math.floor(Math.random() * 24) * box, y: Math.floor(Math.random() * 16) * box }; 
             for(let i = 0; i < snake.length; i++) { if(snake[i].x === food.x && snake[i].y === food.y) genFood(); } 
-            canScore = true; // فتح القفل البرمجي عند توليد تفاحة جديدة
+            canScore = true;
         }
 
         document.onkeydown = function(e) {
@@ -234,85 +201,68 @@ SNAKE_TEMPLATE = """
             if(dir === "DOWN" && d !== "UP") d = "DOWN";
         }
 
-        // محرك لمس الشاشة الذكي (Swipe) المحدث بالتوافق الشامل للهواتف
         let tsX = 0, tsY = 0;
-        window.addEventListener('touchstart', e => { 
-            if(e.touches && e.touches.length > 0) { tsX = e.touches[0].screenX; tsY = e.touches[0].screenY; } 
-        }, {passive: true});
-        
+        window.addEventListener('touchstart', e => { if(e.touches && e.touches.length > 0) { tsX = e.touches.screenX; tsY = e.touches.screenY; } }, {passive: true});
         window.addEventListener('touchend', e => {
             if(isPaused || isGameOver || !e.changedTouches || e.changedTouches.length === 0) return; 
-            const xDiff = e.changedTouches[0].screenX - tsX, yDiff = e.changedTouches[0].screenY - tsY;
-            if(Math.abs(xDiff) > Math.abs(yDiff)) {
-                if(Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT');
-            } else {
-                if(Math.abs(yDiff) > 30) changeDirection(yDiff > 0 ? 'DOWN' : 'UP');
-            }
+            const xDiff = e.changedTouches.screenX - tsX, yDiff = e.changedTouches.screenY - tsY;
+            if(Math.abs(xDiff) > Math.abs(yDiff)) { if(Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT'); }
+            else { if(Math.abs(yDiff) > 30) changeDirection(yDiff > 0 ? 'DOWN' : 'UP'); }
         }, {passive: true});
 
         function draw() {
             if (isPaused || isGameOver) return; 
-
             ctx.clearRect(0, 0, 240, 160);
             
-            // رسم التفاحة السيبرانية الحمراء المضيئة
             ctx.fillStyle = "#f85149"; ctx.fillRect(food.x + 1, food.y + 1, box - 2, box - 2);
-            
-            // رسم الثعبان الأزرق والأخضر السيبراني المضاء
-            snake.forEach((c, i) => { 
-                ctx.fillStyle = i === 0 ? "#58a6ff" : "#3fb950"; 
-                ctx.fillRect(c.x + 1, c.y + 1, box - 2, box - 2); 
-            });
+            snake.forEach((c, i) => { ctx.fillStyle = i === 0 ? "#58a6ff" : "#3fb950"; ctx.fillRect(c.x + 1, c.y + 1, box - 2, box - 2); });
 
-            // الجلب البرمجي المصفوفي الصحيح والآمن لرأس الأفعى
-            let hX = snake[0].x;
-            let hY = snake[0].y;
-            
-            if(d === "LEFT") hX -= box; 
-            else if(d === "UP") hY -= box; 
-            else if(d === "RIGHT") hX += box; 
-            else if(d === "DOWN") hY += box;
-            
+            let hX = snake[0].x, hY = snake[0].y;
+            if(d === "LEFT") hX -= box; else if(d === "UP") hY -= box; else if(d === "RIGHT") hX += box; else if(d === "DOWN") hY += box;
             let nH = {x: hX, y: hY};
 
             if(hX < 0 || hX >= 240 || hY < 0 || hY >= 160 || snake.some(c => c.x === nH.x && c.y === nH.y)) { endGame(); return; }
 
-            // التهام تفاحة واحدة بزيادة 10 نقاط ثابتة مع غلق القفل فوراً لقطع ثغرة الإطارات اللانهائية
             if(hX === food.x && hY === food.y) {
-                if(canScore) {
-                    score += 10; 
-                    document.getElementById('snakeScore').innerText = "النقاط: " + score; 
-                    playSound('eat');
-                    canScore = false; // غلق صمام الأمان
-                    genFood(); 
-                }
-            } else { 
-                snake.pop(); 
-            }
+                if(canScore) { score += 10; document.getElementById('snakeScore').innerText = "النقاط: " + score; playSound('eat'); canScore = false; genFood(); }
+            } else { snake.pop(); }
             snake.unshift(nH);
         }
 
         function endGame() {
             clearInterval(gameInterval); stopMusic(); isGameOver = true; playSound('lose');
             
-            let l = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || []; l.push({name: currentUser, score: score}); l.sort((a,b)=>b.score-a.score); l = l.slice(0,3);
-            localStorage.setItem('responsive_nokia_scores', JSON.stringify(l)); loadLead();
+            // 🎯 ضخ النتيجة الجديدة مباشرة إلى السيرفر السحابي الموحد لكل العالم عبر الـ FETCH
+            fetch('/api/submit_score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: currentUser, score: score })
+            }).then(res => res.json())
+              .then(data => {
+                  displayLeaderboard(data.leaderboard);
+                  if(data.leaderboard.length > 0 && data.leaderboard[0].name === currentUser && score > 0) {
+                      playSound('win');
+                      document.getElementById('recordOverlay').style.display = 'block';
+                      document.getElementById('nokiaScreen').classList.add('highscore-flash');
+                  }
+              });
 
             document.getElementById('goTitle').innerText = "انتهت اللعبة";
             document.getElementById('finalScoreText').innerText = "نقاط الجولة المحققة: " + score;
             document.getElementById('playerName').value = currentUser;
             document.getElementById('gameOverScreen').style.display = 'block';
-            
-            if(l.length > 0 && l[0].name === currentUser && score > 0 && l[0].score === score) { 
-                playSound('win'); 
-                document.getElementById('recordOverlay').style.display = 'block'; 
-                document.getElementById('nokiaScreen').classList.add('highscore-flash');
-            }
         }
 
+        // 🎯 سحب وعرض اللوحة الموحدة فور فتح الصفحة
         function loadLead() {
-            let l = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || [{name:"المركز 1",score:0},{name:"المركز 2",score:0},{name:"المركز 3",score:0}], h = "";
-            l.forEach((s, i) => { h += `<div class="score-row"><span>${i+1}. ${s.name}</span><span>${s.score}</span></div>`; });
+            fetch('/api/get_leaderboard')
+            .then(res => res.json())
+            .then(data => displayLeaderboard(data));
+        }
+
+        function displayLeaderboard(list) {
+            let h = "";
+            list.forEach((s, i) => { h += `<div class="score-row"><span>${i+1}. ${s.name}</span><span>${s.score}</span></div>`; });
             document.getElementById('leaderboardContent').innerHTML = h;
         }
 
@@ -324,6 +274,7 @@ SNAKE_TEMPLATE = """
 </html>
 """
 
+# دمج الأجزاء الثلاثة البرمجية وعرض القالب الكامل لـ Flask
 @snake_blueprint.route('/snake')
 def snake_game():
-    return render_template_string(SNAKE_TEMPLATE)
+    return render_template_string(SNAKE_TEMPLATE + SNAKE_TEMPLATE_BODY)
