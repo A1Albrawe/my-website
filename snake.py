@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template_string
 
-# استخدام نفس اسم الـ Blueprint المسجل في ملف app.py لضمان عدم التحطم
 snake_blueprint = Blueprint('snake', __name__)
 
 SNAKE_TEMPLATE = """
@@ -10,272 +9,75 @@ SNAKE_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Albrawe - Snake</title>
-    <link rel="stylesheet" href="https://cloudflare.com">
     <style>
-        body { 
-            font-family: 'Courier New', Courier, monospace; 
-            text-align: center; 
-            background: #121212;
-            color: #000; 
-            padding: 10px; 
-            margin: 0; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-            overscroll-behavior-y: contain;
-        }
-        .back-btn { 
-            background: #111; 
-            color: #8c9f21; 
-            border: 2px solid #8c9f21; 
-            padding: 8px 16px; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            text-decoration: none; 
-            font-weight: bold; 
-            margin-bottom: 15px; 
-            font-size: 13px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .nokia-phone { 
-            background: #3a4d5c; 
-            border: 8px solid #25333d; 
-            border-radius: 40px; 
-            width: 100%;
-            max-width: 370px; 
-            padding: 25px 20px; 
-            box-shadow: 0 20px 45px rgba(0,0,0,0.8); 
-            box-sizing: border-box; 
-        }
-        .nokia-screen { 
-            background-color: #8c9f21; 
-            border: 12px solid #111; 
-            border-radius: 10px; 
-            padding: 10px; 
-            position: relative; 
-            box-sizing: border-box; 
-            touch-action: none;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
-        }
-        
-        .score-container { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 14px; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 6px; }
-        
-        .canvas-container { width: 100%; display: flex; justify-content: center; position: relative; }
-        canvas { background-color: transparent; display: block; max-width: 100%; height: auto; border: 1px solid rgba(0,0,0,0.2); }
-        .overlay-txt { display: none; position: absolute; font-size: 18px; font-weight: bold; color: #000; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(140, 159, 33, 0.95); padding: 8px 12px; border: 2px solid #000; border-radius: 4px; z-index: 5; text-align: center; width: 85%; box-sizing: border-box; }
-        
-        .leaderboard { margin-top: 8px; background: rgba(0, 0, 0, 0.05); padding: 6px; border-radius: 4px; font-size: 11px; text-align: right; border-top: 1px dashed #000; }
-        .leaderboard h4 { margin: 0 0 4px 0; text-align: center; font-size: 12px; }
-        .score-row { display: flex; justify-content: space-between; padding: 2px 0; font-weight: bold; }
-        
-        .nokia-dpad { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 170px; height: 170px; margin-left: auto; margin-right: auto; }
-        .arrow-btn { background: #cbd3d8; border: 2px solid #a1aab0; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 22px; color: #222; cursor: pointer; box-shadow: 0 4px #78838a, inset 0 1px rgba(255,255,255,0.5); user-select: none; -webkit-user-select: none; }
-        .arrow-btn:active { box-shadow: 0 1px #78838a; transform: translateY(2px); }
-        .dpad-empty { pointer-events: none; visibility: hidden; }
-        .dpad-center-btn { background: #a1aab0; border: 2px solid #78838a; border-radius: 50%; cursor: pointer; box-shadow: 0 3px #576066; display: flex; justify-content: center; align-items: center; font-size: 14px; color: #222; }
-        .dpad-center-btn:active { box-shadow: 0 0 #576066; transform: translateY(1px); }
+        body { font-family: monospace; text-align: center; background: #121212; padding: 10px; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
+        .back-btn { background: #111; color: #8c9f21; border: 2px solid #8c9f21; padding: 8px 16px; border-radius: 5px; cursor: pointer; text-decoration: none; font-weight: bold; margin-bottom: 15px; font-size: 13px; }
+        .nokia-phone { background: #3a4d5c; border: 8px solid #25333d; border-radius: 40px; width: 100%; max-width: 370px; padding: 25px 20px; box-shadow: 0 20px 45px rgba(0,0,0,0.8); box-sizing: border-box; }
+        .nokia-screen { background-color: #8c9f21; border: 12px solid #111; border-radius: 10px; padding: 10px; position: relative; box-sizing: border-box; }
+        .score-container { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 6px; }
+        canvas { background-color: transparent; display: block; max-width: 100%; height: auto; }
+        .overlay-txt { display: none; position: absolute; font-size: 18px; font-weight: bold; color: #000; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(140, 159, 33, 0.95); padding: 8px 12px; border: 2px solid #000; text-align: center; width: 85%; box-sizing: border-box; }
+        .nokia-dpad { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 170px; height: 170px; margin: auto; }
+        .arrow-btn { background: #cbd3d8; border: 2px solid #a1aab0; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 22px; color: #222; cursor: pointer; box-shadow: 0 4px #78838a; user-select: none; }
     </style>
 </head>
 <body>
-    <br><a href="/" class="back-btn"><i class="fas fa-arrow-right"></i> القائمة الرئيسية</a>
-    
+    <br><a href="/" class="back-btn">القائمة الرئيسية</a>
     <div class="nokia-phone">
-        <div class="nokia-screen" id="nokiaScreen">
-            <div class="score-container">
-                <span id="snakeScore">النقاط: 0</span>
-                <span>NOKIA</span>
-            </div>
-            
-            <div class="canvas-container">
-                <canvas id="snakeCanvas" width="260" height="170"></canvas>
-                <div id="pauseOverlay" class="overlay-txt">مؤقت</div>
-                
-                <div id="gameOverScreen" class="overlay-txt" style="display:block;">
-                    <h4 id="goTitle" style="margin:0 0 5px 0;">مرحباً بك</h4>
-                    <p id="finalScoreText" style="margin:0 0 8px 0; font-size:12px; font-weight:bold;"></p>
-                    <input type="text" id="playerName" style="padding:6px; font-size:12px; border:2px solid #000; background:#8c9f21; margin-bottom:8px; text-align:center; width:85%; font-family:inherit; font-weight:bold; box-sizing:border-box;" placeholder="اسم المستخدم" maxlength="10">
-                    <br><button style="background:#000; color:#8c9f21; border:none; padding:6px 15px; font-size:12px; font-weight:bold; cursor:pointer; border-radius:3px;" onclick="submitPlayer()">بدء اللعب</button>
-                </div>
-            </div>
-
-            <div class="leaderboard">
-                <h4>🏆 لوحة أفضل نتائج اللاعبين</h4>
-                <div id="leaderboardContent"></div>
+        <div class="nokia-screen">
+            <div class="score-container"><span id="snakeScore">النقاط: 0</span><span>NOKIA</span></div>
+            <canvas id="snakeCanvas" width="240" height="160"></canvas>
+            <div id="gameOverScreen" class="overlay-txt" style="display:block;">
+                <h4 style="margin:0 0 5px 0;">مرحباً بك</h4>
+                <button style="background:#000; color:#8c9f21; border:none; padding:6px 15px; font-weight:bold; cursor:pointer;" onclick="startGame()">بدء اللعب</button>
             </div>
         </div>
         <div class="nokia-dpad">
-            <div class="dpad-empty"></div>
-            <div class="arrow-btn" onmousedown="changeDirection('UP')" ontouchstart="changeDirection('UP'); event.preventDefault();"><i class="fas fa-chevron-up"></i></div>
-            <div class="dpad-empty"></div>
-            
-            <div class="arrow-btn" onmousedown="changeDirection('LEFT')" ontouchstart="changeDirection('LEFT'); event.preventDefault();"><i class="fas fa-chevron-left"></i></div>
-            <div class="dpad-center-btn" onclick="togglePause()" ontouchstart="togglePause(); event.preventDefault();"><i class="fas fa-pause"></i></div>
-            <div class="arrow-btn" onmousedown="changeDirection('RIGHT')" ontouchstart="changeDirection('RIGHT'); event.preventDefault();"><i class="fas fa-chevron-right"></i></div>
-            
-            <div class="dpad-empty"></div>
-            <div class="arrow-btn" onmousedown="changeDirection('DOWN')" ontouchstart="changeDirection('DOWN'); event.preventDefault();"><i class="fas fa-chevron-down"></i></div>
-            <div class="dpad-empty"></div>
+            <div></div><div class="arrow-btn" onclick="changeDir('UP')">▲</div><div></div>
+            <div class="arrow-btn" onclick="changeDir('LEFT')">◀</div><div></div><div class="arrow-btn" onclick="changeDir('RIGHT')">▶</div>
+            <div></div><div class="arrow-btn" onclick="changeDir('DOWN')">▼</div><div></div>
         </div>
     </div>
-
     <script>
         const canvas = document.getElementById('snakeCanvas'), ctx = canvas.getContext('2d'), box = 10;
-        let score = 0, snake = [], food = {x: 0, y: 0}, d = "RIGHT", gameInterval = null;
-        let isGameOver = true, isPaused = false, currentUser = "";
+        let score=0, snake=[], food={}, d="RIGHT", interval=null, isGameOver=true;
 
-        function togglePause() { 
-            if(isGameOver) return; 
-            isPaused = !isPaused; 
-            document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none'; 
-        }
-
-        function submitPlayer() {
-            let n = document.getElementById('playerName').value.trim(); 
-            if(!n) return;
-            currentUser = n; 
-            localStorage.setItem('snake_last_user', n);
-            document.getElementById('gameOverScreen').style.display = 'none';
-            isGameOver = false; 
-            initGame();
-        }
-
-        function initGame() {
-            // التصفير الكامل والآمن للعداد لمنع ثغرات تكرار السرعة وزيادة النقاط اللانهائية
-            if(gameInterval) clearInterval(gameInterval); 
-
-            score = 0; 
-            isPaused = false; 
-            isGameOver = false;
+        function startGame() {
+            if(interval) clearInterval(interval);
+            score=0; isGameOver=false; d="RIGHT";
             document.getElementById('snakeScore').innerText = "النقاط: " + score;
-            
-            // تهيئة السلسلة الحركية بإحداثيات بكسلية صلبة تمنع الاختفاء الفجائي
-            snake = [
-                {x: 100, y: 90},
-                {x: 90, y: 90},
-                {x: 80, y: 90}
-            ];
-            genFood(); 
-            d = "RIGHT";
-            gameInterval = setInterval(draw, 110); 
+            document.getElementById('gameOverScreen').style.display = 'none';
+            snake = [{x:100, y:80}, {x:90, y:80}, {x:80, y:80}];
+            genFood();
+            interval = setInterval(draw, 120);
         }
+        function genFood() { food = { x: Math.floor(Math.random()*24)*box, y: Math.floor(Math.random()*16)*box }; }
+        function changeDir(dir) { if(dir==="LEFT"&&d!=="RIGHT")d="LEFT"; if(dir==="UP"&&d!=="DOWN")d="UP"; if(dir==="RIGHT"&&d!=="LEFT")d="RIGHT"; if(dir==="DOWN"&&d!=="UP")d="DOWN"; }
         
-        function genFood() { 
-            food = { x: Math.floor(Math.random() * 26) * box, y: Math.floor(Math.random() * 16) * box }; 
-            for(let i = 0; i < snake.length; i++) { 
-                if(snake[i].x === food.x && snake[i].y === food.y) genFood(); 
-            } 
-        }
-        document.onkeydown = function(e) {
-            if(e.keyCode === 32) { e.preventDefault(); togglePause(); return; }
-            if(isGameOver || isPaused) return; 
-            const k = e.keyCode, c = e.key ? e.key.toLowerCase() : "";
-            if ((k === 37 || c === 'a' || c === 'ص') && d !== "RIGHT") d = "LEFT";
-            else if ((k === 38 || c === 'w' || c === 'ص') && d !== "DOWN") d = "UP";
-            else if ((k === 39 || c === 'd' || c === 'ي') && d !== "LEFT") d = "RIGHT";
-            else if ((k === 40 || c === 's' || c === 'س') && d !== "UP") d = "DOWN";
+        document.onkeydown = function(e) { 
+            if(e.keyCode===37) changeDir('LEFT'); if(e.keyCode===38) changeDir('UP'); if(e.keyCode===39) changeDir('RIGHT'); if(e.keyCode===40) changeDir('DOWN'); 
         };
-        
-        function changeDirection(dir) {
-            if(isGameOver || isPaused) return;
-            if(dir === "LEFT" && d !== "RIGHT") d = "LEFT";
-            if(dir === "UP" && d !== "DOWN") d = "UP";
-            if(dir === "RIGHT" && d !== "LEFT") d = "RIGHT";
-            if(dir === "DOWN" && d !== "UP") d = "DOWN";
-        }
-
-        // محرك لمس الشاشة (Swipe) القياسي والمضمون 100% لجميع الهواتف الذكية
-        let tsX = 0, tsY = 0;
-        window.addEventListener('touchstart', e => { 
-            if(e.touches && e.touches.length > 0) { tsX = e.touches[0].screenX; tsY = e.touches[0].screenY; } 
-        }, {passive: true});
-        
-        window.addEventListener('touchend', e => {
-            if(isPaused || isGameOver || !e.changedTouches || e.changedTouches.length === 0) return; 
-            const xDiff = e.changedTouches[0].screenX - tsX;
-            const yDiff = e.changedTouches[0].screenY - tsY;
-            if(Math.abs(xDiff) > Math.abs(yDiff)) {
-                if(Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT');
-            } else {
-                if(Math.abs(yDiff) > 30) changeDirection(yDiff > 0 ? 'DOWN' : 'UP');
-            }
-        }, {passive: true});
 
         function draw() {
-            // صمام الأمان الصارم: تجميد دالة الرسم كلياً فور الخسارة لمنع ثغرات النقاط
-            if (isPaused || isGameOver) return; 
+            if(isGameOver) return;
+            ctx.clearRect(0, 0, 240, 160);
+            ctx.fillStyle = "#000"; ctx.fillRect(food.x, food.y, box, box);
+            
+            snake.forEach((c, i) => { ctx.fillStyle = "#000"; ctx.fillRect(c.x, c.y, box, box); });
+            
+            let hX = snake[0].x, hY = snake[0].y;
+            if(d==="LEFT") hX -= box; if(d==="UP") hY -= box; if(d==="RIGHT") hX += box; if(d==="DOWN") hY += box;
+            let nH = {x:hX, y:hY};
 
-            ctx.clearRect(0, 0, 260, 170);
-            
-            // رسم التفاحة
-            ctx.fillStyle = "#000"; ctx.fillRect(food.x + 1, food.y + 1, box - 2, box - 2);
-            
-            // رسم جسم الثعبان
-            snake.forEach((c, i) => { 
-                ctx.fillStyle = "#000000"; 
-                ctx.fillRect(c.x + 1, c.y + 1, box - 2, box - 2); 
-                if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(c.x + 3, c.y + 3, 2, 2); }
-            });
-
-            // 🎯 السلسلة الحركية القياسية الصحيحة بلغة JavaScript لمنع عيب الاختفاء نهائياً
-            let hX = snake[0].x;
-            let hY = snake[0].y;
-            
-            if(d === "LEFT") hX -= box; 
-            else if(d === "UP") hY -= box; 
-            else if(d === "RIGHT") hX += box; 
-            else if(d === "DOWN") hY += box;
-            
-            let nH = {x: hX, y: hY};
-
-            // فحص الاصطدام بالحواف أو الاصطدام بالجسم
-            if(hX < 0 || hX >= 260 || hY < 0 || hY >= 170 || snake.some(c => c.x === nH.x && c.y === nH.y)) { 
-                endGame(); 
-                return; 
+            if(hX<0 || hX>=240 || hY<0 || hY>=160 || snake.some(c=>c.x===nH.x && c.y===nH.y)) {
+                clearInterval(interval); isGameOver=true;
+                document.getElementById('gameOverScreen').style.display = 'block';
+                return;
             }
-
-            // احتساب نقاط الجولة: زيادة 10 نقاط ثابتة فقط ونقل التفاحة فوراً لمنع التكرار
-            if(hX === food.x && hY === food.y) {
-                score += 10; 
-                document.getElementById('snakeScore').innerText = "النقاط: " + score; 
-                genFood(); 
-            } else { 
-                snake.pop(); 
-            }
+            if(hX===food.x && hY===food.y) { score+=10; document.getElementById('snakeScore').innerText = "النقاط: "+score; genFood(); }
+            else { snake.pop(); }
             snake.unshift(nH);
         }
-
-        function endGame() {
-            clearInterval(gameInterval); 
-            isGameOver = true; 
-            
-            let l = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || []; 
-            l.push({name: currentUser, score: score}); 
-            l.sort((a,b)=>b.score-a.score); 
-            l = l.slice(0,3);
-            localStorage.setItem('responsive_nokia_scores', JSON.stringify(l)); 
-            loadLead();
-
-            document.getElementById('goTitle').innerText = "انتهت اللعبة";
-            document.getElementById('finalScoreText').innerText = "نقاط الجولة المحققة: " + score;
-            document.getElementById('playerName').value = currentUser;
-            document.getElementById('gameOverScreen').style.display = 'block';
-        }
-
-        function loadLead() {
-            let l = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || [{name:"المركز 1",score:0},{name:"المركز 2",score:0},{name:"المركز 3",score:0}], h = "";
-            l.forEach((s, i) => { h += `<div class="score-row"><span>${i+1}. ${s.name}</span><span>${s.score}</span></div>`; });
-            document.getElementById('leaderboardContent').innerHTML = h;
-        }
-
-        let lastUser = localStorage.getItem('snake_last_user');
-        if(lastUser) { document.getElementById('playerName').value = lastUser; }
-        loadLead();
     </script>
 </body>
 </html>
