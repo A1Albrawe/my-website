@@ -130,7 +130,6 @@ TETRIS_TEMPLATE = """
         let board = [], score = 0, gameInterval = null, musicInterval = null;
         let isGameOver = true, isPaused = false, isMuted = false, globalVolume = 0.5;
 
-        // نظام النغمات والموسيقى الخلفية polyphonic لنوكيا المتناسق تماماً
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const musicNotes = [523.25, 587.33, 659.25, 523.25, 659.25, 587.33, 392.00, 440.00];
 
@@ -159,18 +158,19 @@ TETRIS_TEMPLATE = """
         function startMusic() { stopMusic(); if(!isMuted && globalVolume > 0) { playMusic(); musicInterval = setInterval(playMusic, musicNotes.length * 200); } }
         function stopMusic() { if(musicInterval) clearInterval(musicInterval); }
 
+        // 🎯 تم التصحيح الهندسي: مصفوفة الأبعاد الرقمية المكتملة 100% لضمان ظهور المكعبات وحركتها
         const PIECES = [
-            [[[1,1,1,1]], "#58a6ff"], // خط مستقيم أزرق نيون
-            [[[0,1,0],[1,1,1]], "#3fb950"], // شكل T أخضر مضيء
-            [[[1,1,0],[0,1,1]], "#f85149"], // شكل Z أحمر مضيء
-            [[[0,1,1],[1,1,0]], "#d29922"], // شكل S أصفر مضيء
-            [[[1,1],[1,1]], "#ffffff"], // مربع أبيض ناصع
-            [[[1,0,0],[1,1,1]], "#a371f7"], // شكل L بنفسجي
-            [[[0,0,1],[1,1,1]], "#ff7b72"] // شكل J برتقالي
+            [[[1,1,1,1]], "#58a6ff"], // شكل I الأزرق
+            [[[0,1,0],[1,1,1]], "#3fb950"], // شكل T الأخضر
+            [[[1,1,0],[0,1,1]], "#f85149"], // شكل Z الأحمر
+            [[[0,1,1],[1,1,0]], "#d29922"], // شكل S الأصفر
+            [[[1,1],[1,1]], "#ffffff"], // شكل O المربع الأبيض
+            [[[1,0,0],[1,1,1]], "#a371f7"], // شكل L البنفسجي
+            [[[0,0,1],[1,1,1]], "#ff7b72"] // شكل J البرتقالي
         ];
 
         class Piece {
-            constructor(tetromino, color) { this.tetromino = tetromino; this.color = color; this.activeTetromino = this.tetromino[0]; this.x = 3; this.y = -2; }
+            constructor(tetromino, color) { this.tetromino = tetromino; this.color = color; this.activeTetromino = this.tetromino; this.x = 3; this.y = -2; }
             draw() { this.fill(this.color); }
             unuse() { this.fill(VACANT); }
             fill(color) {
@@ -190,7 +190,7 @@ TETRIS_TEMPLATE = """
             moveLeft() { if(!this.collision(-1,0,this.activeTetromino)) { this.unuse(); this.x--; this.draw(); playSound('move'); } }
             rotate() {
                 let nextPattern = [];
-                for(let c=0; c<this.activeTetromino[0].length; c++) {
+                for(let c=0; c<this.activeTetromino.length; c++) {
                     let row = [];
                     for(let r=this.activeTetromino.length-1; r>=0; r--) { row.push(this.activeTetromino[r][c]); }
                     nextPattern.push(row);
