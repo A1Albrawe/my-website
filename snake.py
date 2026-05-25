@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template_string
 
-snake_blueprint = Blueprint('snake', __name__)
+# تغيير اسم الرابط والمسار البرمجي رسمياً ليتطابق مع متطلباتك
+snake_blueprint = Blueprint('Albrawe - Snake', __name__)
 
 SNAKE_TEMPLATE = """
 <!DOCTYPE html>
@@ -8,7 +9,7 @@ SNAKE_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ثعبان نوكيا الأصلي - Albrawe</title>
+    <title>Albrawe - Snake</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { 
@@ -123,7 +124,6 @@ SNAKE_TEMPLATE = """
             </div>
         </div>
 
-        <!-- أزرار الـ D-pad التناظرية الموجهة بدقة هندسية تمنع أي عكس بالاتجاهات -->
         <div class="nokia-dpad">
             <div class="dpad-empty"></div>
             <div class="arrow-btn" onmousedown="changeDirection('UP')" ontouchstart="changeDirection('UP'); event.preventDefault();"><i class="fas fa-chevron-up"></i></div>
@@ -186,7 +186,6 @@ SNAKE_TEMPLATE = """
             document.getElementById('recordOverlay').style.display = 'none';
             document.getElementById('nokiaScreen').classList.remove('highscore-flash');
             
-            // تهيئة إحداثيات السلسلة الحركية بدقة تمنع الاختفاء الفجائي للثعبان
             snake = [
                 {x: 100, y: 90},
                 {x: 90, y: 90},
@@ -198,14 +197,12 @@ SNAKE_TEMPLATE = """
         
         function genFood() { 
             food = { x: Math.floor(Math.random() * 26) * box, y: Math.floor(Math.random() * 16) * box }; 
-            // التأكد من عدم توليد التفاحة فوق أي مربع من مربعات جسم الثعبان
             for(let i = 0; i < snake.length; i++) { if(snake[i].x === food.x && snake[i].y === food.y) genFood(); } 
         }
 
         document.onkeydown = function(e) {
             if(e.keyCode === 32) { e.preventDefault(); togglePause(); return; }
             if(isGameOver || isPaused) return; const k = e.keyCode, c = e.key ? e.key.toLowerCase() : "";
-            // معالجة الاتجاهات بالأزرار لمنع الانعكاس المعكوس أو الانتحار المباشر للثعبان
             if ((k === 37 || c === 'a' || c === 'ص') && d !== "RIGHT") d = "LEFT";
             else if ((k === 38 || c === 'w' || c === 'ص') && d !== "DOWN") d = "UP";
             else if ((k === 39 || c === 'd' || c === 'ي') && d !== "LEFT") d = "RIGHT";
@@ -220,12 +217,11 @@ SNAKE_TEMPLATE = """
             if(dir === "DOWN" && d !== "UP") d = "DOWN";
         }
 
-        // محرك التقاط السحب واللمس الحسي (Touch Swipe) لجوالات المحمول الذكية
         let tsX = 0, tsY = 0;
-        window.addEventListener('touchstart', e => { if(e.changedTouches) { tsX = e.changedTouches[0].screenX; tsY = e.changedTouches[0].screenY; } }, {passive: true});
+        window.addEventListener('touchstart', e => { if(e.changedTouches) { tsX = e.changedTouches.screenX; tsY = e.changedTouches.screenY; } }, {passive: true});
         window.addEventListener('touchend', e => {
             if(isPaused || isGameOver || !e.changedTouches) return; 
-            const xDiff = e.changedTouches[0].screenX - tsX, yDiff = e.changedTouches[0].screenY - tsY;
+            const xDiff = e.changedTouches.screenX - tsX, yDiff = e.changedTouches.screenY - tsY;
             if(Math.abs(xDiff) > Math.abs(yDiff)) {
                 if(Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT');
             } else {
@@ -234,22 +230,19 @@ SNAKE_TEMPLATE = """
         }, {passive: true});
 
         function draw() {
-            // صمام الأمان الهندسي الحاسم لمنع ثغرات العداد اللانهائي للعملات والنقاط فور حدوث الخسارة
+            // صمام الأمان لمنع ثغرة زيادة النقاط بعد الخسارة إلى ما لا نهاية
             if (isPaused || isGameOver) return; 
 
             ctx.clearRect(0, 0, 260, 170);
-            
-            // رسم الطعام بكسلي أسود تقليدي
             ctx.fillStyle = "#000"; ctx.fillRect(food.x + 1, food.y + 1, box - 2, box - 2);
             
-            // رسم جسم الثعبان بكسل تلو الآخر بلون أسود كلاسيكي
             snake.forEach((c, i) => { 
                 ctx.fillStyle = "#000000"; 
                 ctx.fillRect(c.x + 1, c.y + 1, box - 2, box - 2); 
                 if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(c.x + 3, c.y + 3, 2, 2); }
             });
 
-            // 🎯 تم الإصلاح النهائي: جلب الرأس كأول عنصر في المصفوفة لمنع الاختفاء الفجائي نهائياً
+            // 🎯 تم التصحيح الهندسي الشامل: قراءة رأس الأفعى كأول عنصر مصفوفة [0] لمنع تجميد الحركة نهائياً
             let hX = snake[0].x;
             let hY = snake[0].y;
             
@@ -260,10 +253,9 @@ SNAKE_TEMPLATE = """
             
             let nH = {x: hX, y: hY};
 
-            // حساب شروط الخسارة عند ملامسة الحواف أو ملامسة الثعبان لنفسه
             if(hX < 0 || hX >= 260 || hY < 0 || hY >= 170 || snake.some(c => c.x === nH.x && c.y === nH.y)) { endGame(); return; }
 
-            // التهام الطعام وإصلاح ثغرة العداد؛ الزيادة بمقدار 10 نقاط ثابتة فقط لكل تفاحة
+            // زيادة محددة بمقدار 10 نقاط فقط مع أكل الطعام
             if(hX === food.x && hY === food.y) {
                 score += 10; 
                 document.getElementById('snakeScore').innerText = "النقاط: " + score; 
@@ -277,7 +269,6 @@ SNAKE_TEMPLATE = """
         }
 
         function endGame() {
-            // تجميد فوري وشامل لعداد اللعبة والموسيقى فور الخسارة لمنع أي ثغرات أو نقاط متكررة
             clearInterval(gameInterval); stopMusic(); isGameOver = true; playSound('lose');
             document.getElementById('phoneWrapper').classList.add('shake'); setTimeout(() => document.getElementById('phoneWrapper').classList.remove('shake'), 300);
             
@@ -289,7 +280,7 @@ SNAKE_TEMPLATE = """
             document.getElementById('playerName').value = currentUser;
             document.getElementById('gameOverScreen').style.display = 'block';
             
-            if(l.length > 0 && l[0].name === currentUser && score > 0 && l[0].score === score) { 
+            if(l.length > 0 && l.name === currentUser && score > 0 && l.score === score) { 
                 playSound('win'); 
                 document.getElementById('recordOverlay').style.display = 'block'; 
                 document.getElementById('nokiaScreen').classList.add('highscore-flash');
