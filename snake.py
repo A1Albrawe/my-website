@@ -212,10 +212,10 @@ SNAKE_TEMPLATE = """
         }
 
         let tsX = 0, tsY = 0;
-        window.addEventListener('touchstart', e => { tsX = e.changedTouches.screenX; tsY = e.changedTouches.screenY; }, {passive: true});
+        window.addEventListener('touchstart', e => { if(e.changedTouches && e.changedTouches[0]) { tsX = e.changedTouches[0].screenX; tsY = e.changedTouches[0].screenY; } }, {passive: true});
         window.addEventListener('touchend', e => {
-            if(isPaused || isGameOver) return; 
-            const xDiff = e.changedTouches.screenX - tsX, yDiff = e.changedTouches.screenY - tsY;
+            if(isPaused || isGameOver || !e.changedTouches || !e.changedTouches[0]) return; 
+            const xDiff = e.changedTouches[0].screenX - tsX, yDiff = e.changedTouches[0].screenY - tsY;
             if(Math.abs(xDiff) > Math.abs(yDiff)) {
                 if(Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT');
             } else {
@@ -224,7 +224,6 @@ SNAKE_TEMPLATE = """
         }, {passive: true});
 
         function draw() {
-            // صمام الأمان الحاسم: تجميد كود الرسم لمنع العداد اللانهائي فور حدوث الخسارة
             if (isPaused || isGameOver) return; 
 
             ctx.clearRect(0, 0, 280, 180);
@@ -236,7 +235,7 @@ SNAKE_TEMPLATE = """
                 if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(c.x + 3, c.y + 3, 2, 2); }
             });
 
-            // قراءة هندسية مصححة وصحيحة 100% لإحداثيات الرأس المتغير
+            // 🎯 تم التثبيت النهائي: جلب الرأس كعنصر مصفوفة لمنع الاختفاء نهائياً عند تغيير الاتجاه
             let hX = snake[0].x;
             let hY = snake[0].y;
             
@@ -261,7 +260,6 @@ SNAKE_TEMPLATE = """
             clearInterval(gameInterval); stopMusic(); isGameOver = true; playSound('lose');
             document.getElementById('phoneWrapper').classList.add('shake'); setTimeout(() => document.getElementById('phoneWrapper').classList.remove('shake'), 300);
             
-            // قراءة وحفظ السجل التراكمي الموحد والمؤمن لحماية تقدم جميع اللاعبين
             let l = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || []; l.push({name: currentUser, score: score}); l.sort((a,b)=>b.score-a.score); l = l.slice(0,3);
             localStorage.setItem('responsive_nokia_scores', JSON.stringify(l)); loadLead();
 
