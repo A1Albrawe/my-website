@@ -2,14 +2,14 @@ import json
 import urllib.request
 from flask import Blueprint, request, jsonify, render_template_string
 
-# إنشاء Blueprint موحد يجمع صفحة التقارير وبوت التليجرام معاً
+# إنشاء البلوبرينت الموحد لنظام الشات المتكامل والتليجرام
 report_blueprint = Blueprint('report', __name__)
 
-# ⚠️ البيانات السرية والخاصة بحسابك والبوت والجاهزة للعمل فوراً
+# الحساب الشخصي وتوكين البوت المعتمد والجاهز للربط الفوري
 ADMIN_CHAT_ID = "1178062571"
 BOT_TOKEN = "1892403076:AAHOyUXyGNkNlYvDfJKuWrHZ4hUg3m22GYs"
 
-# دالة معزولة ومبنية على urllib الأساسية لضمان عدم انهيار السيرفر نهائياً
+# دالة إرسال الرسائل إلى تليجرام المطور ومبنية على urllib الأساسية لمنع الانهيار
 def send_to_telegram(text):
     url = f"https://telegram.org{BOT_TOKEN}/sendMessage"
     payload = {
@@ -30,36 +30,64 @@ def send_to_telegram(text):
     except Exception:
         pass
 
-# مسار استقبال الشكاوى والمحادثات الحية من واجهة الموقع وتمريرها إلى تليجرامك فوراً
+# مسار استقبال حزم الشات الفورية من واجهة الموقع وتمريرها لتليجرامك
 @report_blueprint.route('/api/send_message', methods=['POST'])
 def send_msg_from_site():
     data = request.get_json() or {}
     user = data.get('user', 'زائر مجهول')
     msg_type = data.get('type', 'محادثة حية')
     details = data.get('details', '')
+    session_id = data.get('session_id', '0')
 
     if not details:
         return jsonify({"status": "error", "message": "الرسالة فارغة"}), 400
 
-    # تنسيق الرسالة لتظهر في حسابك على تليجرام بشكل منظم ومريح جداً للقراءة
     tg_text = (
-        f"📥 *رسالة جديدة من الموقع*\n\n"
+        f"📥 *محادثة حية جديدة من الموقع*\n\n"
         f"👤 *الاسم:* {user}\n"
         f"🏷️ *النوع:* {msg_type}\n"
         f"💬 *الرسالة:* {details}\n\n"
-        f"📌 يمكنك فتح حساب المستخدم أو التواصل معه عبر التليجرام إذا كان معرفه مسجلاً."
+        f"📌 للرد على هذا المستخدم، قم بعمل Reply على هذه الرسالة واكتب ردك فوراً.\n"
+        f"`ID:{session_id}`" # معرّف الجلسة السري المعتمد للتوجيه العكسي
     )
     
     send_to_telegram(tg_text)
-    return jsonify({"status": "success", "message": "تم الإرسال بنجاح"})
+    return jsonify({"status": "success", "message": "تم الإرسال"})
 
-# مسارات الأمان المعزولة المفرغة المتوافقة مع معايير Vercel السحابية لمنع الانهيار
+# مسار الـ Webhook المحدث الذي يلتقط ردود الـ Reply من تليجرامك بأمان ويخزنها مؤقتاً
 @report_blueprint.route('/api/telegram_webhook', methods=['POST'])
 def telegram_webhook():
+    update = request.get_json() or {}
+    
+    if "message" in update and "reply_to_message" in update["message"]:
+        message = update["message"]
+        sender_id = str(message["from"]["id"])
+        
+        # التأكد من أن الرد قادم من حسابك الشخصي المعتمد فقط لحظر الغش والتسلل
+        if sender_id == str(ADMIN_CHAT_ID):
+            reply_text = message.get("text", "")
+            original_text = message["reply_to_message"].get("text", "")
+            
+            if "ID:" in original_text:
+                try:
+                    session_id = original_text.split("ID:")[-1].strip()
+                    if not hasattr(report_blueprint, 'live_replies'):
+                        report_blueprint.live_replies = {}
+                    report_blueprint.live_replies[session_id] = reply_text
+                except Exception:
+                    pass
+
     return "OK", 200
 
+# مسار الفحص الإطاري (Polling API) لمتصفح الزائر لسحب ردودك الحية وعرضها له
 @report_blueprint.route('/api/get_reply/<session_id>', methods=['GET'])
 def get_reply(session_id):
+    if not hasattr(report_blueprint, 'live_replies'):
+        report_blueprint.live_replies = {}
+        
+    reply = report_blueprint.live_replies.pop(session_id, None)
+    if reply:
+        return jsonify({"status": "found", "reply": reply})
     return jsonify({"status": "empty"})
 REPORT_TEMPLATE = """
 <!DOCTYPE html>
@@ -67,7 +95,7 @@ REPORT_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إرسال مشكلة - Albrawe</title>
+    <title>Albrawe - Chat</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { 
@@ -132,7 +160,7 @@ REPORT_TEMPLATE = """
             padding-bottom: 6px;
             margin-bottom: 12px;
         }
-        h3 { margin: 0 0 15px 0; text-align: center; font-size: 16px; font-weight: bold; border-bottom: 1px dashed #000; padding-bottom: 5px; }
+        h3 { margin: 0 0 15px 0; text-align: center; font-size: 15px; font-weight: bold; border-bottom: 1px dashed #000; padding-bottom: 5px; }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
         label { font-weight: bold; font-size: 12px; }
 
@@ -149,7 +177,7 @@ REPORT_TEMPLATE = """
             box-sizing: border-box;
             width: 100%;
         }
-        textarea.input-field { resize: none; height: 75px; }
+        textarea.input-field { resize: none; height: 60px; }
 
         .submit-btn {
             background: #000;
@@ -168,17 +196,23 @@ REPORT_TEMPLATE = """
             gap: 8px;
         }
 
-        .reports-log {
+        /* حاوية الشات الحي المطور التناظرية لتبادل الرسائل والردود */
+        .chat-box-area {
             margin-top: 15px;
-            background: rgba(0, 0, 0, 0.07);
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            border-top: 1px dashed #000;
-            max-height: 105px;
+            background: rgba(0, 0, 0, 0.08);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            border: 2px solid #000;
+            height: 130px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        .log-item { border-bottom: 1px dashed rgba(0,0,0,0.1); padding: 4px 0; display: flex; justify-content: space-between; font-weight: bold; }
+        .chat-bubble { padding: 6px 10px; border-radius: 6px; max-width: 85%; font-weight: bold; line-height: 1.4; word-wrap: break-word; }
+        .user-bubble { background: #000; color: #8c9f21; align-self: flex-start; text-align: right; border-radius: 6px 6px 0 6px; }
+        .admin-bubble { background: #cbd3d8; color: #000; align-self: flex-end; text-align: right; border-radius: 6px 6px 6px 0; border: 1px solid #000; }
     </style>
 </head>
 <body>
@@ -187,96 +221,88 @@ REPORT_TEMPLATE = """
     <div class="nokia-phone-style">
         <div class="nokia-screen-style">
             <div class="screen-header">
-                <span><i class="fas fa-tools"></i> مركز الدعم الفني</span>
+                <span><i class="fas fa-comments"></i> شات الدعم الفني المباشر</span>
                 <span>NOKIA</span>
             </div>
             
-            <h3><i class="fas fa-envelope-open-text"></i> إرسال رسالة للمطور</h3>
-            
-            <form id="reportForm" onsubmit="handleFormSubmit(event)">
-                <div class="form-group">
-                    <label for="userName">اسم المستخدم:</label>
-                    <input type="text" id="userName" class="input-field" placeholder="اكتب اسمك هنا" required maxlength="15">
+            <form id="chatForm" onsubmit="handleFormSubmit(event)">
+                <div class="form-group" style="display:none;">
+                    <input type="text" id="userName" class="input-field" value="زائر" required maxlength="15">
                 </div>
                 
-                <div class="form-group">
-                    <label for="issueType">نوع الرسالة:</label>
-                    <select id="issueType" class="input-field" required>
-                        <option value="ثغرة في الموقع">ثغرة في الألعاب 🐍</option>
-                        <option value="خلل في التحكم">مشكلة في أزرار اللمس أو الكيبورد 📱</option>
-                        <option value="اقتراح أو فكرة">لدي اقتراح أو فكرة جديدة للموقع 💡</option>
-                    </select>
+                <div class="chat-box-area" id="chatBoxContainer">
+                    <div style="text-align:center; color:rgba(0,0,0,0.5); font-weight:bold; margin:auto;" id="emptyHint">افتح محادثة حية واكتب رسالتك بالأسفل...</div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="issueDetails">تفاصيل الرسالة:</label>
-                    <textarea id="issueDetails" class="input-field" placeholder="اشرح المشكلة باختصار وسوف تصل فوراً لتليجرام المطور..." required maxlength="200"></textarea>
+                <div class="form-group" style="margin-top:12px;">
+                    <textarea id="issueDetails" class="input-field" placeholder="اكتب رسالتك هنا واضغط إرسال..." required maxlength="200"></textarea>
                 </div>
                 
                 <button type="submit" class="submit-btn">
-                    <i class="fas fa-paper-plane"></i> إرسال إلى التليجرام
+                    <i class="fas fa-paper-plane"></i> إرسال الرسالة للبوت
                 </button>
             </form>
-
-            <div class="reports-log">
-                <h4>📥 محادثاتك المرسلة في هذه الجلسة</h4>
-                <div id="logContainer">
-                    <div style="text-align:center; color:rgba(0,0,0,0.5);">لا توجد رسائل حالياً</div>
-                </div>
-            </div>
         </div>
     </div>
     <script>
-        // محرك استدعاء الاسم التلقائي المحفوظ من ألعاب الموقع لراحة المستخدم
-        function autoFillUser() {
+        // توليد معرّف جلسة عشوائي ومستقل لكل زائر لمنع تداخل الرسائل والردود بين المستخدمين
+        const currentSessionId = "session_" + Math.floor(Math.random() * 899999 + 100000);
+
+        function setupUser() {
             let savedUser = localStorage.getItem('snake_last_user');
-            if (savedUser) {
-                document.getElementById('userName').value = savedUser;
-            }
+            if (savedUser) { document.getElementById('userName').value = savedUser; }
         }
 
         function handleFormSubmit(event) {
             event.preventDefault();
             
             const user = document.getElementById('userName').value.trim();
-            const type = document.getElementById('issueType').value;
             const details = document.getElementById('issueDetails').value.trim();
             
-            if (!user || !details) return;
+            if (!details) return;
 
-            // تحديث الشاشة فوراً وإظهار الرسالة في سجل الهاتف الكلاسيكي
-            appendLogItem(type, details);
+            // طباعة رسالة الزائر فوراً داخل صندوق الشات بلون نوكيا الأسود والأخضر
+            appendChatBubble(details, "user-bubble");
             document.getElementById('issueDetails').value = "";
 
-            // إرسال حزمة البيانات عبر AJAX إلى مسار بايثون المدمج لتوصيلها بالتليجرام
+            // إرسال الحزمة الفورية لخادم بايثون لتوصيلها إلى تليجرامك الشخصي عبر البوت
             fetch('/api/send_message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     user: user,
-                    type: type,
-                    details: details
+                    type: "شات حي المطور",
+                    details: details,
+                    session_id: currentSessionId
                 })
-            }).then(res => res.json())
-              .then(data => {
-                  if(data.status === "success") {
-                      alert("✅ وصلت رسالتك بنجاح إلى تليجرام المطور البراوي!");
-                  }
-              });
+            });
         }
 
-        function appendLogItem(type, text) {
-            const container = document.getElementById('logContainer');
-            if(container.innerHTML.includes("لا توجد رسائل")) container.innerHTML = "";
+        function appendChatBubble(text, className) {
+            const container = document.getElementById('chatBoxContainer');
+            const hint = document.getElementById('emptyHint');
+            if (hint) hint.remove();
             
-            const item = document.createElement('div');
-            item.className = "log-item";
-            item.innerHTML = `<span>[${type}]: ${text}</span>`;
-            container.appendChild(item);
+            const bubble = document.createElement('div');
+            bubble.className = "chat-bubble " + className;
+            bubble.innerText = text;
+            container.appendChild(bubble);
             container.scrollTop = container.scrollHeight;
         }
 
-        autoFillUser();
+        // الفحص التلقائي الإطاري (Long-Polling) للاستماع لردودك من التليجرام كل ثانيتين
+        setInterval(() => {
+            fetch('/api/get_reply/' + currentSessionId)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "found") {
+                    // طباعة رد المطور فوراً داخل صندوق الشات بلون رمادي كلاسيكي مميز
+                    appendChatBubble(data.reply, "admin-bubble");
+                }
+            });
+        }, 2000);
+
+        setupUser();
     </script>
 </body>
 </html>
