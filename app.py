@@ -3,7 +3,7 @@ from home import home_blueprint
 from snake import snake_blueprint
 from tetris import tetris_blueprint
 from report import report_blueprint
-from menu import generate_sidebar_html # استدعاء القائمة الجانبية الموحدة
+from menu import generate_sidebar_html
 
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
@@ -13,45 +13,26 @@ app.register_blueprint(snake_blueprint)
 app.register_blueprint(tetris_blueprint)
 app.register_blueprint(report_blueprint)
 
-# 🌐 قاعدة البيانات السحابية المركزية الموحدة للشكاوى والتحليلات
-CLOUD_REPORTS_DB = []
+# 🌐 تم تصفير وحذف مصفوفات قواعد البيانات تماماً لقطع التفاعل
 CLOUD_ANALYTICS_DB = []
 
-@app.route('/api/cloud_submit_report', methods=['POST'])
+# ❌ تم تدمير وحظر مسار استقبال الشكاوى نهائياً؛ أي محاولة إرسال من الكاش القديم ستعطي فشل حتمي فوراً
+@app.route('/api/cloud_submit_report', methods=['GET', 'POST'])
 def cloud_submit_report():
-    global CLOUD_REPORTS_DB
-    data = request.get_json() or {}
-    CLOUD_REPORTS_DB.insert(0, {
-        "id": data.get("id"), "user": data.get("user"),
-        "details": data.get("details"), "date": data.get("date")
-    })
-    CLOUD_REPORTS_DB = CLOUD_REPORTS_DB[:100]
-    return jsonify({"status": "success"})
+    return jsonify({"status": "forbidden", "message": "This API has been permanently disabled by Admin."}), 403
 
 @app.route('/api/cloud_submit_analytics', methods=['POST'])
 def cloud_submit_analytics():
-    global CLOUD_ANALYTICS_DB
-    data = request.get_json() or {}
-    CLOUD_ANALYTICS_DB.insert(0, {
-        "username": data.get("username"), "userAgent": data.get("userAgent"),
-        "loginTime": data.get("loginTime"), "duration": data.get("duration"),
-        "snakeTime": data.get("snakeTime"), "tetrisTime": data.get("tetrisTime")
-    })
-    CLOUD_ANALYTICS_DB = CLOUD_ANALYTICS_DB[:50]
-    return jsonify({"status": "success"})
+    return jsonify({"status": "disabled"}), 200
 
 @app.route('/api/admin_get_all_data', methods=['GET'])
 def admin_get_all_data():
-    if not session.get('admin_logged_in'): return jsonify({"status": "unauthorized"}), 401
-    return jsonify({"reports": CLOUD_REPORTS_DB, "analytics": CLOUD_ANALYTICS_DB})
+    return jsonify({"status": "terminated"}), 410
 
 @app.route('/api/admin_clear_data', methods=['POST'])
 def admin_clear_data():
-    global CLOUD_REPORTS_DB, CLOUD_ANALYTICS_DB
-    if not session.get('admin_logged_in'): return jsonify({"status": "unauthorized"}), 401
-    CLOUD_REPORTS_DB = []; CLOUD_ANALYTICS_DB = []
-    return jsonify({"status": "success"})
-# 📄 مسار صفحة معرض المشاريع الموحد مع خطاف الاستدعاء المباشر للقائمة المنسدلة
+    return jsonify({"status": "terminated"}), 410
+# 📄 مسار صفحة معرض المشاريع الموحد
 @app.route('/projects')
 def projects_page():
     dynamic_links = generate_sidebar_html()
@@ -99,7 +80,7 @@ def projects_page():
     """
     return render_template_string(html.replace("CHIPS_PLACEHOLDER", dynamic_links))
 
-# 📄 مسار صفحة من نحن (About us) الموحد مع القائمة الجانبية
+# 📄 مسار صفحة من نحن (About us) الموحد
 @app.route('/about')
 def about_page():
     dynamic_links = generate_sidebar_html()
@@ -147,19 +128,13 @@ def about_page():
     """
     return render_template_string(html.replace("CHIPS_PLACEHOLDER", dynamic_links))
 
-# 🔒 لوحة الإدارة السحابية المركزية المحمية
-ADMIN_HTML = "LOCKED_ADMIN_PANEL_REMOVED_SUCCESSFULLY"
-LOGIN_HTML = "LOCKED_ADMIN_LOGIN_REMOVED_SUCCESSFULLY"
-
 @app.route('/PASS', methods=['GET', 'POST'])
 def admin_page(): return "404 Not Found", 404
 
-# 🎯 الدالة الجاذبة والذكية البديلة التي حقنتها لتصحيح تعارض سكربت الواجهة القديم دون تعديل ملف home.py
 @app.after_request
 def inject_clean_dropdown_fix(response):
     if response.content_type.startswith('text/html'):
         text = response.get_data(as_text=True)
-        # كسر وإلغاء فاعلية أمر الإغلاق التلقائي للواجهة القديمة واستبداله بالسكربت المطور المستثني لزر الألعاب
         old_script = ".querySelectorAll('.menu-item').forEach"
         new_script = ".querySelectorAll('.menu-links > a').forEach"
         if old_script in text:
