@@ -8,7 +8,7 @@ HOME_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Albrawe - المطور المحترف</title>
+    <title>Albrawe</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { 
@@ -25,7 +25,6 @@ HOME_TEMPLATE = """
             overflow-x: hidden;
         }
         
-        /* شريط علوي مستوحى من شاشات الكود */
         .header-nav {
             background-color: #161b22;
             padding: 12px 20px;
@@ -43,16 +42,31 @@ HOME_TEMPLATE = """
             font-size: 20px;
             cursor: pointer;
             outline: none;
-            padding: 6px 12px;
+            padding: 6px 15px;
             border-radius: 6px;
             transition: 0.2s;
+            font-family: inherit;
+            font-weight: bold;
         }
         .menu-toggle:hover {
             background: #30363d;
             color: #79c0ff;
         }
 
-        /* ستارة القائمة الجانبية السيبرانية المحدثة */
+        .neon-text-style {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 5px #58a6ff, 0 0 10px #58a6ff, 0 0 20px #0052cc, 0 0 40px #0052cc;
+            animation: neonPulseAnim 1.5s ease-in-out infinite alternate;
+            letter-spacing: 1px;
+        }
+        @keyframes neonPulseAnim {
+            from { text-shadow: 0 0 4px #58a6ff, 0 0 8px #58a6ff, 0 0 15px #0052cc, 0 0 30px #0052cc; opacity: 0.9; }
+            to { text-shadow: 0 0 6px #58a6ff, 0 0 14px #58a6ff, 0 0 25px #0052cc, 0 0 50px #0052cc; opacity: 1; }
+        }
+
         .sidebar-curtain {
             position: fixed;
             top: 0;
@@ -121,7 +135,6 @@ HOME_TEMPLATE = """
             justify-content: center;
             padding: 30px 20px;
         }
-        /* بطاقة البيانات الشخصية الاحترافية الكبرى في منتصف الشاشة */
         .dev-portfolio-card {
             background: #161b22;
             border: 1px solid #30363d;
@@ -148,7 +161,6 @@ HOME_TEMPLATE = """
         .dot-y { background: #d29922; }
         .dot-g { background: #3fb950; }
 
-        /* تضمين وتنسيق صورتك الشخصية الاحترافية المرفقة داخل الواجهة السحابية */
         .dev-avatar-img {
             width: 110px;
             height: 110px;
@@ -219,7 +231,6 @@ HOME_TEMPLATE = """
             box-shadow: 0 0 10px rgba(46, 164, 79, 0.4);
         }
 
-        /* زر التليجرام الرسمي الحصري المتناسق مع الهوية البرمجية للموقع */
         .telegram-btn {
             background: #1f6feb;
             border: 1px solid #388bfd;
@@ -233,20 +244,20 @@ HOME_TEMPLATE = """
 <body>
 
     <div class="header-nav">
-        <button class="menu-toggle" onclick="toggleSidebarCurtain(true)"><i class="fas fa-code"></i> المنيو</button>
-        <span style="font-weight: bold; font-size: 16px; color: #f0f6fc; font-family: monospace;">console.log("Albrawe");</span>
+        <button class="menu-toggle" onclick="toggleSidebarCurtain(true)"><i class="fas fa-bars"></i> القائمة</button>
+        <span class="neon-text-style">Albrawe</span>
     </div>
 
-    <!-- ستارة القائمة الجانبية السيبرانية المحدثة -->
+    <!-- تم إرجاع كافة الأسماء والمسميات الأصلية داخل الستارة الجانبية بدقة -->
     <div class="sidebar-curtain" id="sidebarCurtain">
-        <button class="close-btn" onclick="toggleSidebarCurtain(false)"><i class="fas fa-terminal"></i> exit_menu</button>
+        <button class="close-btn" onclick="toggleSidebarCurtain(false)"><i class="fas fa-times"></i> إغلاق القائمة</button>
         
         <div class="menu-links">
-            <a href="/" class="menu-item"><i class="fas fa-folder"></i> main.exe</a>
-            <a href="/snake" class="menu-item" style="color: #3fb950;"><i class="fas fa-gamepad"></i> nokia_snake.py 🐍</a>
-            <a href="/tetris" class="menu-item" style="color: #d29922;"><i class="fas fa-cubes"></i> retro_tetris.js 🧱</a>
-            <a href="/report" class="menu-item" style="color: #f85149;"><i class="fas fa-bug"></i> report_bug.log 🛠️</a>
-            <a href="https://t.me/I_Albrawe" target="_blank" class="menu-item" style="color: #58a6ff;"><i class="fab fa-telegram-plane"></i> telegram_contact 🌐</a>
+            <a href="/" class="menu-item"><i class="fas fa-home"></i> البوابة الرئيسية</a>
+            <a href="/snake" class="menu-item" style="color: #3fb950;"><i class="fas fa-gamepad"></i> لعبة الثعبان الكلاسيكية 🐍</a>
+            <a href="/tetris" class="menu-item" style="color: #d29922;"><i class="fas fa-cubes"></i> لعبة التترس البكسلية 🧱</a>
+            <a href="/report" class="menu-item" style="color: #f85149;"><i class="fas fa-tools"></i> الإبلاغ عن مشكلة بالموقع 🛠️</a>
+            <a href="https://t.me" target="_blank" class="menu-item" style="color: #58a6ff;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام 🌐</a>
         </div>
     </div>
 
@@ -258,16 +269,15 @@ HOME_TEMPLATE = """
                 <div class="dot dot-g"></div>
             </div>
             
-            <!-- تم استدعاء وتثبيت الصورة المرفقة كعنصر أساسي في واجهة المستخدم -->
             <img src="https://telegra.ph" alt="Albrawe" class="dev-avatar-img" onerror="this.src='https://cloudflare.com'">
             
-            <h2 class="dev-name">المطور البراوي | Albrawe</h2>
-            <div class="dev-title">Full-Stack Developer & Game Architecture Engineer</div>
+            <h2 class="dev-name">Albrawe</h2>
+            <div class="dev-title">Game Architecture Engineer & Software Specialist</div>
             
             <div class="info-section">
-                <div class="info-line">⚡ <strong>نبذة عني:</strong> مهندس برمجيات متخصص في بناء وتطوير تطبيقات الويب الكاملة، وتصميم الألعاب الكلاسيكية بأسلوب البكسل مع حماية الأكواد السحابية من الثغرات.</div>
-                <div class="info-line">🚀 <strong>مجالات الخبرة:</strong> هندسة الخوادم (Backend API)، معالجة البيانات المحلية، والواجهات الأمامية المتجاوبة الذكية.</div>
-                <div class="info-line">🛠️ <strong>اللغات والتقنيات الأساسية:</strong></div>
+                <div class="info-line">⚡ <strong>نبذة عني:</strong> بناء وتطوير تطبيقات الويب الكاملة، وتصميم الألعاب الكلاسيكية بأسلوب البكسل مع حماية الأكواد السحابية من الثغرات البرمجية.</div>
+                <div class="info-line">🚀 <strong>مجالات الخبرة:</strong> هندسة خوادم الويب المتكاملة، معالجة البيانات المحلية الآمنة، والواجهات المتجاوبة الذكية.</div>
+                <div class="info-line">🛠️ <strong>التقنيات الأساسية:</strong></div>
                 <div class="skills-container">
                     <span class="skill-badge">Python (Flask)</span>
                     <span class="skill-badge">JavaScript (ES6)</span>
@@ -278,14 +288,12 @@ HOME_TEMPLATE = """
             </div>
             
             <div class="action-buttons-group">
-                <button class="quick-btn" onclick="toggleSidebarCurtain(true)"><i class="fas fa-arrow-left"></i> تصفح واختبر مشاريعي البرمجية</button>
-                <!-- ربط حساب التليجرام الرسمي المباشر الخاص بك في منتصف الشاشة -->
-                <a href="https://t.me/I_Albrawe" target="_blank" class="quick-btn telegram-btn"><i class="fab fa-telegram-plane"></i> تواصل معي عبر تليجرام الرسمي</a>
+                <button class="quick-btn" onclick="toggleSidebarCurtain(true)"><i class="fas fa-arrow-left"></i> تصفح واختبر المشاريع البرمجية</button>
+                <a href="https://t.me" target="_blank" class="quick-btn telegram-btn"><i class="fab fa-telegram-plane"></i> تواصل معي عبر تليجرام الرسمي</a>
             </div>
         </div>
     </div>
     <script>
-        // دالة التحكم والمحاكاة في فتح وإغلاق الستارة الجانبية البرمجية
         function toggleSidebarCurtain(open) {
             const curtain = document.getElementById('sidebarCurtain');
             if (open) {
@@ -295,7 +303,6 @@ HOME_TEMPLATE = """
             }
         }
         
-        // ربط ذكي يضمن سحب الستارة فور فتح أي رابط برمجياً لتجنب تعليق الشاشة
         document.querySelectorAll('.menu-item').forEach(link => {
             link.addEventListener('click', () => { toggleSidebarCurtain(false); });
         });
