@@ -210,7 +210,7 @@ HOME_TEMPLATE = """
     <div class="sidebar-curtain" id="sidebarCurtain">
         <button class="close-btn" onclick="toggleSidebarCurtain(false)"><i class="fas fa-times"></i> إغلاق القائمة</button>
         <div class="menu-links">
-            <!-- 🎯 خطاف الاستدعاء الموحد والآمن لمنع الـ f-string Syntax Crash نهائياً -->
+            <!-- خطاف الاستدعاء البديل والآمن كلياً لمنع التحطم السحابي للمتغيرات -->
             <!--DYNAMIC_SIDEBAR_LINKS_PLACEHOLDER-->
         </div>
     </div>
@@ -226,7 +226,7 @@ HOME_TEMPLATE = """
             <img src="/static/avatar.png" alt="Albrawe" class="dev-avatar-img" onerror="this.src='https://cloudflare.com'">
             
             <h2 class="dev-name">Albrawe</h2>
-            <div class="dev-title"> Architecture Engineer & Software Engineer</div>
+            <div class="dev-title">Game Architecture Engineer & Software Specialist</div>
             
             <div class="info-section">
                 <div class="info-line">⚡ <strong>نبذة عني:</strong> بناء وتطوير تطبيقات الويب الكاملة، وتصميم وتعديل اسكربتات البايثون مع حماية الأكواد السحابية من الثغرات البرمجية.</div>
@@ -240,15 +240,37 @@ HOME_TEMPLATE = """
         </div>
     </div>
     <script>
+        // نظام تتبع وحساب الجلسات والوقت التلقائي الموحد لإرساله إلى رادار لوحة التحكم
+        const sessionStartTime = Date.now();
+
         function toggleSidebarCurtain(open) {
             const curtain = document.getElementById('sidebarCurtain');
-            if (open) {
-                curtain.classList.add('active');
-            } else {
-                curtain.classList.remove('active');
-            }
+            if (open) { curtain.classList.add('active'); } else { curtain.classList.remove('active'); }
         }
-        
+
+        function trackUserSessionData() {
+            let currentUser = localStorage.getItem('snake_last_user') || "زائر مجهول";
+            let totalDuration = Math.round((Date.now() - sessionStartTime) / 1000);
+            
+            let masterDB = JSON.parse(localStorage.getItem('albrawe_master_analytics_db')) || [];
+            
+            masterDB.unshift({
+                username: currentUser,
+                userAgent: navigator.userAgent,
+                loginTime: new Date(sessionStartTime).toLocaleString('ar-EG'),
+                duration: totalDuration,
+                snakeTime: localStorage.getItem('last_snake_duration') || 0,
+                tetrisTime: localStorage.getItem('last_tetris_duration') || 0
+            });
+
+            // فلترة السجلات وحفظ آخر 50 زيارة فقط لضمان بقاء السيرفر خفيفاً ومستقراً 100%
+            localStorage.setItem('albrawe_master_analytics_db', JSON.stringify(masterDB.slice(0, 50)));
+        }
+
+        // إطلاق دالة الجرد التلقائي بمجرد قيام الزائر بمغادرة أو قفل المتصفح
+        window.addEventListener('beforeunload', trackUserSessionData);
+        window.addEventListener('pagehide', trackUserSessionData);
+
         document.querySelectorAll('.menu-item').forEach(link => {
             link.addEventListener('click', () => { toggleSidebarCurtain(false); });
         });
