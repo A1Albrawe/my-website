@@ -15,5 +15,8 @@ app.register_blueprint(tetris_blueprint)
 app.register_blueprint(report_blueprint)
 app.register_blueprint(tg_bot_blueprint)
 
+# تخصيص متغير الخادم للتعرف عليه تلقائياً من قبل Vercel
+app = app
+
 if __name__ == '__main__':
     app.run()
