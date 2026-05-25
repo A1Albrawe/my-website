@@ -8,241 +8,87 @@ SNAKE_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة ثعبان نوكيا المتطورة - Albrawe</title>
+    <title>نوكيا المطور - Albrawe</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
-        body { 
-            font-family: 'Courier New', Courier, monospace; 
-            text-align: center; 
-            background: #1a1a1a;
-            color: #000; 
-            padding: 10px; 
-            margin: 0; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-            overscroll-behavior-y: contain;
-        }
-        .back-btn { 
-            background: #111; 
-            color: #8c9f21; 
-            border: 2px solid #8c9f21; 
-            padding: 10px 20px; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            text-decoration: none; 
-            font-weight: bold; 
-            display: inline-flex; 
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 15px; 
-            font-size: 14px;
-        }
-        
-        .shake { animation: shakeAnim 0.3s linear infinite; }
-        @keyframes shakeAnim {
-            0% { transform: translate(2px, 1px) rotate(0deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-
-        .nokia-phone {
-            background: #3a4d5c;
-            border: 6px solid #25333d;
-            border-radius: 30px;
-            width: 100%;
-            max-width: 420px;
-            padding: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            box-sizing: border-box;
-        }
-
-        .nokia-screen {
-            background-color: #8c9f21;
-            border: 10px solid #111;
-            border-radius: 8px;
-            padding: 12px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-            position: relative;
-            box-sizing: border-box;
-            touch-action: none;
-        }
-
+        body { font-family: 'Courier New', monospace; text-align: center; background: #1a1a1a; padding: 10px; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; overscroll-behavior-y: contain; }
+        .back-btn { background: #111; color: #8c9f21; border: 2px solid #8c9f21; padding: 10px 20px; border-radius: 5px; cursor: pointer; text-decoration: none; font-weight: bold; margin-bottom: 15px; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+        .shake { animation: sk 0.3s linear infinite; } @keyframes sk { 0% {transform: translate(2px, 1px);} 50% {transform: translate(-2px, -1px);} 100% {transform: translate(1px, -2px);} }
+        .nokia-phone { background: #3a4d5c; border: 6px solid #25333d; border-radius: 30px; width: 100%; max-width: 420px; padding: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); box-sizing: border-box; position: relative; }
+        .nokia-screen { background-color: #8c9f21; border: 10px solid #111; border-radius: 8px; padding: 10px; position: relative; box-sizing: border-box; touch-action: none; }
         .flash { background-color: #a4b930 !important; }
-
-        .score-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            font-size: 15px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 5px;
-            margin-bottom: 8px;
-        }
-
-        /* حاوية التحكم بالصوت داخل الشاشة الخضراء */
-        .audio-controls {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .mute-btn {
-            background: none;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            color: #000;
-            padding: 0;
-        }
-        .volume-bar {
-            width: 60px;
-            accent-color: #000;
-            cursor: pointer;
-            height: 4px;
-        }
-
-        .canvas-container {
-            width: 100%;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-        }
-
-        canvas { 
-            background-color: transparent; 
-            display: block; 
-            max-width: 100%;
-            height: auto;
-        }
-
-        /* لوحة الأسهم الدائرية الكبيرة (D-Pad) البديلة للأرقام القديمة */
-        .nokia-dpad {
-            margin-top: 20px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 5px;
-            width: 180px;
-            height: 180px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .arrow-btn {
-            background: #cbd3d8;
-            border: 2px solid #a1aab0;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 22px;
-            color: #222;
-            cursor: pointer;
-            box-shadow: 0 4px #78838a, inset 0 1px rgba(255,255,255,0.5);
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .arrow-btn:active {
-            box-shadow: 0 1px #78838a;
-            transform: translateY(3px);
-        }
+        .score-container { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 14px; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 6px; }
+        .audio-controls { display: flex; align-items: center; gap: 4px; }
+        .mute-btn { background: none; border: none; font-size: 14px; cursor: pointer; color: #000; padding: 0; }
+        .volume-bar { width: 50px; accent-color: #000; height: 3px; cursor: pointer; }
+        .canvas-container { width: 100%; display: flex; justify-content: center; position: relative; }
+        canvas { background-color: transparent; display: block; max-width: 100%; height: auto; }
+        .overlay-txt { display: none; position: absolute; font-size: 20px; font-weight: bold; color: #000; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(140, 159, 33, 0.9); padding: 5px 15px; border: 2px solid #000; border-radius: 4px; z-index: 5; text-align: center; width: 80%; box-sizing: border-box; }
+        .shop-panel { display: none; position: absolute; top: 0; right: 0; width: 100%; height: 100%; background: #8c9f21; z-index: 30; border-radius: 4px; padding: 12px; box-sizing: border-box; text-align: right; overflow-y: auto; }
+        .shop-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }
+        .shop-btn { background: #000; color: #8c9f21; border: none; padding: 4px 10px; font-weight: bold; cursor: pointer; border-radius: 3px; font-family: inherit; font-size: 12px; }
+        .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #000; font-size: 13px; font-weight: bold; }
+        .item-buy-btn { background: #000; color: #8c9f21; border: none; padding: 3px 8px; cursor: pointer; font-family: inherit; font-size: 11px; border-radius: 2px; }
+        .item-buy-btn.equipped { background: transparent; color: #000; border: 1px solid #000; pointer-events: none; }
+        .leaderboard { margin-top: 8px; background: rgba(0, 0, 0, 0.05); padding: 6px; border-radius: 4px; font-size: 12px; text-align: right; border-top: 1px dashed #000; }
+        .leaderboard h4 { margin: 0 0 4px 0; text-align: center; font-size: 13px; }
+        .score-row { display: flex; justify-content: space-between; padding: 1px 0; font-weight: bold; }
+        .nokia-dpad { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 160px; height: 160px; margin-left: auto; margin-right: auto; }
+        .arrow-btn { background: #cbd3d8; border: 2px solid #a1aab0; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #222; cursor: pointer; box-shadow: 0 3px #78838a, inset 0 1px rgba(255,255,255,0.5); user-select: none; -webkit-user-select: none; }
+        .arrow-btn:active { box-shadow: 0 1px #78838a; transform: translateY(2px); }
         .dpad-empty { pointer-events: none; visibility: hidden; }
-        .dpad-center {
-            background: #a1aab0;
-            border-radius: 50%;
-            pointer-events: none;
-            box-shadow: none;
-        }
-
-        .leaderboard {
-            margin-top: 12px;
-            background: rgba(0, 0, 0, 0.06);
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 13px;
-            text-align: right;
-            border-top: 1px dashed #000;
-        }
-        .leaderboard h4 { margin: 0 0 6px 0; text-align: center; font-size: 14px; }
-        .score-row { display: flex; justify-content: space-between; padding: 2px 0; font-weight: bold; }
-
-        .game-over-overlay {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #8c9f21;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-            border-radius: 4px;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        .input-name {
-            padding: 6px; font-size: 14px; border: 2px solid #000; background: #8c9f21;
-            margin-bottom: 8px; text-align: center; width: 80%; font-family: inherit; font-weight: bold;
-        }
-        .restart-btn {
-            background: #000; color: #8c9f21; border: none; padding: 8px 20px;
-            font-size: 14px; font-weight: bold; cursor: pointer; font-family: inherit;
-        }
-
-        @media (max-width: 480px) {
-            body { padding: 5px; }
-            .nokia-phone { background: transparent; border: none; box-shadow: none; padding: 5px; }
-            .nokia-screen { border-width: 6px; padding: 8px; }
-            .nokia-dpad { width: 210px; height: 210px; } /* تكبير لوحة الأسهم على الجوال للمس أدق */
-            .arrow-btn { font-size: 26px; }
-        }
+        .dpad-center-btn { background: #a1aab0; border: 2px solid #78838a; border-radius: 50%; cursor: pointer; box-shadow: 0 2px #576066; display: flex; justify-content: center; align-items: center; font-size: 12px; color: #222; }
+        .dpad-center-btn:active { box-shadow: 0 0 #576066; transform: translateY(1px); }
+        @media (max-width: 480px) { body { padding: 5px; } .nokia-phone { background: transparent; border: none; box-shadow: none; padding: 0; } .nokia-screen { border-width: 6px; padding: 6px; } .nokia-dpad { width: 190px; height: 190px; } .arrow-btn { font-size: 24px; } }
     </style>
 </head>
 <body>
-    <br>
-    <a href="/" class="back-btn"><i class="fas fa-arrow-right"></i> القائمة الرئيسية</a>
-
+    <br><a href="/" class="back-btn"><i class="fas fa-arrow-right"></i> الرئيسية</a>
     <div class="nokia-phone" id="phoneWrapper">
         <div class="nokia-screen" id="touchArea">
             <div class="score-container">
                 <span id="snakeScore">النقاط: 0</span>
-                
-                <!-- بار التحكم المطور في مستويات الصوت والـ Mute -->
                 <div class="audio-controls">
                     <button class="mute-btn" id="muteToggle" onclick="toggleMute()"><i class="fas fa-volume-up"></i></button>
                     <input type="range" id="volumeSlider" class="volume-bar" min="0" max="1" step="0.1" value="0.5" oninput="updateVolume(this.value)">
                 </div>
-                
-                <span>NOKIA</span>
+                <button class="shop-btn" onclick="toggleShop()"><i class="fas fa-shopping-basket"></i> المتجر</button>
             </div>
             
             <div class="canvas-container">
-                <canvas id="snakeCanvas" width="300" height="200"></canvas>
-            </div>
-            
-            <div id="gameOverScreen" class="game-over-overlay">
-                <h3 style="margin: 0 0 5px 0;">حاول مرة أخرى</h3>
-                <p id="finalScoreText" style="margin: 0 0 8px 0; font-weight: bold; font-size:14px;"></p>
-                <input type="text" id="playerName" class="input-name" placeholder="اكتب اسمك هنا" maxlength="10">
-                <button class="restart-btn" onclick="resetGame()">إعادة تشغيل</button>
+                <canvas id="snakeCanvas" width="300" height="180"></canvas>
+                <div id="pauseOverlay" class="overlay-txt">مؤقت</div>
+                <div id="recordOverlay" class="overlay-txt" style="background:#ffd700;">🏆 رقم قياسي! 🏆</div>
+                <div id="gameOverScreen" class="overlay-txt" style="display:block;">
+                    <h4 id="goTitle" style="margin:0 0 5px 0;">مرحباً بك</h4>
+                    <p id="finalScoreText" style="margin:0 0 8px 0; font-size:12px; font-weight:bold;"></p>
+                    <input type="text" id="playerName" class="input-name" style="padding:5px; font-size:12px; border:2px solid #000; background:#8c9f21; margin-bottom:8px; text-align:center; width:80%; font-family:inherit; font-weight:bold;" placeholder="اكتب اسمك هنا" maxlength="10">
+                    <br><button class="restart-btn" style="background:#000; color:#8c9f21; border:none; padding:6px 15px; font-size:12px; font-weight:bold; cursor:pointer;" onclick="submitPlayer()">بدء اللعب</button>
+                </div>
             </div>
 
-            <div class="leaderboard">
-                <h4>🏆 أفضل النتائج المسجلة</h4>
+            <div class="leaderboard" id="leadPanel">
+                <h4>🏆 أفضل النتائج وصافي التفاح (<span id="userApples">0</span> 🍎)</h4>
                 <div id="leaderboardContent"></div>
+            </div>
+
+            <div class="shop-panel" id="shopPanel">
+                <div class="shop-header">
+                    <span>🛒 متجر نوكيا الأصلي</span>
+                    <button class="shop-btn" onclick="toggleShop()">إغلاق</button>
+                </div>
+                <div style="font-size:11px; font-weight:bold; margin-bottom:8px; border-bottom:1px solid #000; padding-bottom:3px;">رصيدك: <span id="shopCoins">0</span> تفاحة 🍎</div>
+                <div id="shopItemsContainer"></div>
             </div>
         </div>
 
-        <!-- لوحة الأسهم التوجيهية الحصرية والجديدة كلياً في هيكل الجوال -->
         <div class="nokia-dpad">
             <div class="dpad-empty"></div>
             <div class="arrow-btn" onmousedown="changeDirection('UP')" ontouchstart="changeDirection('UP'); event.preventDefault();"><i class="fas fa-chevron-up"></i></div>
             <div class="dpad-empty"></div>
             
             <div class="arrow-btn" onmousedown="changeDirection('LEFT')" ontouchstart="changeDirection('LEFT'); event.preventDefault();"><i class="fas fa-chevron-left"></i></div>
-            <div class="dpad-center"></div>
+            <div class="dpad-center-btn" onclick="togglePause()" ontouchstart="togglePause(); event.preventDefault();"><i class="fas fa-pause"></i></div>
             <div class="arrow-btn" onmousedown="changeDirection('RIGHT')" ontouchstart="changeDirection('RIGHT'); event.preventDefault();"><i class="fas fa-chevron-right"></i></div>
             
             <div class="dpad-empty"></div>
@@ -251,237 +97,164 @@ SNAKE_TEMPLATE = """
         </div>
     </div>
     <script>
-        const canvas = document.getElementById('snakeCanvas');
-        const ctx = canvas.getContext('2d');
-        const box = 10;
+        const canvas = document.getElementById('snakeCanvas'), ctx = canvas.getContext('2d'), box = 10;
+        let score, snake, food, d, gameInterval, musicInterval, isGameOver = true, isPaused = false, isMuted = false, globalVolume = 0.5, currentUser = "", inShop = false;
         
-        let score, snake, food, d, gameInterval;
-        let isGameOver = false;
-        let isMuted = false;
-        let globalVolume = 0.5; // القيمة الافتراضية لشريط الصوت
+        let shopItems = [
+            { id: 's_green', type: 'skin', name: 'ثعبان أسود بكسل', price: 0, color: '#000000', purchased: true },
+            { id: 's_red', type: 'skin', name: 'ثعبان أحمر دموي', price: 30, color: '#aa0000', purchased: false },
+            { id: 's_blue', type: 'skin', name: 'ثعبان أزرق ملكي', price: 50, color: '#0000aa', purchased: false },
+            { id: 'm_retro', type: 'music', name: 'نغمة ماريو كلاسيك', price: 0, notes: [440, 494, 523, 587, 659, 587, 523, 494], purchased: true },
+            { id: 'm_nokia', type: 'music', name: 'نغمة نوكيا الأصلية', price: 40, notes: [659, 587, 392, 440, 523, 493, 293, 329], purchased: false }
+        ];
 
-        // ================= تفعيل النغمة التناظرية والتحكم في الـ Volume البار السحابي =================
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let musicInterval;
+        
+        function getActiveSkin() { return shopItems.find(i => i.type === 'skin' && i.equipped)?.color || '#000000'; }
+        function getActiveMusic() { return shopItems.find(i => i.type === 'music' && i.equipped)?.notes || [440, 494]; }
 
-        function updateVolume(val) {
-            globalVolume = parseFloat(val);
-            if (globalVolume === 0) {
-                isMuted = true;
-                document.getElementById('muteToggle').innerHTML = '<i class="fas fa-volume-mute"></i>';
-                stopMusicLoop();
-            } else {
-                isMuted = false;
-                document.getElementById('muteToggle').innerHTML = '<i class="fas fa-volume-up"></i>';
-                if (!gameInterval || isGameOver) return;
-                startMusicLoop();
-            }
-        }
-
-        function toggleMute() {
-            isMuted = !isMuted;
-            const btn = document.getElementById('muteToggle');
-            const slider = document.getElementById('volumeSlider');
-            
-            if (isMuted) {
-                btn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                slider.value = 0;
-                stopMusicLoop();
-            } else {
-                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
-                globalVolume = 0.5;
-                slider.value = 0.5;
-                if (!isGameOver) startMusicLoop();
-            }
-        }
-
-        function playSound(type) {
+        function toggleMute() { isMuted = !isMuted; document.getElementById('muteToggle').innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>'; document.getElementById('volumeSlider').value = isMuted ? 0 : globalVolume; if(isMuted) stopMusic(); else if(!isGameOver && !isPaused) startMusic(); }
+        function updateVolume(v) { globalVolume = parseFloat(v); isMuted = globalVolume === 0; document.getElementById('muteToggle').innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>'; stopMusic(); if(!isMuted && !isGameOver && !isPaused) startMusic(); }
+        
+        function playSound(t) {
             if (!audioCtx || isMuted || globalVolume === 0) return;
             if (audioCtx.state === 'suspended') audioCtx.resume();
-
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = 'square'; 
-
-            if (type === 'eat') {
-                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.06);
-                gain.gain.setValueAtTime(0.1 * globalVolume, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.06);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.06);
-            } else if (type === 'lose') {
-                osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.5);
-                gain.gain.setValueAtTime(0.3 * globalVolume, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-            } else if (type === 'win') {
-                const now = audioCtx.currentTime;
-                osc.frequency.setValueAtTime(587.33, now);
-                osc.frequency.setValueAtTime(698.46, now + 0.1);
-                osc.frequency.setValueAtTime(880.00, now + 0.2);
-                gain.gain.setValueAtTime(0.2 * globalVolume, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.35);
-                osc.start(); osc.stop(now + 0.35);
-            }
+            const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type = 'square';
+            if (t === 'eat') { o.frequency.setValueAtTime(700, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1400, audioCtx.currentTime + 0.05); g.gain.setValueAtTime(0.08 * globalVolume, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime + 0.05); }
+            else if (t === 'lose') { o.frequency.setValueAtTime(200, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.4); g.gain.setValueAtTime(0.25 * globalVolume, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime + 0.4); }
+            else if (t === 'win') { const now = audioCtx.currentTime; o.frequency.setValueAtTime(523, now); o.frequency.setValueAtTime(659, now + 0.08); o.frequency.setValueAtTime(784, now + 0.16); g.gain.setValueAtTime(0.15 * globalVolume, now); o.start(); o.stop(now + 0.3); }
         }
 
-        function playBackgroundMusic() {
-            if (!audioCtx || isGameOver || isMuted || globalVolume === 0) return;
-            const notes = [
-                { f: 440, d: 0.2 }, { f: 494, d: 0.2 }, { f: 523, d: 0.2 }, { f: 587, d: 0.2 },
-                { f: 659, d: 0.2 }, { f: 587, d: 0.2 }, { f: 523, d: 0.2 }, { f: 494, d: 0.2 }
-            ];
-            let timePointer = audioCtx.currentTime;
-            notes.forEach(note => {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'triangle'; 
-                osc.frequency.setValueAtTime(note.f, timePointer);
-                gain.gain.setValueAtTime(0.03 * globalVolume, timePointer); 
-                gain.gain.linearRampToValueAtTime(0, timePointer + note.d - 0.02);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(timePointer); osc.stop(timePointer + note.d);
-                timePointer += note.d;
+        function playMusic() {
+            if (!audioCtx || isGameOver || isMuted || globalVolume === 0 || isPaused) return;
+            let nt = getActiveMusic(), tp = audioCtx.currentTime;
+            nt.forEach(f => {
+                const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = 'triangle';
+                o.frequency.setValueAtTime(f, tp); g.gain.setValueAtTime(0.02 * globalVolume, tp);
+                g.gain.linearRampToValueAtTime(0, tp + 0.18); o.connect(g); g.connect(audioCtx.destination);
+                o.start(tp); o.stop(tp + 0.2); tp += 0.2;
             });
         }
+        function startMusic() { stopMusic(); if(!isMuted && globalVolume > 0 && !isPaused) { playMusic(); musicInterval = setInterval(playMusic, getActiveMusic().length * 200); } }
+        function stopMusic() { if(musicInterval) clearInterval(musicInterval); }
 
-        function startMusicLoop() {
-            stopMusicLoop();
-            if (isMuted || globalVolume === 0) return;
-            playBackgroundMusic();
-            musicInterval = setInterval(playBackgroundMusic, 1600);
+        function togglePause() { if(isGameOver) return; isPaused = !isPaused; document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none'; if(isPaused) stopMusic(); else startMusic(); }
+        function toggleShop() { inShop = !inShop; document.getElementById('shopPanel').style.display = inShop ? 'block' : 'none'; if(inShop) renderShop(); }
+
+        function loadUserData(n) {
+            currentUser = n; localStorage.setItem('snake_last_user', n);
+            let uData = JSON.parse(localStorage.getItem('snake_u_' + n)) || { totalApples: 0, items: ['s_green', 'm_retro'], equipped: { skin: 's_green', music: 'm_retro' } };
+            document.getElementById('userApples').innerText = uData.totalApples;
+            document.getElementById('shopCoins').innerText = uData.totalApples;
+            shopItems.forEach(i => { i.purchased = uData.items.includes(i.id); i.equipped = uData.equipped[i.type] === i.id; });
         }
 
-        function stopMusicLoop() { if (musicInterval) clearInterval(musicInterval); }
-        // ===================================================================
-
+        function submitPlayer() {
+            let n = document.getElementById('playerName').value.trim(); if(!n) return;
+            loadUserData(n); document.getElementById('gameOverScreen').style.display = 'none';
+            isGameOver = false; initGame();
+        }
         function initGame() {
-            score = 0;
-            isGameOver = false;
-            document.getElementById('snakeScore').innerText = "النقاط: " + score;
-            document.getElementById('gameOverScreen').style.display = 'none';
-            
-            snake = [
-                {x: 10 * box, y: 10 * box},
-                {x: 9 * box, y: 10 * box},
-                {x: 8 * box, y: 10 * box}
-            ];
-            generateFood();
-            d = "RIGHT";
-            
-            if(gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(draw, 110);
-            startMusicLoop();
+            score = 0; isPaused = false; document.getElementById('snakeScore').innerText = "النقاط: " + score;
+            document.getElementById('recordOverlay').style.display = 'none';
+            snake = [{x: 10 * box, y: 9 * box}, {x: 9 * box, y: 9 * box}, {x: 8 * box, y: 9 * box}];
+            genFood(); d = "RIGHT";
+            if(gameInterval) clearInterval(gameInterval); gameInterval = setInterval(draw, 110); startMusic();
         }
-        function generateFood() {
-            food = { x: Math.floor(Math.random() * 30) * box, y: Math.floor(Math.random() * 20) * box };
-            for(let cell of snake) { if(cell.x === food.x && cell.y === food.y) generateFood(); }
-        }
+        function genFood() { food = { x: Math.floor(Math.random() * 30) * box, y: Math.floor(Math.random() * 18) * box }; for(let c of snake) { if(c.x === food.x && c.y === food.y) genFood(); } }
 
         document.onkeydown = function(e) {
-            if(isGameOver) return;
-            const key = e.keyCode || e.which;
-            const keyChar = e.key ? e.key.toLowerCase() : "";
-
-            if ((key === 37 || keyChar === 'a' || keyChar === 'ص' || key === 100 || key === 52) && d !== "RIGHT") d = "LEFT";
-            else if ((key === 38 || keyChar === 'w' || keyChar === 'ص' || key === 104 || key === 56) && d !== "DOWN") d = "UP";
-            else if ((key === 39 || keyChar === 'd' || keyChar === 'ي' || key === 102 || key === 54) && d !== "LEFT") d = "RIGHT";
-            else if ((key === 40 || keyChar === 's' || keyChar === 'س' || key === 98 || key === 50) && d !== "UP") d = "DOWN";
+            if(e.keyCode === 32) { e.preventDefault(); togglePause(); return; }
+            if(isGameOver || isPaused) return; const k = e.keyCode, c = e.key ? e.key.toLowerCase() : "";
+            if ((k === 37 || c === 'a' || c === 'ص' || k === 100 || k === 52) && d !== "RIGHT") d = "LEFT";
+            else if ((k === 38 || c === 'w' || c === 'ص' || k === 104 || k === 56) && d !== "DOWN") d = "UP";
+            else if ((k === 39 || c === 'd' || c === 'ي' || k === 102 || k === 54) && d !== "LEFT") d = "RIGHT";
+            else if ((k === 40 || c === 's' || c === 'س' || k === 98 || k === 50) && d !== "UP") d = "DOWN";
         };
-
         function changeDirection(dir) {
-            if(isGameOver) return;
+            if(isGameOver || isPaused) return;
             if(dir === "LEFT" && d !== "RIGHT") d = "LEFT";
             if(dir === "UP" && d !== "DOWN") d = "UP";
             if(dir === "RIGHT" && d !== "LEFT") d = "RIGHT";
             if(dir === "DOWN" && d !== "UP") d = "DOWN";
         }
 
-        const touchArea = document.getElementById('touchArea');
-        let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
-        touchArea.addEventListener('touchstart', function(event) { touchStartX = event.changedTouches.screenX; touchStartY = event.changedTouches.screenY; }, {passive: true});
-        touchArea.addEventListener('touchend', function(event) { touchEndX = event.changedTouches.screenX; touchEndY = event.changedTouches.screenY; handleSwipe(); }, {passive: true});
-
-        function handleSwipe() {
-            const xDiff = touchEndX - touchStartX, yDiff = touchEndY - touchStartY;
-            if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                if (Math.abs(xDiff) > 30) { if (xDiff > 0) changeDirection('RIGHT'); else changeDirection('LEFT'); }
-            } else {
-                if (Math.abs(yDiff) > 30) { if (yDiff > 0) changeDirection('DOWN'); else changeDirection('UP'); }
-            }
-        }
+        let tsX = 0, tsY = 0;
+        document.getElementById('touchArea').addEventListener('touchstart', e => { tsX = e.changedTouches.screenX; tsY = e.changedTouches.screenY; }, {passive:true});
+        document.getElementById('touchArea').addEventListener('touchend', e => {
+            if(isPaused || isGameOver) return; const x = e.changedTouches.screenX - tsX, y = e.changedTouches.screenY - tsY;
+            if(Math.abs(x) > Math.abs(y) && Math.abs(x) > 30) changeDirection(x > 0 ? 'RIGHT' : 'LEFT');
+            else if(Math.abs(y) > Math.abs(x) && Math.abs(y) > 30) changeDirection(y > 0 ? 'DOWN' : 'UP');
+        }, {passive:true});
 
         function draw() {
-            ctx.clearRect(0, 0, 300, 200);
+            if (isPaused) return; ctx.clearRect(0, 0, 300, 180);
             ctx.fillStyle = "#000"; ctx.fillRect(food.x + 1, food.y + 1, box - 2, box - 2);
+            let skColor = getActiveSkin();
+            snake.forEach((c, i) => { ctx.fillStyle = (i === 0) ? "#000000" : skColor; ctx.fillRect(c.x + 1, c.y + 1, box - 2, box - 2); });
 
-            for(let i = 0; i < snake.length; i++) {
-                ctx.fillStyle = "#000"; ctx.fillRect(snake[i].x + 1, snake[i].y + 1, box - 2, box - 2);
-                if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(snake[i].x + 3, snake[i].y + 3, 2, 2); }
-            }
+            // مصفوفة الرأس والمحرك المحمي هندسياً 100% لمنع اختفاء الثعبان عند التحرك
+            let hX = snake[0].x, hY = snake[0].y;
+            if(d === "LEFT") hX -= box; else if(d === "UP") hY -= box; else if(d === "RIGHT") hX += box; else if(d === "DOWN") hY += box;
+            let nH = {x: hX, y: hY};
 
-            // الاستبقاء الآمن السليم على إحداثيات الرأس لمنع الاختفاء الفجائي الكود الرياضي
-            let snakeX = snake[0].x;
-            let snakeY = snake[0].y;
-            
-            if(d === "LEFT") snakeX -= box;
-            if(d === "UP") snakeY -= box;
-            if(d === "RIGHT") snakeX += box;
-            if(d === "DOWN") snakeY += box;
+            if(hX < 0 || hX >= 300 || hY < 0 || hY >= 180 || snake.some(c => c.x === nH.x && c.y === nH.y)) { endGame(); return; }
 
-            let newHead = {x: snakeX, y: snakeY};
-            if(snakeX < 0 || snakeX >= 300 || snakeY < 0 || snakeY >= 200 || collision(newHead, snake)) { endGame(); return; }
-
-            if(snakeX === food.x && snakeY === food.y) {
-                score += 10; document.getElementById('snakeScore').innerText = "النقاط: " + score;
-                playSound('eat');
-                touchArea.classList.add('flash'); setTimeout(() => touchArea.classList.remove('flash'), 80);
-                generateFood();
-            } else {
-                snake.pop();
-            }
-            snake.unshift(newHead);
+            if(hX === food.x && hY === food.y) {
+                score += 10; document.getElementById('snakeScore').innerText = "النقاط: " + score; playSound('eat');
+                document.getElementById('touchArea').classList.add('flash'); setTimeout(() => document.getElementById('touchArea').classList.remove('flash'), 60);
+                genFood();
+            } else { snake.pop(); }
+            snake.unshift(nH);
         }
-
-        function collision(head, array) { for(let i = 0; i < array.length; i++) { if(head.x === array[i].x && head.y === array[i].y) return true; } return false; }
 
         function endGame() {
-            clearInterval(gameInterval); stopMusicLoop(); isGameOver = true; playSound('lose');
-            const phone = document.getElementById('phoneWrapper');
-            phone.classList.add('shake'); setTimeout(() => phone.classList.remove('shake'), 300);
-            document.getElementById('finalScoreText').innerText = "النقاط الحالية: " + score;
-            document.getElementById('gameOverScreen').style.display = 'flex';
+            clearInterval(gameInterval); stopMusic(); isGameOver = true; playSound('lose');
+            document.getElementById('phoneWrapper').classList.add('shake'); setTimeout(() => document.getElementById('phoneWrapper').classList.remove('shake'), 300);
+            
+            let uData = JSON.parse(localStorage.getItem('snake_u_' + currentUser));
+            let earnedApples = score / 10; uData.totalApples += earnedApples;
+            localStorage.setItem('snake_u_' + currentUser, JSON.stringify(uData));
+            loadUserData(currentUser);
+
+            let l = JSON.parse(localStorage.getItem('snake_lead')) || []; l.push({name: currentUser, score: score}); l.sort((a,b)=>b.score-a.score); l = l.slice(0,3);
+            localStorage.setItem('snake_lead', JSON.stringify(l)); loadLead();
+
+            document.getElementById('goTitle').innerText = "انتهت اللعبة";
+            document.getElementById('finalScoreText').innerText = "نقاط الجولة: " + score + " | ربحت: " + earnedApples + " 🍎";
+            document.getElementById('playerName').value = currentUser;
+            document.getElementById('gameOverScreen').style.display = 'block';
+            if(l.length > 0 && l[0].name === currentUser && score > 0 && l[0].score === score) { playSound('win'); document.getElementById('recordOverlay').style.display = 'block'; }
         }
 
-        function resetGame() {
-            let nameInput = document.getElementById('playerName').value.trim();
-            let finalName = nameInput ? nameInput : "لاعب نوكيا";
-            let scores = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || [];
-            let isHighScore = scores.length < 3 || score > scores[scores.length - 1].score;
-            if (isHighScore && score > 0) playSound('win');
-            saveScore(finalName, score);
-            document.getElementById('playerName').value = "";
-            initGame();
+        function renderShop() {
+            let uData = JSON.parse(localStorage.getItem('snake_u_' + currentUser));
+            let h = ""; shopItems.forEach(i => {
+                let btn = ""; if(i.equipped) btn = `<button class="item-buy-btn equipped">مفعل</button>`;
+                else if(i.purchased) btn = `<button class="item-buy-btn" style="background:#000;color:#8c9f21;" onclick="equipItem('${i.id}')">تفعيل</button>`;
+                else btn = `<button class="item-buy-btn" style="background:#000;color:#ff4d4d;" onclick="buyItem('${i.id}', ${i.price})">${i.price} 🍎</button>`;
+                h += `<div class="shop-item"><span>${i.name}</span>${btn}</div>`;
+            });
+            document.getElementById('shopItemsContainer').innerHTML = h;
+        }
+        window.buyItem = function(id, pr) {
+            let u = JSON.parse(localStorage.getItem('snake_u_' + currentUser)); if(u.totalApples < pr) { alert("رصيد تفاحك غير كافٍ! 🍎"); return; }
+            u.totalApples -= pr; u.items.push(id); localStorage.setItem('snake_u_' + currentUser, JSON.stringify(u)); loadUserData(currentUser); renderShop();
+        }
+        window.equipItem = function(id) {
+            let u = JSON.parse(localStorage.getItem('snake_u_' + currentUser)), it = shopItems.find(i=>i.id===id);
+            u.equipped[it.type] = id; localStorage.setItem('snake_u_' + currentUser, JSON.stringify(u)); loadUserData(currentUser); renderShop(); stopMusic(); if(!isGameOver) startMusic();
         }
 
-        function saveScore(name, score) {
-            let scores = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || [];
-            scores.push({name: name, score: score}); scores.sort((a, b) => b.score - a.score); scores = scores.slice(0, 3);
-            localStorage.setItem('responsive_nokia_scores', JSON.stringify(scores)); loadLeaderboard();
+        function loadLead() {
+            let l = JSON.parse(localStorage.getItem('snake_lead')) || [{name:"المركز 1",score:0},{name:"المركز 2",score:0},{name:"المركز 3",score:0}], h = "";
+            l.forEach((s, i) => { h += `<div class="score-row"><span>${i+1}. ${s.name}</span><span>${s.score}</span></div>`; });
+            document.getElementById('leaderboardContent').innerHTML = h;
         }
 
-        function loadLeaderboard() {
-            let scores = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || [{name: "المرتبة 1", score: 0}, {name: "المرتبة 2", score: 0}, {name: "المرتبة 3", score: 0}];
-            let content = "";
-            scores.forEach((item, index) => { content += `<div class="score-row"><span>${index + 1}. ${item.name}</span><span>${item.score}</span></div>`; });
-            document.getElementById('leaderboardContent').innerHTML = content;
-        }
-
-        loadLeaderboard();
-        initGame();
+        let lastUser = localStorage.getItem('snake_last_user');
+        if(lastUser) { document.getElementById('playerName').value = lastUser; }
+        loadLead();
     </script>
 </body>
 </html>
