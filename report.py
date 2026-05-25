@@ -5,9 +5,9 @@ from flask import Blueprint, request, jsonify, render_template_string
 # إنشاء البلوبرينت الموحد لنظام الشات المتكامل والتليجرام المتوافق مع Vercel
 report_blueprint = Blueprint('report', __name__)
 
-# الحساب الشخصي وتوكين البوت الفعّال المرفق من طرفك
+# 🎯 تفعيل وتثبيت بيانات حسابك والتوكن الجديد القياسي والموثق
 ADMIN_CHAT_ID = "1178062571"
-BOT_TOKEN = "1892403076:AAHOyUXyGNkNlYvDfJKuWrHZ4hUg3m22GYs"
+BOT_TOKEN = "8196656039:AAGtnN77ZnuZmZ3iP4T5nY9VflXjxqM2E8o"
 
 # دالة إرسال الرسائل الفورية المبنية على urllib القياسية لضمان استقرار السيرفر 100%
 def send_to_telegram(text):
@@ -58,7 +58,6 @@ REPORT_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>إرسال مشكلة - Albrawe</title>
-    <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { 
             font-family: 'Courier New', Courier, monospace; 
@@ -86,9 +85,6 @@ REPORT_TEMPLATE = """
             font-weight: bold; 
             margin-bottom: 20px; 
             font-size: 13px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
         }
         
         .nokia-phone-style { 
@@ -122,7 +118,6 @@ REPORT_TEMPLATE = """
             padding-bottom: 6px;
             margin-bottom: 12px;
         }
-        h3 { margin: 0 0 15px 0; text-align: center; font-size: 15px; font-weight: bold; border-bottom: 1px dashed #000; padding-bottom: 5px; }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
         label { font-weight: bold; font-size: 12px; }
 
@@ -152,10 +147,6 @@ REPORT_TEMPLATE = """
             border-radius: 4px;
             width: 100%;
             font-family: inherit;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
         }
 
         .chat-box-area {
@@ -176,12 +167,11 @@ REPORT_TEMPLATE = """
     </style>
 </head>
 <body>
-    <br><a href="/" class="back-btn"><i class="fas fa-arrow-right"></i> القائمة الرئيسية</a>
-    
-    <div class="nokia-phone-style">
+    <br><a href="/" class="back-btn">◀ القائمة الرئيسية</a>
+    <div class="nokia-phone-style" style="margin-top:20px;">
         <div class="nokia-screen-style">
             <div class="screen-header">
-                <span><i class="fas fa-comments"></i> شات ومشاكل الموقع</span>
+                <span>💬 شات ومشاكل الموقع</span>
                 <span>NOKIA</span>
             </div>
             
@@ -199,9 +189,7 @@ REPORT_TEMPLATE = """
                     <textarea id="issueDetails" class="input-field" placeholder="اكتب رسالتك أو مشكلتك هنا واضغط إرسال..." required maxlength="200"></textarea>
                 </div>
                 
-                <button type="submit" class="submit-btn">
-                    <i class="fas fa-paper-plane"></i> إرسال إلى التليجرام
-                </button>
+                <button type="submit" class="submit-btn">إرسال إلى التليجرام</button>
             </form>
         </div>
     </div>
@@ -219,11 +207,9 @@ REPORT_TEMPLATE = """
             
             if (!user || !details) return;
 
-            // طباعة الرسالة الفورية على شاشة الهاتف الكلاسيكي للمعاينة
             appendChatBubble(user + ": " + details);
             document.getElementById('issueDetails').value = "";
 
-            // 🎯 تم التصحيح: إرسال كافة الحقول والبيانات دفعة واحدة بشكل سليم للـ API الخلفي
             fetch('/api/send_message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
