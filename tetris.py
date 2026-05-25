@@ -30,12 +30,12 @@ TETRIS_TEMPLATE = """
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #58a6ff;
+            border-bottom: 2px solid #d29922;
         }
         .back-btn {
             background: #21262d;
             border: 1px solid #30363d;
-            color: #58a6ff;
+            color: #d29922;
             padding: 6px 15px;
             border-radius: 6px;
             cursor: pointer;
@@ -43,9 +43,9 @@ TETRIS_TEMPLATE = """
             font-weight: bold;
             font-size: 14px;
         }
-        .menu-toggle { background: #21262d; border: 1px solid #30363d; color: #58a6ff; font-size: 18px; cursor: pointer; padding: 6px 15px; border-radius: 6px; font-weight: bold; font-family: inherit; }
+        .menu-toggle { background: #21262d; border: 1px solid #30363d; color: #d29922; font-size: 18px; cursor: pointer; padding: 6px 15px; border-radius: 6px; font-weight: bold; font-family: inherit; }
         
-        .sidebar-curtain { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background-color: #161b22; border-left: 2px solid #58a6ff; box-shadow: -10px 0 30px rgba(0,0,0,0.7); z-index: 1000; transition: right 0.3s ease; padding: 20px; box-sizing: border-box; text-align: right; }
+        .sidebar-curtain { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background-color: #161b22; border-left: 2px solid #d29922; box-shadow: -10px 0 30px rgba(0,0,0,0.7); z-index: 1000; transition: right 0.3s ease; padding: 20px; box-sizing: border-box; text-align: right; }
         .sidebar-curtain.active { right: 0; }
         .close-btn { background: none; border: none; color: #f85149; font-size: 16px; cursor: pointer; margin-bottom: 30px; font-family: inherit; font-weight: bold; }
         .menu-links { display: flex; flex-direction: column; gap: 12px; }
@@ -62,7 +62,7 @@ TETRIS_TEMPLATE = """
         .tetris-phone { 
             background: #161b22; 
             border: 1px solid #30363d; 
-            border-top: 4px solid #58a6ff;
+            border-top: 4px solid #d29922;
             border-radius: 20px; 
             width: 100%;
             max-width: 360px; 
@@ -71,17 +71,17 @@ TETRIS_TEMPLATE = """
             box-sizing: border-box; 
             position: relative;
         }
-        .score-container { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; border-bottom: 1px solid #30363d; padding-bottom: 6px; margin-bottom: 10px; color: #58a6ff; align-items: center; }
+        .score-container { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; border-bottom: 1px solid #30363d; padding-bottom: 6px; margin-bottom: 10px; color: #d29922; align-items: center; }
         .audio-controls { display: flex; align-items: center; gap: 4px; }
-        .mute-btn { background: none; border: none; font-size: 14px; cursor: pointer; color: #58a6ff; padding: 0; }
-        .volume-bar { width: 55px; accent-color: #58a6ff; height: 3px; cursor: pointer; }
+        .mute-btn { background: none; border: none; font-size: 14px; cursor: pointer; color: #d29922; padding: 0; }
+        .volume-bar { width: 55px; accent-color: #d29922; height: 3px; cursor: pointer; }
         
         .game-area { position: relative; width: 100%; display: flex; justify-content: center; }
         canvas { background-color: #0d1117; display: block; border: 2px solid #30363d; border-radius: 6px; }
-        .overlay-txt { display: none; position: absolute; font-size: 18px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(22, 27, 34, 0.95); border: 2px solid #58a6ff; padding: 12px; border-radius: 8px; text-align: center; width: 85%; box-sizing: border-box; z-index: 5; }
+        .overlay-txt { display: none; position: absolute; font-size: 18px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(22, 27, 34, 0.95); border: 2px solid #d29922; padding: 12px; border-radius: 8px; text-align: center; width: 85%; box-sizing: border-box; z-index: 5; }
         
         .control-pad { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 220px; margin-left: auto; margin-right: auto; }
-        .ctrl-btn { background: #21262d; border: 1px solid #30363d; border-radius: 12px; padding: 12px; font-size: 18px; color: #58a6ff; cursor: pointer; user-select: none; font-weight: bold; box-shadow: 0 3px #0d1117; }
+        .ctrl-btn { background: #21262d; border: 1px solid #30363d; border-radius: 12px; padding: 12px; font-size: 18px; color: #d29922; cursor: pointer; user-select: none; font-weight: bold; box-shadow: 0 3px #0d1117; }
         .ctrl-btn:active { transform: translateY(2px); box-shadow: 0 1px #0d1117; }
     </style>
 </head>
@@ -109,7 +109,7 @@ TETRIS_TEMPLATE = """
             <div class="game-area">
                 <canvas id="tetrisCanvas" width="200" height="400"></canvas>
                 <div id="gameOverScreen" class="overlay-txt" style="display:block;">
-                    <h4 style="margin:0 0 8px 0; color:#58a6ff;">مرحباً بك في التترس</h4>
+                    <h4 style="margin:0 0 8px 0; color:#d29922;">مرحباً بك في التترس</h4>
                     <button style="background:#238636; color:#fff; border:1px solid #2ea44f; padding:8px 20px; font-weight:bold; cursor:pointer; border-radius:6px;" onclick="initGame()">بدء اللعب الفوري</button>
                 </div>
             </div>
@@ -158,29 +158,27 @@ TETRIS_TEMPLATE = """
         function startMusic() { stopMusic(); if(!isMuted && globalVolume > 0) { playMusic(); musicInterval = setInterval(playMusic, musicNotes.length * 200); } }
         function stopMusic() { if(musicInterval) clearInterval(musicInterval); }
 
-        // 🎯 تم التصحيح الهندسي: مصفوفة الأبعاد الرقمية المكتملة 100% لضمان ظهور المكعبات وحركتها
-        const PIECES = [
-            [[[1,1,1,1]], "#58a6ff"], // شكل I الأزرق
-            [[[0,1,0],[1,1,1]], "#3fb950"], // شكل T الأخضر
-            [[[1,1,0],[0,1,1]], "#f85149"], // شكل Z الأحمر
-            [[[0,1,1],[1,1,0]], "#d29922"], // شكل S الأصفر
-            [[[1,1],[1,1]], "#ffffff"], // شكل O المربع الأبيض
-            [[[1,0,0],[1,1,1]], "#a371f7"], // شكل L البنفسجي
-            [[[0,0,1],[1,1,1]], "#ff7b72"] // شكل J البرتقالي
-        ];
+        // 🎯 تم إصلاح وضبط مصفوفة الأبعاد الهندسية الرباعية للأشكال السبعة لتدور بـ 90 درجة بدون أي أخطاء
+        const I = [ [ [0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0] ], [ [0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0] ], [ [0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0] ], [ [0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0] ] ];
+        const T = [ [ [0,1,0],[1,1,1],[0,0,0] ], [ [0,1,0],[0,1,1],[0,1,0] ], [ [0,0,0],[1,1,1],[0,1,0] ], [ [0,1,0],[1,1,0],[0,1,0] ] ];
+        const Z = [ [ [1,1,0],[0,1,1],[0,0,0] ], [ [0,0,1],[0,1,1],[0,1,0] ], [ [1,1,0],[0,1,1],[0,0,0] ], [ [0,0,1],[0,1,1],[0,1,0] ] ];
+        const S = [ [ [0,1,1],[1,1,0],[0,0,0] ], [ [0,1,0],[0,1,1],[0,0,1] ], [ [0,1,1],[1,1,0],[0,0,0] ], [ [0,1,0],[0,1,1],[0,0,1] ] ];
+        const O = [ [ [0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0] ], [ [0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0] ], [ [0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0] ], [ [0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0] ] ];
+        const L = [ [ [0,0,1],[1,1,1],[0,0,0] ], [ [0,1,0],[0,1,0],[0,1,1] ], [ [0,0,0],[1,1,1],[1,0,0] ], [ [1,1,0],[0,1,0],[0,1,0] ] ];
+        const J = [ [ [1,0,0],[1,1,1],[0,0,0] ], [ [0,1,1],[0,1,0],[0,1,0] ], [ [0,0,0],[1,1,1],[0,0,1] ], [ [0,1,0],[0,1,0],[1,1,0] ] ];
+
+        const PIECES = [ [I,"#58a6ff"], [T,"#3fb950"], [Z,"#f85149"], [S,"#d29922"], [O,"#ffffff"], [L,"#a371f7"], [J,"#ff7b72"] ];
 
         class Piece {
-            constructor(tetromino, color) { this.tetromino = tetromino; this.color = color; this.activeTetromino = this.tetromino; this.x = 3; this.y = -2; }
+            constructor(tetromino, color) { this.tetromino = tetromino; this.color = color; this.tetrominoN = 0; this.activeTetromino = this.tetromino[this.tetrominoN]; this.x = 3; this.y = -2; }
             draw() { this.fill(this.color); }
             unuse() { this.fill(VACANT); }
             fill(color) {
                 for(let r=0; r<this.activeTetromino.length; r++) {
                     for(let c=0; c<this.activeTetromino[r].length; c++) {
                         if(this.activeTetromino[r][c]) {
-                            ctx.fillStyle = color;
-                            ctx.fillRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ);
-                            ctx.strokeStyle = "#161b22";
-                            ctx.strokeRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ);
+                            ctx.fillStyle = color; ctx.fillRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ);
+                            ctx.strokeStyle = "#161b22"; ctx.strokeRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ);
                         }
                     }
                 }
@@ -189,13 +187,8 @@ TETRIS_TEMPLATE = """
             moveRight() { if(!this.collision(1,0,this.activeTetromino)) { this.unuse(); this.x++; this.draw(); playSound('move'); } }
             moveLeft() { if(!this.collision(-1,0,this.activeTetromino)) { this.unuse(); this.x--; this.draw(); playSound('move'); } }
             rotate() {
-                let nextPattern = [];
-                for(let c=0; c<this.activeTetromino.length; c++) {
-                    let row = [];
-                    for(let r=this.activeTetromino.length-1; r>=0; r--) { row.push(this.activeTetromino[r][c]); }
-                    nextPattern.push(row);
-                }
-                if(!this.collision(0,0,nextPattern)) { this.unuse(); this.activeTetromino = nextPattern; this.draw(); playSound('move'); }
+                let nextPattern = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
+                if(!this.collision(0,0,nextPattern)) { this.unuse(); this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length; this.activeTetromino = nextPattern; this.draw(); playSound('move'); }
             }
             collision(x, y, piece) {
                 for(let r=0; r<piece.length; r++) {
@@ -217,12 +210,13 @@ TETRIS_TEMPLATE = """
                         board[this.y+r][this.x+c] = this.color;
                     }
                 }
+                // محرك جرد السطور المكتملة وإعادة الهيكلة الفورية
                 for(let r=0; r<ROW; r++) {
                     let isRowFull = true;
                     for(let c=0; c<COL; c++) { if(board[r][c] === VACANT) isRowFull = false; }
                     if(isRowFull) {
                         for(let y=r; y>1; y--) { for(let c=0; c<COL; c++) { board[y][c] = board[y-1][c]; } }
-                        for(let c=0; c<COL; c++) { board[c] = VACANT; }
+                        for(let c=0; c<COL; c++) { board[0][c] = VACANT; }
                         score += 100; playSound('clear');
                         document.getElementById('tetrisScore').innerText = "النقاط: " + score;
                     }
@@ -242,7 +236,7 @@ TETRIS_TEMPLATE = """
             
             for(let r=0; r<ROW; r++) { board[r] = []; for(let c=0; c<COL; c++) { board[r][c] = VACANT; } }
             drawBoard(); p = randomPiece(); p.draw();
-            gameInterval = setInterval(() => { if(!isGameOver) p.moveDown(); }, 450);
+            gameInterval = setInterval(() => { if(!isGameOver) p.moveDown(); }, 500);
             startMusic();
         }
 
