@@ -8,7 +8,7 @@ SNAKE_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نوكيا المطور الشامل - Albrawe</title>
+    <title>نوكيا المطور الاحترافي - Albrawe</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { 
@@ -153,66 +153,9 @@ SNAKE_TEMPLATE = """
             <div class="dpad-empty"></div>
         </div>
     </div>
-    <script>
-        const canvas = document.getElementById('snakeCanvas'), ctx = canvas.getContext('2d'), box = 10;
-        let score, snake, food, d, gameInterval, musicInterval, isGameOver = true, isPaused = false, isMuted = false, globalVolume = 0.5, currentUser = "", inShop = false;
-        
-        let shopItems = [
-            { id: 's_green', type: 'skin', name: 'ثعبان أسود بكسل', price: 0, color: '#000000', purchased: true },
-            { id: 's_red', type: 'skin', name: 'ثعبان أحمر ناري', price: 30, color: '#aa0000', purchased: false },
-            { id: 's_blue', type: 'skin', name: 'ثعبان أزرق ملكي', price: 50, color: '#0000aa', purchased: false },
-            { id: 'm_retro', type: 'music', name: 'نغمة أركيد هادئة', price: 0, notes: [440, 494, 523, 587], purchased: true },
-            { id: 'm_nokia', type: 'music', name: 'نغمة نوكيا المألوفة', price: 40, notes: [659.25, 587.33, 392.00, 440.00, 523.25, 493.88, 293.66, 329.63], purchased: false }
-        ];
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        function getActiveSkin() { return shopItems.find(i => i.type === 'skin' && i.equipped)?.color || '#000000'; }
-        function getActiveMusic() { return shopItems.find(i => i.type === 'music' && i.equipped)?.notes || [440, 494, 523, 587]; }
-
-        function toggleMute() { isMuted = !isMuted; document.getElementById('muteToggle').innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>'; document.getElementById('volumeSlider').value = isMuted ? 0 : globalVolume; if(isMuted) stopMusic(); else if(!isGameOver && !isPaused) startMusic(); }
-        function updateVolume(v) { globalVolume = parseFloat(v); isMuted = globalVolume === 0; document.getElementById('muteToggle').innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>'; stopMusic(); if(!isMuted && !isGameOver && !isPaused) startMusic(); }
-        
-        function playSound(t) {
-            if (!audioCtx || isMuted || globalVolume === 0) return;
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type = 'square';
-            if (t === 'eat') { o.frequency.setValueAtTime(600, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.06); g.gain.setValueAtTime(0.08 * globalVolume, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime + 0.06); }
-            else if (t === 'lose') { o.frequency.setValueAtTime(220, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.5); g.gain.setValueAtTime(0.25 * globalVolume, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime + 0.5); }
-            else if (t === 'win') { const now = audioCtx.currentTime; o.frequency.setValueAtTime(523, now); o.frequency.setValueAtTime(659, now + 0.08); o.frequency.setValueAtTime(784, now + 0.16); g.gain.setValueAtTime(0.15 * globalVolume, now); o.start(); o.stop(now + 0.3); }
-        }
-
-        function playMusic() {
-            if (!audioCtx || isGameOver || isMuted || globalVolume === 0 || isPaused) return;
-            let nt = getActiveMusic(), tp = audioCtx.currentTime;
-            nt.forEach(f => {
-                const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = 'triangle';
-                o.frequency.setValueAtTime(f, tp); g.gain.setValueAtTime(0.02 * globalVolume, tp);
-                g.gain.linearRampToValueAtTime(0, tp + 0.18); o.connect(g); g.connect(audioCtx.destination);
-                o.start(tp); o.stop(tp + 0.2); tp += 0.2;
-            });
-        }
-        function startMusic() { stopMusic(); if(!isMuted && globalVolume > 0 && !isPaused) { playMusic(); musicInterval = setInterval(playMusic, getActiveMusic().length * 200); } }
-        function stopMusic() { if(musicInterval) clearInterval(musicInterval); }
-
-        function togglePause() { if(isGameOver) return; isPaused = !isPaused; document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none'; if(isPaused) stopMusic(); else startMusic(); }
-        function toggleShop() { inShop = !inShop; document.getElementById('shopPanel').style.display = inShop ? 'block' : 'none'; if(inShop) renderShop(); }
-
-        function loadUserData(n) {
-            currentUser = n; localStorage.setItem('snake_last_user', n);
-            let uData = JSON.parse(localStorage.getItem('snake_u_' + n)) || { totalApples: 0, items: ['s_green', 'm_retro'], equipped: { skin: 's_green', music: 'm_retro' } };
-            document.getElementById('userApples').innerText = uData.totalApples;
-            document.getElementById('shopCoins').innerText = uData.totalApples;
-            shopItems.forEach(i => { i.purchased = uData.items.includes(i.id); i.equipped = uData.equipped[i.type] === i.id; });
-        }
-
-        function submitPlayer() {
-            let n = document.getElementById('playerName').value.trim(); if(!n) return;
-            loadUserData(n); document.getElementById('gameOverScreen').style.display = 'none';
-            isGameOver = false; initGame();
-        }
         function initGame() {
-            score = 0; isPaused = false; document.getElementById('snakeScore').innerText = "النقاط: " + score;
+            score = 0; isPaused = false; isGameOver = false;
+            document.getElementById('snakeScore').innerText = "النقاط: " + score;
             document.getElementById('recordOverlay').style.display = 'none';
             document.getElementById('nokiaScreen').classList.remove('highscore-flash');
             
@@ -243,13 +186,13 @@ SNAKE_TEMPLATE = """
             if(dir === "DOWN" && d !== "UP") d = "DOWN";
         }
 
-        // إطلاق التعرف الذكي السلس على مسار لمس الشاشة (Touch Swipe) للموبايل
+        // 📱 محاكي اللمس المصحح هندسياً ومحاذاته على مستوى المتصفح لتعمل حساسية الـ Swipe بدقة على الجوال
         let tsX = 0, tsY = 0;
-        window.addEventListener('touchstart', e => { tsX = e.changedTouches[0].screenX; tsY = e.changedTouches[0].screenY; }, {passive: true});
+        window.addEventListener('touchstart', e => { tsX = e.changedTouches.screenX; tsY = e.changedTouches.screenY; }, {passive: true});
         window.addEventListener('touchend', e => {
             if(isPaused || isGameOver) return; 
-            const xDiff = e.changedTouches[0].screenX - tsX;
-            const yDiff = e.changedTouches[0].screenY - tsY;
+            const xDiff = e.changedTouches.screenX - tsX;
+            const yDiff = e.changedTouches.screenY - tsY;
             
             if(Math.abs(xDiff) > Math.abs(yDiff)) {
                 if(Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT');
@@ -259,7 +202,10 @@ SNAKE_TEMPLATE = """
         }, {passive: true});
 
         function draw() {
-            if (isPaused) return; ctx.clearRect(0, 0, 280, 180);
+            // 🎯 صمام الأمان الهندسي لحماية اللعبة من استمرار العداد اللانهائي عند الخسارة أو الوقوف
+            if (isPaused || isGameOver) return; 
+
+            ctx.clearRect(0, 0, 280, 180);
             ctx.fillStyle = "#000"; ctx.fillRect(food.x + 1, food.y + 1, box - 2, box - 2);
             let skColor = getActiveSkin();
             
@@ -269,14 +215,14 @@ SNAKE_TEMPLATE = """
                 if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(c.x + 3, c.y + 3, 2, 2); }
             });
 
-            // 🎯 تم إصلاح العيب الرياضي هنا: قراءة صحيحة لعناصر المصفوفة تمنع اختفاء التموضع نهائياً
+            // قراءة دقيقة لحسابات الحركة لمنع اختفاء الأفعى
             let hX = snake[0].x;
             let hY = snake[0].y;
             
             if(d === "LEFT") hX -= box; 
             else if(d === "UP") hY -= box; 
             else if(d === "RIGHT") hX += box; 
-            else if(d === "DOWN") hY += box;
+            else if(d === "DOWN") hY -= box;
             
             let nH = {x: hX, y: hY};
 
