@@ -143,7 +143,6 @@ SNAKE_TEMPLATE = """
         let score = 0, snake = [], food = {x: 0, y: 0}, d = "RIGHT", gameInterval = null, musicInterval = null;
         let isGameOver = true, isPaused = false, isMuted = false, globalVolume = 0.5, currentUser = "";
         
-        // جدار الحماية ضد ثغرة العداد اللانهائي لمنع تكرار اللمس الإطاري للتفاحة
         let canScore = true; 
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -201,7 +200,7 @@ SNAKE_TEMPLATE = """
         function genFood() { 
             food = { x: Math.floor(Math.random() * 26) * box, y: Math.floor(Math.random() * 16) * box }; 
             for(let i = 0; i < snake.length; i++) { if(snake[i].x === food.x && snake[i].y === food.y) genFood(); } 
-            canScore = true; // فتح جدار الحماية والسماح باحتساب نقاط للموقع عند توليد تفاحة جديدة
+            canScore = true; 
         }
 
         document.onkeydown = function(e) {
@@ -222,10 +221,10 @@ SNAKE_TEMPLATE = """
         }
 
         let tsX = 0, tsY = 0;
-        window.addEventListener('touchstart', e => { if(e.changedTouches) { tsX = e.changedTouches.screenX; tsY = e.changedTouches.screenY; } }, {passive: true});
+        window.addEventListener('touchstart', e => { if(e.changedTouches) { tsX = e.changedTouches[0].screenX; tsY = e.changedTouches[0].screenY; } }, {passive: true});
         window.addEventListener('touchend', e => {
             if(isPaused || isGameOver || !e.changedTouches) return; 
-            const xDiff = e.changedTouches.screenX - tsX, yDiff = e.changedTouches.screenY - tsY;
+            const xDiff = e.changedTouches[0].screenX - tsX, yDiff = e.changedTouches[0].screenY - tsY;
             if(Math.abs(xDiff) > Math.abs(yDiff)) {
                 if(Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT');
             } else {
@@ -245,7 +244,7 @@ SNAKE_TEMPLATE = """
                 if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(c.x + 3, c.y + 3, 2, 2); }
             });
 
-            // جلب الرأس البرمجي الصحيح من أول عنصر بالمصفوفة
+            // 🎯 تم الإصلاح الجذري النهائي: استخدام الأقواس المربعة لجلب إحداثيات العنصر الأول الصحيحة من المصفوفة
             let hX = snake[0].x;
             let hY = snake[0].y;
             
@@ -258,15 +257,15 @@ SNAKE_TEMPLATE = """
 
             if(hX < 0 || hX >= 260 || hY < 0 || hY >= 170 || snake.some(c => c.x === nH.x && c.y === nH.y)) { endGame(); return; }
 
-            // 🎯 تم غلق وتأمين الثغرة: لا يتم الاحتساب إلا إذا كان القفل مفتوحاً ويغلق فوراً لمنع التكرار اللانهائي
+            // تفعيل جدار حماية احتساب النقاط الثابت بمقدار 10 فقط لكل تفاحة
             if(hX === food.x && hY === food.y) {
                 if(canScore) {
                     score += 10; 
                     document.getElementById('snakeScore').innerText = "النقاط: " + score; 
                     playSound('eat');
                     document.getElementById('touchArea').classList.add('flash'); setTimeout(() => document.getElementById('touchArea').classList.remove('flash'), 60);
-                    canScore = false; // غلق القفل فوراً لحظر تكرار الإطارات
-                    genFood(); // نقل الطعام وتوليد تفاحة جديدة تفتح القفل تلقائياً
+                    canScore = false; 
+                    genFood(); 
                 }
             } else { 
                 snake.pop(); 
