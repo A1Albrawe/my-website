@@ -13,6 +13,14 @@
       "dest": "report.py"
     },
     {
+      "src": "/projects",
+      "dest": "app.py"
+    },
+    {
+      "src": "/about",
+      "dest": "app.py"
+    },
+    {
       "src": "/(.*)",
       "dest": "app.py"
     }
