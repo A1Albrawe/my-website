@@ -2,14 +2,14 @@ import json
 import urllib.request
 from flask import Blueprint, request, jsonify, render_template_string
 
-# إنشاء البلوبرينت الموحد لنظام الشات المتكامل والتليجرام
+# إنشاء البلوبرينت الموحد لنظام الشات المتكامل والتليجرام المتوافق مع Vercel
 report_blueprint = Blueprint('report', __name__)
 
-# الحساب الشخصي وتوكين البوت المعتمد والجاهز للربط الفوري
+# الحساب الشخصي وتوكين البوت المعتمد والفعال الخاص بك
 ADMIN_CHAT_ID = "1178062571"
 BOT_TOKEN = "1892403076:AAHOyUXyGNkNlYvDfJKuWrHZ4hUg3m22GYs"
 
-# دالة إرسال الرسائل إلى تليجرام المطور ومبنية على urllib الأساسية لمنع الانهيار
+# دالة إرسال الرسائل الفورية ومبنية على urllib الأساسية لضمان عدم تجميد السيرفر نهائياً
 def send_to_telegram(text):
     url = f"https://telegram.org{BOT_TOKEN}/sendMessage"
     payload = {
@@ -30,72 +30,34 @@ def send_to_telegram(text):
     except Exception:
         pass
 
-# مسار استقبال حزم الشات الفورية من واجهة الموقع وتمريرها لتليجرامك
+# مسار استقبال الشكاوى والمحادثات الحية من واجهة الموقع وتمريرها لتليجرامك فوراً
 @report_blueprint.route('/api/send_message', methods=['POST'])
 def send_msg_from_site():
     data = request.get_json() or {}
     user = data.get('user', 'زائر مجهول')
     msg_type = data.get('type', 'محادثة حية')
     details = data.get('details', '')
-    session_id = data.get('session_id', '0')
 
     if not details:
         return jsonify({"status": "error", "message": "الرسالة فارغة"}), 400
 
     tg_text = (
-        f"📥 *محادثة حية جديدة من الموقع*\n\n"
+        f"📥 *رسالة دعم فني جديدة من الموقع*\n\n"
         f"👤 *الاسم:* {user}\n"
         f"🏷️ *النوع:* {msg_type}\n"
         f"💬 *الرسالة:* {details}\n\n"
-        f"📌 للرد على هذا المستخدم، قم بعمل Reply على هذه الرسالة واكتب ردك فوراً.\n"
-        f"`ID:{session_id}`" # معرّف الجلسة السري المعتمد للتوجيه العكسي
+        f"📌 يمكنك التواصل مع المستخدم بشكل مباشر عبر حسابه إذا كان معرّفه مسجلاً."
     )
     
     send_to_telegram(tg_text)
-    return jsonify({"status": "success", "message": "تم الإرسال"})
-
-# مسار الـ Webhook المحدث الذي يلتقط ردود الـ Reply من تليجرامك بأمان ويخزنها مؤقتاً
-@report_blueprint.route('/api/telegram_webhook', methods=['POST'])
-def telegram_webhook():
-    update = request.get_json() or {}
-    
-    if "message" in update and "reply_to_message" in update["message"]:
-        message = update["message"]
-        sender_id = str(message["from"]["id"])
-        
-        # التأكد من أن الرد قادم من حسابك الشخصي المعتمد فقط لحظر الغش والتسلل
-        if sender_id == str(ADMIN_CHAT_ID):
-            reply_text = message.get("text", "")
-            original_text = message["reply_to_message"].get("text", "")
-            
-            if "ID:" in original_text:
-                try:
-                    session_id = original_text.split("ID:")[-1].strip()
-                    if not hasattr(report_blueprint, 'live_replies'):
-                        report_blueprint.live_replies = {}
-                    report_blueprint.live_replies[session_id] = reply_text
-                except Exception:
-                    pass
-
-    return "OK", 200
-
-# مسار الفحص الإطاري (Polling API) لمتصفح الزائر لسحب ردودك الحية وعرضها له
-@report_blueprint.route('/api/get_reply/<session_id>', methods=['GET'])
-def get_reply(session_id):
-    if not hasattr(report_blueprint, 'live_replies'):
-        report_blueprint.live_replies = {}
-        
-    reply = report_blueprint.live_replies.pop(session_id, None)
-    if reply:
-        return jsonify({"status": "found", "reply": reply})
-    return jsonify({"status": "empty"})
+    return jsonify({"status": "success", "message": "تم الإرسال بنجاح"})
 REPORT_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Albrawe - Chat</title>
+    <title>إرسال مشكلة - Albrawe</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { 
@@ -177,7 +139,7 @@ REPORT_TEMPLATE = """
             box-sizing: border-box;
             width: 100%;
         }
-        textarea.input-field { resize: none; height: 60px; }
+        textarea.input-field { resize: none; height: 70px; }
 
         .submit-btn {
             background: #000;
@@ -196,7 +158,6 @@ REPORT_TEMPLATE = """
             gap: 8px;
         }
 
-        /* حاوية الشات الحي المطور التناظرية لتبادل الرسائل والردود */
         .chat-box-area {
             margin-top: 15px;
             background: rgba(0, 0, 0, 0.08);
@@ -204,15 +165,14 @@ REPORT_TEMPLATE = """
             border-radius: 6px;
             font-size: 12px;
             border: 2px solid #000;
-            height: 130px;
+            height: 120px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-        .chat-bubble { padding: 6px 10px; border-radius: 6px; max-width: 85%; font-weight: bold; line-height: 1.4; word-wrap: break-word; }
+        .chat-bubble { padding: 6px 10px; border-radius: 6px; max-width: 90%; font-weight: bold; line-height: 1.4; word-wrap: break-word; }
         .user-bubble { background: #000; color: #8c9f21; align-self: flex-start; text-align: right; border-radius: 6px 6px 0 6px; }
-        .admin-bubble { background: #cbd3d8; color: #000; align-self: flex-end; text-align: right; border-radius: 6px 6px 6px 0; border: 1px solid #000; }
     </style>
 </head>
 <body>
@@ -221,33 +181,31 @@ REPORT_TEMPLATE = """
     <div class="nokia-phone-style">
         <div class="nokia-screen-style">
             <div class="screen-header">
-                <span><i class="fas fa-comments"></i> شات الدعم الفني المباشر</span>
+                <span><i class="fas fa-comments"></i> شات ومشاكل الموقع</span>
                 <span>NOKIA</span>
             </div>
             
             <form id="chatForm" onsubmit="handleFormSubmit(event)">
-                <div class="form-group" style="display:none;">
-                    <input type="text" id="userName" class="input-field" value="زائر" required maxlength="15">
+                <div class="form-group">
+                    <label for="userName">اسم المستخدم:</label>
+                    <input type="text" id="userName" class="input-field" placeholder="اكتب اسمك هنا" required maxlength="15">
                 </div>
                 
                 <div class="chat-box-area" id="chatBoxContainer">
-                    <div style="text-align:center; color:rgba(0,0,0,0.5); font-weight:bold; margin:auto;" id="emptyHint">افتح محادثة حية واكتب رسالتك بالأسفل...</div>
+                    <div style="text-align:center; color:rgba(0,0,0,0.5); font-weight:bold; margin:auto;" id="emptyHint">اكتب رسالتك بالأسفل لتصل فوراً للمطور...</div>
                 </div>
                 
                 <div class="form-group" style="margin-top:12px;">
-                    <textarea id="issueDetails" class="input-field" placeholder="اكتب رسالتك هنا واضغط إرسال..." required maxlength="200"></textarea>
+                    <textarea id="issueDetails" class="input-field" placeholder="اكتب رسالتك أو مشكلتك هنا واضغط إرسال..." required maxlength="200"></textarea>
                 </div>
                 
                 <button type="submit" class="submit-btn">
-                    <i class="fas fa-paper-plane"></i> إرسال الرسالة للبوت
+                    <i class="fas fa-paper-plane"></i> إرسال إلى التليجرام
                 </button>
             </form>
         </div>
     </div>
     <script>
-        // توليد معرّف جلسة عشوائي ومستقل لكل زائر لمنع تداخل الرسائل والردود بين المستخدمين
-        const currentSessionId = "session_" + Math.floor(Math.random() * 899999 + 100000);
-
         function setupUser() {
             let savedUser = localStorage.getItem('snake_last_user');
             if (savedUser) { document.getElementById('userName').value = savedUser; }
@@ -261,8 +219,8 @@ REPORT_TEMPLATE = """
             
             if (!details) return;
 
-            // طباعة رسالة الزائر فوراً داخل صندوق الشات بلون نوكيا الأسود والأخضر
-            appendChatBubble(details, "user-bubble");
+            // طباعة رسالة الزائر فوراً داخل صندوق الشات الكلاسيكي
+            appendChatBubble(user + ": " + details);
             document.getElementById('issueDetails').value = "";
 
             // إرسال الحزمة الفورية لخادم بايثون لتوصيلها إلى تليجرامك الشخصي عبر البوت
@@ -271,36 +229,28 @@ REPORT_TEMPLATE = """
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     user: user,
-                    type: "شات حي المطور",
-                    details: details,
-                    session_id: currentSessionId
+                    type: "شات ومشاكل الموقع",
+                    details: details
                 })
-            });
+            }).then(res => res.json())
+              .then(data => {
+                  if(data.status === "success") {
+                      alert("✅ تم إرسال رسالتك بنجاح إلى تليجرام المطور!");
+                  }
+              });
         }
 
-        function appendChatBubble(text, className) {
+        function appendChatBubble(text) {
             const container = document.getElementById('chatBoxContainer');
             const hint = document.getElementById('emptyHint');
             if (hint) hint.remove();
             
             const bubble = document.createElement('div');
-            bubble.className = "chat-bubble " + className;
+            bubble.className = "chat-bubble user-bubble";
             bubble.innerText = text;
             container.appendChild(bubble);
             container.scrollTop = container.scrollHeight;
         }
-
-        // الفحص التلقائي الإطاري (Long-Polling) للاستماع لردودك من التليجرام كل ثانيتين
-        setInterval(() => {
-            fetch('/api/get_reply/' + currentSessionId)
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "found") {
-                    // طباعة رد المطور فوراً داخل صندوق الشات بلون رمادي كلاسيكي مميز
-                    appendChatBubble(data.reply, "admin-bubble");
-                }
-            });
-        }, 2000);
 
         setupUser();
     </script>
@@ -311,3 +261,11 @@ REPORT_TEMPLATE = """
 @report_blueprint.route('/report')
 def report_page():
     return render_template_string(REPORT_TEMPLATE)
+# مسارات مفرغة آمنة لتعطيل الـ Webhooks المخزنة مؤقتاً ومنع حدوث خطأ 500 نهائياً
+@report_blueprint.route('/api/telegram_webhook', methods=['POST'])
+def telegram_webhook():
+    return "OK", 200
+
+@report_blueprint.route('/api/get_reply/<session_id>', methods=['GET'])
+def get_reply(session_id):
+    return jsonify({"status": "empty"})
