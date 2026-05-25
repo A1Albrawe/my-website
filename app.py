@@ -15,7 +15,7 @@ app.register_blueprint(tetris_blueprint)
 app.register_blueprint(report_blueprint)
 app.register_blueprint(tg_bot_blueprint)
 
-# تخصيص متغير الخادم للتعرف عليه تلقائياً من قبل Vercel
+# الصياغة السليمة المقبولة من Vercel لربط الـ WSGI Handler بدون تدمير المصفوفة
 app = app
 
 if __name__ == '__main__':
