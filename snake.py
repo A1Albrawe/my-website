@@ -8,7 +8,7 @@ SNAKE_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة ثعبان نوكيا باللمس - Albrawe</title>
+    <title>لعبة ثعبان نوكيا الشاملة - Albrawe</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { 
@@ -23,7 +23,6 @@ SNAKE_TEMPLATE = """
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
-            /* منع سحب الصفحة بأكملها لأسفل عند اللعب على الموبايل */
             overscroll-behavior-y: contain;
         }
         .back-btn { 
@@ -62,7 +61,6 @@ SNAKE_TEMPLATE = """
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
             position: relative;
             box-sizing: border-box;
-            /* تفعيل خاصية عدم تحريك الصفحة عند لمس الشاشة الخضراء */
             touch-action: none;
         }
 
@@ -251,16 +249,20 @@ SNAKE_TEMPLATE = """
             }
         }
 
-        // أزرار لوحة المفاتيح والأسهم للكمبيوتر
+        // إدماج كافة متحكمات لوحة مفاتيح الكمبيوتر (WASD، الأسهم، ولوحة الحاسبة)
         document.onkeydown = function(e) {
             if(isGameOver) return;
-            if(e.keyCode == 37 && d != "RIGHT") d = "LEFT";
-            else if(e.keyCode == 38 && d != "DOWN") d = "UP";
-            else if(e.keyCode == 39 && d != "LEFT") d = "RIGHT";
-            else if(e.keyCode == 40 && d != "UP") d = "DOWN";
+            
+            const key = e.keyCode;
+            const keyChar = e.key.toLowerCase();
+
+            // التحكم بالأزرار (WASD) أو الأسهم أو أرقام الآلة الحاسبة الجانبية (Numpad)
+            if ((key == 37 || keyChar == 'a' || key == 97 || key == 100) && d != "RIGHT") d = "LEFT"; // 4 أو A أو يسار
+            else if ((key == 38 || keyChar == 'w' || key == 104) && d != "DOWN") d = "UP";            // 8 أو W أو فوق
+            else if ((key == 39 || keyChar == 'd' || key == 102) && d != "LEFT") d = "RIGHT";         // 6 أو D أو يمين
+            else if ((key == 40 || keyChar == 's' || key == 98) && d != "UP") d = "DOWN";             // 2 أو S أو تحت
         };
 
-        // تغيير الاتجاه البرمجي
         function changeDirection(dir) {
             if(isGameOver) return;
             if(dir == "LEFT" && d != "RIGHT") d = "LEFT";
@@ -269,69 +271,57 @@ SNAKE_TEMPLATE = """
             if(dir == "DOWN" && d != "UP") d = "DOWN";
         }
 
-        // ================= إضافة ميزة اللمس (Swipe) الذكية =================
+        // محاكي خاصية اللمس سحب التوجيه (Swipe) للموبايل
         const touchArea = document.getElementById('touchArea');
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchEndX = 0;
-        let touchEndY = 0;
+        let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
 
         touchArea.addEventListener('touchstart', function(event) {
-            touchStartX = event.changedTouches[0].screenX;
-            touchStartY = event.changedTouches[0].screenY;
+            touchStartX = event.changedTouches.screenX;
+            touchStartY = event.changedTouches.screenY;
         }, {passive: true});
 
         touchArea.addEventListener('touchend', function(event) {
-            touchEndX = event.changedTouches[0].screenX;
-            touchEndY = event.changedTouches[0].screenY;
+            touchEndX = event.changedTouches.screenX;
+            touchEndY = event.changedTouches.screenY;
             handleSwipe();
         }, {passive: true});
 
         function handleSwipe() {
             const xDiff = touchEndX - touchStartX;
             const yDiff = touchEndY - touchStartY;
-            
-            // التأكد من أن السحبة حقيقية وليست لمسة خفيفة بالخطأ (أكبر من 30 بكسل)
             if (Math.abs(xDiff) > Math.abs(yDiff)) {
                 if (Math.abs(xDiff) > 30) {
-                    if (xDiff > 0) { changeDirection('RIGHT'); } 
-                    else { changeDirection('LEFT'); }
+                    if (xDiff > 0) { changeDirection('RIGHT'); } else { changeDirection('LEFT'); }
                 }
             } else {
                 if (Math.abs(yDiff) > 30) {
-                    if (yDiff > 0) { changeDirection('DOWN'); } 
-                    else { changeDirection('UP'); }
+                    if (yDiff > 0) { changeDirection('DOWN'); } else { changeDirection('UP'); }
                 }
             }
         }
-        // ===================================================================
 
         function draw() {
             ctx.clearRect(0, 0, 300, 200);
-
             ctx.fillStyle = "#000";
             ctx.fillRect(food.x + 1, food.y + 1, box - 2, box - 2);
 
             for(let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = "#000";
                 ctx.fillRect(snake[i].x + 1, snake[i].y + 1, box - 2, box - 2);
-                
                 if(i === 0) {
                     ctx.fillStyle = "#8c9f21";
                     ctx.fillRect(snake[i].x + 3, snake[i].y + 3, 2, 2);
                 }
             }
 
-            let snakeX = snake[0].x;
-            let snakeY = snake[0].y;
-
+            let snakeX = snake.x;
+            let snakeY = snake.y;
             if(d == "LEFT") snakeX -= box;
             if(d == "UP") snakeY -= box;
             if(d == "RIGHT") snakeX += box;
             if(d == "DOWN") snakeY += box;
 
             let newHead = {x: snakeX, y: snakeY};
-
             if(snakeX < 0 || snakeX >= 300 || snakeY < 0 || snakeY >= 200 || collision(newHead, snake)) {
                 endGame();
                 return;
@@ -344,14 +334,11 @@ SNAKE_TEMPLATE = """
             } else {
                 snake.pop();
             }
-
             snake.unshift(newHead);
         }
 
         function collision(head, array) {
-            for(let i = 0; i < array.length; i++) {
-                if(head.x == array[i].x && head.y == array[i].y) return true;
-            }
+            for(let i = 0; i < array.length; i++) { if(head.x == array[i].x && head.y == array[i].y) return true; }
             return false;
         }
 
@@ -365,7 +352,6 @@ SNAKE_TEMPLATE = """
         function resetGame() {
             let nameInput = document.getElementById('playerName').value.trim();
             let finalName = nameInput ? nameInput : "لاعب نوكيا";
-            
             saveScore(finalName, score);
             document.getElementById('playerName').value = "";
             initGame();
@@ -381,21 +367,9 @@ SNAKE_TEMPLATE = """
         }
 
         function loadLeaderboard() {
-            let scores = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || [
-                {name: "المرتبة 1", score: 0},
-                {name: "المرتبة 2", score: 0},
-                {name: "المرتبة 3", score: 0}
-            ];
-            
+            let scores = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || [{name: "المرتبة 1", score: 0}, {name: "المرتبة 2", score: 0}, {name: "المرتبة 3", score: 0}];
             let content = "";
-            scores.forEach((item, index) => {
-                content += `
-                    <div class="score-row">
-                        <span>${index + 1}. ${item.name}</span>
-                        <span>${item.score}</span>
-                    </div>
-                `;
-            });
+            scores.forEach((item, index) => { content += `<div class="score-row"><span>${index + 1}. ${item.name}</span><span>${item.score}</span></div>`; });
             document.getElementById('leaderboardContent').innerHTML = content;
         }
 
