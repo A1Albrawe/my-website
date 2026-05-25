@@ -7,8 +7,8 @@ SNAKE_TEMPLATE = """
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة ثعبان نوكيا المتجاوبة - Albrawe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة ثعبان نوكيا باللمس - Albrawe</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { 
@@ -23,6 +23,8 @@ SNAKE_TEMPLATE = """
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
+            /* منع سحب الصفحة بأكملها لأسفل عند اللعب على الموبايل */
+            overscroll-behavior-y: contain;
         }
         .back-btn { 
             background: #111; 
@@ -40,7 +42,6 @@ SNAKE_TEMPLATE = """
             font-size: 14px;
         }
         
-        /* هيكل نوكيا الذكي والمتجاوب */
         .nokia-phone {
             background: #3a4d5c;
             border: 6px solid #25333d;
@@ -53,7 +54,6 @@ SNAKE_TEMPLATE = """
             transition: all 0.3s ease;
         }
 
-        /* شاشة النوكيا الفسفورية المحسنة */
         .nokia-screen {
             background-color: #8c9f21;
             border: 10px solid #111;
@@ -62,6 +62,8 @@ SNAKE_TEMPLATE = """
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
             position: relative;
             box-sizing: border-box;
+            /* تفعيل خاصية عدم تحريك الصفحة عند لمس الشاشة الخضراء */
+            touch-action: none;
         }
 
         .score-container {
@@ -88,7 +90,6 @@ SNAKE_TEMPLATE = """
             height: auto;
         }
 
-        /* لوحة المفاتيح المرنة للأجهزة والكمبيوتر */
         .nokia-keypad {
             margin-top: 15px;
             display: grid;
@@ -119,7 +120,6 @@ SNAKE_TEMPLATE = """
         }
         .key-btn span { font-size: 9px; color: #666; font-family: sans-serif; }
 
-        /* لوحة الصدارة البكسلية المحدثة */
         .leaderboard {
             margin-top: 12px;
             background: rgba(0, 0, 0, 0.06);
@@ -132,7 +132,6 @@ SNAKE_TEMPLATE = """
         .leaderboard h4 { margin: 0 0 6px 0; text-align: center; font-size: 14px; }
         .score-row { display: flex; justify-content: space-between; padding: 2px 0; font-weight: bold; }
 
-        /* شاشة انتهاء اللعبة المتجاوبة */
         .game-over-overlay {
             display: none;
             position: absolute;
@@ -157,7 +156,6 @@ SNAKE_TEMPLATE = """
             border-radius: 3px;
         }
 
-        /* 📱 إعدادات مخصصة استثنائية للشاشات الصغيرة (الهواتف المحمولة) */
         @media (max-width: 480px) {
             body { padding: 5px; }
             .nokia-phone {
@@ -171,7 +169,7 @@ SNAKE_TEMPLATE = """
                 padding: 8px;
             }
             .key-btn {
-                height: 55px; /* تكبير الأزرار في اللمس لتسهيل اللعب بالإصبع */
+                height: 55px;
                 background: #e0e5e8;
             }
         }
@@ -182,7 +180,7 @@ SNAKE_TEMPLATE = """
     <a href="/" class="back-btn"><i class="fas fa-arrow-right"></i> القائمة الرئيسية</a>
 
     <div class="nokia-phone">
-        <div class="nokia-screen">
+        <div class="nokia-screen" id="touchArea">
             <div class="score-container">
                 <span id="snakeScore">النقاط: 0</span>
                 <span>NOKIA</span>
@@ -205,7 +203,6 @@ SNAKE_TEMPLATE = """
             </div>
         </div>
 
-        <!-- الأزرار التناظرية لنوكيا الكلاسيكي للتحكم الكامل بالجوال والكمبيوتر -->
         <div class="nokia-keypad">
             <div class="key-btn">1 <span>.,-</span></div>
             <div class="key-btn" onclick="changeDirection('UP')">2 <span>▲ فوق</span></div>
@@ -221,7 +218,7 @@ SNAKE_TEMPLATE = """
     <script>
         const canvas = document.getElementById('snakeCanvas');
         const ctx = canvas.getContext('2d');
-        const box = 10; // حجم البكسل المصغر ليناسب كافة الشاشات
+        const box = 10;
         
         let score, snake, food, d, gameInterval;
         let isGameOver = false;
@@ -232,7 +229,6 @@ SNAKE_TEMPLATE = """
             document.getElementById('snakeScore').innerText = "النقاط: " + score;
             document.getElementById('gameOverScreen').style.display = 'none';
             
-            // تهيئة إحداثيات المصفوفة بشكل ديناميكي صحيح
             snake = [
                 {x: 10 * box, y: 10 * box},
                 {x: 9 * box, y: 10 * box},
@@ -242,7 +238,7 @@ SNAKE_TEMPLATE = """
             d = "RIGHT";
             
             if(gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(draw, 110); // موازنة السرعة اللعبية
+            gameInterval = setInterval(draw, 110);
         }
 
         function generateFood() {
@@ -250,13 +246,12 @@ SNAKE_TEMPLATE = """
                 x: Math.floor(Math.random() * 30) * box,
                 y: Math.floor(Math.random() * 20) * box
             };
-            // التحقق السليم من عدم توليد نقطة الطعام فوق جسم الأفعى الحالي
             for(let cell of snake) {
                 if(cell.x === food.x && cell.y === food.y) generateFood();
             }
         }
 
-        // الاستجابة الدقيقة لأسهم الكيبورد من الكمبيوتر
+        // أزرار لوحة المفاتيح والأسهم للكمبيوتر
         document.onkeydown = function(e) {
             if(isGameOver) return;
             if(e.keyCode == 37 && d != "RIGHT") d = "LEFT";
@@ -265,7 +260,7 @@ SNAKE_TEMPLATE = """
             else if(e.keyCode == 40 && d != "UP") d = "DOWN";
         };
 
-        // الاستجابة لأزرار الهاتف باللمس أو الضغط والتحكم الشامل
+        // تغيير الاتجاه البرمجي
         function changeDirection(dir) {
             if(isGameOver) return;
             if(dir == "LEFT" && d != "RIGHT") d = "LEFT";
@@ -274,26 +269,59 @@ SNAKE_TEMPLATE = """
             if(dir == "DOWN" && d != "UP") d = "DOWN";
         }
 
+        // ================= إضافة ميزة اللمس (Swipe) الذكية =================
+        const touchArea = document.getElementById('touchArea');
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        touchArea.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+            touchStartY = event.changedTouches[0].screenY;
+        }, {passive: true});
+
+        touchArea.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            touchEndY = event.changedTouches[0].screenY;
+            handleSwipe();
+        }, {passive: true});
+
+        function handleSwipe() {
+            const xDiff = touchEndX - touchStartX;
+            const yDiff = touchEndY - touchStartY;
+            
+            // التأكد من أن السحبة حقيقية وليست لمسة خفيفة بالخطأ (أكبر من 30 بكسل)
+            if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                if (Math.abs(xDiff) > 30) {
+                    if (xDiff > 0) { changeDirection('RIGHT'); } 
+                    else { changeDirection('LEFT'); }
+                }
+            } else {
+                if (Math.abs(yDiff) > 30) {
+                    if (yDiff > 0) { changeDirection('DOWN'); } 
+                    else { changeDirection('UP'); }
+                }
+            }
+        }
+        // ===================================================================
+
         function draw() {
             ctx.clearRect(0, 0, 300, 200);
 
-            // رسم طعام الأفعى (البكسل الكلاسيكي الأسود)
             ctx.fillStyle = "#000";
             ctx.fillRect(food.x + 1, food.y + 1, box - 2, box - 2);
 
-            // رسم مصفوفة جسم الثعبان بالكامل بالتفصيل
             for(let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = "#000";
                 ctx.fillRect(snake[i].x + 1, snake[i].y + 1, box - 2, box - 2);
                 
-                // عين الثعبان للرأس الكلاسيكي
                 if(i === 0) {
                     ctx.fillStyle = "#8c9f21";
                     ctx.fillRect(snake[i].x + 3, snake[i].y + 3, 2, 2);
                 }
             }
 
-            // منطق الحركة الجديد والمصحح كلياً
             let snakeX = snake[0].x;
             let snakeY = snake[0].y;
 
@@ -304,7 +332,6 @@ SNAKE_TEMPLATE = """
 
             let newHead = {x: snakeX, y: snakeY};
 
-            // حساب شروط الخسارة عند الخروج من أبعاد الكانفاس المتغير أو التداخل
             if(snakeX < 0 || snakeX >= 300 || snakeY < 0 || snakeY >= 200 || collision(newHead, snake)) {
                 endGame();
                 return;
