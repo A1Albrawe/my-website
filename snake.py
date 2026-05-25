@@ -44,7 +44,6 @@ SNAKE_TEMPLATE = """
         .shake { animation: sk 0.3s linear infinite; } 
         @keyframes sk { 0% {transform: translate(2px, 1px);} 50% {transform: translate(-2px, -1px);} 100% {transform: translate(1px, -2px);} }
         
-        /* الحفاظ التام على مجسم الهاتف موحداً حتى على شاشات المحمول */
         .nokia-phone { 
             background: #3a4d5c; 
             border: 8px solid #25333d; 
@@ -90,7 +89,6 @@ SNAKE_TEMPLATE = """
         .leaderboard h4 { margin: 0 0 4px 0; text-align: center; font-size: 12px; }
         .score-row { display: flex; justify-content: space-between; padding: 1px 0; font-weight: bold; }
         
-        /* تعديل وحفظ أبعاد لوحة الأسهم الدائرية الكبيرة لتناسب الموبايل دائماً */
         .nokia-dpad { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 180px; height: 180px; margin-left: auto; margin-right: auto; }
         .arrow-btn { background: #cbd3d8; border: 2px solid #a1aab0; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 22px; color: #222; cursor: pointer; box-shadow: 0 4px #78838a, inset 0 1px rgba(255,255,255,0.5); user-select: none; -webkit-user-select: none; }
         .arrow-btn:active { box-shadow: 0 1px #78838a; transform: translateY(2px); }
@@ -141,7 +139,6 @@ SNAKE_TEMPLATE = """
             </div>
         </div>
 
-        <!-- تم تثبيت وتصحيح الاتجاهات التناظرية لزر الـ D-Pad لمنع أي عكس في التوجيه باللمس -->
         <div class="nokia-dpad">
             <div class="dpad-empty"></div>
             <div class="arrow-btn" onmousedown="changeDirection('UP')" ontouchstart="changeDirection('UP'); event.preventDefault();"><i class="fas fa-chevron-up"></i></div>
@@ -152,11 +149,10 @@ SNAKE_TEMPLATE = """
             <div class="arrow-btn" onmousedown="changeDirection('RIGHT')" ontouchstart="changeDirection('RIGHT'); event.preventDefault();"><i class="fas fa-chevron-right"></i></div>
             
             <div class="dpad-empty"></div>
----
-
-### 📋 الجزء الثاني: (نظام الصوت، تفعيل المتجر، وحفظ الحسابات من نوكيا)
-
-```python
+            <div class="arrow-btn" onmousedown="changeDirection('DOWN')" ontouchstart="changeDirection('DOWN'); event.preventDefault();"><i class="fas fa-chevron-down"></i></div>
+            <div class="dpad-empty"></div>
+        </div>
+    </div>
     <script>
         const canvas = document.getElementById('snakeCanvas'), ctx = canvas.getContext('2d'), box = 10;
         let score, snake, food, d, gameInterval, musicInterval, isGameOver = true, isPaused = false, isMuted = false, globalVolume = 0.5, currentUser = "", inShop = false;
@@ -165,14 +161,14 @@ SNAKE_TEMPLATE = """
             { id: 's_green', type: 'skin', name: 'ثعبان أسود بكسل', price: 0, color: '#000000', purchased: true },
             { id: 's_red', type: 'skin', name: 'ثعبان أحمر ناري', price: 30, color: '#aa0000', purchased: false },
             { id: 's_blue', type: 'skin', name: 'ثعبان أزرق ملكي', price: 50, color: '#0000aa', purchased: false },
-            { id: 'm_retro', type: 'music', name: 'نغمة أركيد هادئة', price: 0, notes:, purchased: true },
+            { id: 'm_retro', type: 'music', name: 'نغمة أركيد هادئة', price: 0, notes: [440, 494, 523, 587], purchased: true },
             { id: 'm_nokia', type: 'music', name: 'نغمة نوكيا المألوفة', price: 40, notes: [659.25, 587.33, 392.00, 440.00, 523.25, 493.88, 293.66, 329.63], purchased: false }
         ];
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         function getActiveSkin() { return shopItems.find(i => i.type === 'skin' && i.equipped)?.color || '#000000'; }
-        function getActiveMusic() { return shopItems.find(i => i.type === 'music' && i.equipped)?.notes ||; }
+        function getActiveMusic() { return shopItems.find(i => i.type === 'music' && i.equipped)?.notes || [440, 494, 523, 587]; }
 
         function toggleMute() { isMuted = !isMuted; document.getElementById('muteToggle').innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>'; document.getElementById('volumeSlider').value = isMuted ? 0 : globalVolume; if(isMuted) stopMusic(); else if(!isGameOver && !isPaused) startMusic(); }
         function updateVolume(v) { globalVolume = parseFloat(v); isMuted = globalVolume === 0; document.getElementById('muteToggle').innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>'; stopMusic(); if(!isMuted && !isGameOver && !isPaused) startMusic(); }
@@ -214,12 +210,12 @@ SNAKE_TEMPLATE = """
             let n = document.getElementById('playerName').value.trim(); if(!n) return;
             loadUserData(n); document.getElementById('gameOverScreen').style.display = 'none';
             isGameOver = false; initGame();
-        }function initGame() {
+        }
+        function initGame() {
             score = 0; isPaused = false; document.getElementById('snakeScore').innerText = "النقاط: " + score;
             document.getElementById('recordOverlay').style.display = 'none';
             document.getElementById('nokiaScreen').classList.remove('highscore-flash');
             
-            // تهيئة السلسلة المصححة لرأس الثعبان لمنع حدوث أي اختفاء عند بداية الحركة
             snake = [
                 {x: 10 * box, y: 9 * box},
                 {x: 9 * box, y: 9 * box},
@@ -247,9 +243,9 @@ SNAKE_TEMPLATE = """
             if(dir === "DOWN" && d !== "UP") d = "DOWN";
         }
 
-        // 📱 إعادة كتابة وإطلاق التعرف الفوري على اللمس (Touch Swipe) على مستوى الصفحة المانع لتعطيل الموبايل
+        // إطلاق التعرف الذكي السلس على مسار لمس الشاشة (Touch Swipe) للموبايل
         let tsX = 0, tsY = 0;
-        window.addEventListener('touchstart', e => { tsX = e.changedTouches[0].screenX; tsY = e.changedTouches[0].screenY; }, {passive: false});
+        window.addEventListener('touchstart', e => { tsX = e.changedTouches[0].screenX; tsY = e.changedTouches[0].screenY; }, {passive: true});
         window.addEventListener('touchend', e => {
             if(isPaused || isGameOver) return; 
             const xDiff = e.changedTouches[0].screenX - tsX;
@@ -260,7 +256,7 @@ SNAKE_TEMPLATE = """
             } else {
                 if(Math.abs(yDiff) > 30) changeDirection(yDiff > 0 ? 'DOWN' : 'UP');
             }
-        }, {passive: false});
+        }, {passive: true});
 
         function draw() {
             if (isPaused) return; ctx.clearRect(0, 0, 280, 180);
@@ -273,7 +269,7 @@ SNAKE_TEMPLATE = """
                 if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(c.x + 3, c.y + 3, 2, 2); }
             });
 
-            // تم تصحيح منطق حساب إحداثيات الرأس المتغير كعنصر مصفوفة كامل مصفوفاً بدقة من السلسلة البرمجية لمنع الاختفاء
+            // 🎯 تم إصلاح العيب الرياضي هنا: قراءة صحيحة لعناصر المصفوفة تمنع اختفاء التموضع نهائياً
             let hX = snake[0].x;
             let hY = snake[0].y;
             
