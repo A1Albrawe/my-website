@@ -1,28 +1,4 @@
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "app.py",
-      "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb" }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/maintenance",
-      "dest": "report.py"
-    },
-    {
-      "src": "/projects",
-      "dest": "app.py"
-    },
-    {
-      "src": "/about",
-      "dest": "app.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "app.py"
-    }
-  ]
-}
+Flask==3.0.3
+vercel-analytics==0.1.3
+# 🎯 سطر التنشيط التكتيكي لكسر الكاش وإجبار السيرفر على الاستجابة الفورية
+Werkzeug==3.0.3
