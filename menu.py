@@ -1,5 +1,4 @@
 # ملف إدارة وتعديل عناصر القائمة الجانبية الموحدة والمطورة للموقع
-# تم إصلاح عيب التعليق وإيقاف تداخل الواجهة من داخل هذا الملف فقط دون لمس home.py
 
 def generate_sidebar_html():
     """دالة توليد كود الـ HTML المطور للستارة مع القائمة المنسدلة الذكية والمعزولة"""
@@ -8,7 +7,7 @@ def generate_sidebar_html():
     <!-- 📂 البوابة الرئيسية -->
     <a href="/" class="menu-item" style="color: #c9d1d9;"><i class="fas fa-home"></i> البوابة الرئيسية</a>
     
-    <!-- 🎮 قائمة الألعاب المنسدلة المعزولة كلياً عن سكربت الواجهة القديم -->
+    <!-- 🎮 قائمة الألعاب المنسدلة المعزولة -->
     <div class="dropdown-wrapper" style="margin-bottom: 5px;">
         <button class="menu-item dropdown-toggle-btn" onclick="toggleGamesDropdown(event)" style="color: #3fb950; width: 100%; text-align: right; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #21262d; border: 1px solid #30363d; padding: 12px; border-radius: 6px; font-weight: bold; font-family: inherit;">
             <span><i class="fas fa-gamepad"></i> الألعاب الحالية (Games) 🎮</span>
@@ -25,20 +24,16 @@ def generate_sidebar_html():
     <a href="/about" class="menu-item" style="color: #ff7b72;"><i class="fas fa-user-shield"></i> من نحن (About us) 👤</a>
     <a href="/scripts" class="menu-item" style="color: #388bfd;"><i class="fab fa-python"></i> إسكربتات بايثون ⚙️</a>
     
-    <!-- 🛠️ الشكاوى وروابط التواصل الخارجية -->
-    <a href="/report" class="menu-item" style="color: #f85149;"><i class="fas fa-tools"></i> الإبلاغ عن مشكلة (تحت الصيانة) 🛠️</a>
+    <!-- 🛠️ الشكاوى تم تحويل الرابط للمسار الجديد المقفل كلياً تحت الصيانة -->
+    <a href="/maintenance" class="menu-item" style="color: #f85149;"><i class="fas fa-tools"></i> الإبلاغ عن مشكلة (تحت الصيانة) 🛠️</a>
     <a href="https://t.me" target="_blank" class="menu-item" style="color: #58a6ff;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام 🌐</a>
     
-    <!-- ⚙️ سكربت جافا سكريبت العازل والمطور لمنع تداخل كود الصفحة الرئيسية -->
     <script>
         function toggleGamesDropdown(event) {
-            // 🎯 كسر التداخل الحركي ومنع سكربت الواجهة القديم من قفل الستارة فور النقر
             event.stopPropagation();
             event.preventDefault();
-            
             const subMenu = document.getElementById('gamesSubMenu');
             const arrow = document.getElementById('dropdownArrow');
-            
             if (subMenu.style.display === 'none' || subMenu.style.display === '') {
                 subMenu.style.display = 'flex';
                 arrow.style.transform = 'rotate(180deg)';
