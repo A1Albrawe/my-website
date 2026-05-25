@@ -229,8 +229,12 @@ HOME_TEMPLATE = """
                 <div class="dot dot-g"></div>
             </div>
             
-            <!-- 🎯 تم تصحيح مصفوفة البايثون المترجمة وإجبار المتصفح على سحب الصورة السليمة والمحمية داخلياً بنسبة 100% -->
-            <img src="data:image/jpeg;base64,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ول تفصيلة أضفتها أنت؛ وهي: نبذتك التناظرية، مهاراتك التقنية في البرمجة، والواجهات المتجاوبة الموحدة بـ CSS. -->
+            <!-- 🎯 قراءة الصورة المحلية المرفوعة داخل الحاوية في مجلد static بثبات 100% وبدون روابط خارجية -->
+            <img src="/static/avatar.png" alt="Albrawe" class="dev-avatar-img" onerror="this.src='https://cloudflare.com'">
+            
+            <h2 class="dev-name">Albrawe</h2>
+            <div class="dev-title">Game Architecture Engineer & Software Specialist</div>
+            
             <div class="info-section">
                 <div class="info-line">⚡ <strong>نبذة عني:</strong> بناء وتطوير تطبيقات الويب الكاملة، وتصميم وتعديل اسكربتات البايثون مع حماية الأكواد السحابية من الثغرات البرمجية.</div>
                 <div class="info-line">🚀 <strong>مجالات الخبرة:</strong> هندسة خوادم الويب المتكاملة، معالجة البيانات المحلية ، والواجهات الذكية.</div>
@@ -243,7 +247,6 @@ HOME_TEMPLATE = """
         </div>
     </div>
     <script>
-        // دالة التحكم والمحاكاة في فتح وإغلاق الستارة الجانبية البرمجية
         function toggleSidebarCurtain(open) {
             const curtain = document.getElementById('sidebarCurtain');
             if (open) {
@@ -253,7 +256,6 @@ HOME_TEMPLATE = """
             }
         }
         
-        // ربط ذكي يضمن سحب الستارة فور فتح أي رابط برمجياً لتجنب تعليق الشاشة
         document.querySelectorAll('.menu-item').forEach(link => {
             link.addEventListener('click', () => { toggleSidebarCurtain(false); });
         });
