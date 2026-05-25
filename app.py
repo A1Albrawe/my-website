@@ -6,7 +6,7 @@ from report import report_blueprint
 
 app = Flask(__name__)
 
-# مفتاح التشفير السري لتأمين جلسات الباسورد ومنع تزوير الاختراق
+# مفتاح التشفير السري لتأمين جلسات الباسورد
 app.secret_key = "ALBRAWE_CYBER_KEY_SECURITY_2026"
 
 # تسجيل المسارات والألعاب الأساسية للموقع
@@ -15,9 +15,63 @@ app.register_blueprint(snake_blueprint)
 app.register_blueprint(tetris_blueprint)
 app.register_blueprint(report_blueprint)
 
-# 🔒 بيانات اعتماد لوحة الإدارة (يمكنك تعديلها من هنا بأي وقت)
+# 🔒 بيانات اعتماد لوحة الإدارة
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
+
+# 🌐 مصفوفات قاعدة البيانات السحابية المركزية الموحدة لجميع الهواتف في العالم
+CLOUD_REPORTS_DB = []
+CLOUD_ANALYTICS_DB = []
+
+# مسار سحابي مركزي لاستقبال وحفظ الشكاوى من أي هاتف في العالم
+@app.route('/api/cloud_submit_report', methods=['POST'])
+def cloud_submit_report():
+    global CLOUD_REPORTS_DB
+    data = request.get_json() or {}
+    CLOUD_REPORTS_DB.insert(0, {
+        "id": data.get("id"),
+        "user": data.get("user"),
+        "details": data.get("details"),
+        "date": data.get("date")
+    })
+    CLOUD_REPORTS_DB = CLOUD_REPORTS_DB[:100]
+    return jsonify({"status": "success"})
+
+# مسار سحابي مركزي لاستقبال وحفظ تحليلات الزوار من أي هاتف في العالم
+@app.route('/api/cloud_submit_analytics', methods=['POST'])
+def cloud_submit_analytics():
+    global CLOUD_ANALYTICS_DB
+    data = request.get_json() or {}
+    CLOUD_ANALYTICS_DB.insert(0, {
+        "username": data.get("username"),
+        "userAgent": data.get("userAgent"),
+        "loginTime": data.get("loginTime"),
+        "duration": data.get("duration"),
+        "snakeTime": data.get("snakeTime"),
+        "tetrisTime": data.get("tetrisTime")
+    })
+    CLOUD_ANALYTICS_DB = CLOUD_ANALYTICS_DB[:50]
+    return jsonify({"status": "success"})
+# مسار داخلي للوحة الإدارة لجلب البيانات السحابية الموحدة
+@app.route('/api/admin_get_all_data', methods=['GET'])
+def admin_get_all_data():
+    if not session.get('admin_logged_in'):
+        return jsonify({"status": "unauthorized"}), 401
+    return jsonify({
+        "reports": CLOUD_REPORTS_DB,
+        "analytics": CLOUD_ANALYTICS_DB
+    })
+
+# مسار تصفير قاعدة البيانات السحابية
+@app.route('/api/admin_clear_data', methods=['POST'])
+def admin_clear_data():
+    global CLOUD_REPORTS_DB, CLOUD_ANALYTICS_DB
+    if not session.get('admin_logged_in'):
+        return jsonify({"status": "unauthorized"}), 401
+    CLOUD_REPORTS_DB = []
+    CLOUD_ANALYTICS_DB = []
+    return jsonify({"status": "success"})
+
 
 ADMIN_HTML = """
 <!DOCTYPE html>
@@ -49,19 +103,19 @@ ADMIN_HTML = """
 <body>
     <div class="container">
         <div class="main-header">
-            <h2 style="margin:0; color:#fff;">📊 رادار الرقابة وتحليلات الزوار المركزي</h2>
+            <h2 style="margin:0; color:#fff;">📊 رادار الرقابة السحابي الموحد لجميع الهواتف</h2>
             <div style="display:flex; gap:10px; align-items:center;">
-                <button class="clear-db-btn" onclick="clearLogsDatabase()">تصفير السجلات 🗑️</button>
+                <button class="clear-db-btn" onclick="clearLogsDatabase()">تصفير السجلات سحابياً 🗑️</button>
                 <a href="/albrawe-admin/logout" class="logout-btn">تسجيل الخروج 🚪</a>
             </div>
         </div>
         <div class="grid-stats">
-            <div class="stat-box"><h5>إجمالي الزيارات المؤرشفة</h5><p id="totalViews">0</p></div>
+            <div class="stat-box"><h5>إجمالي الزيارات النشطة</h5><p id="totalViews">0</p></div>
             <div class="stat-box"><h5>متوسط الوقت بالموقع</h5><p id="avgTime">0 ثانية</p></div>
-            <div class="stat-box"><h5>إجمالي الشكاوى النشطة</h5><p id="totalComplaints">0</p></div>
+            <div class="stat-box"><h5>إجمالي الشكاوى السحابية</h5><p id="totalComplaints">0</p></div>
         </div>
         <div class="analytics-card">
-            <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:8px;">👥 سجل حركة بيانات المستخدمين بالتفصيل</h3>
+            <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:8px;">👥 سجل حركة وبيانات جميع المستخدمين الموحد</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -81,42 +135,51 @@ ADMIN_HTML = """
     </div>
     <script>
         function fetchAndRenderAnalytics() {
-            let db = JSON.parse(localStorage.getItem('albrawe_master_analytics_db')) || [];
-            let complDB = JSON.parse(localStorage.getItem('albrawe_central_db')) || [];
-            document.getElementById('totalViews').innerText = db.length;
-            document.getElementById('totalComplaints').innerText = complDB.length;
-            let totalSeconds = 0;
-            db.forEach(item => { totalSeconds += (item.duration || 0); });
-            document.getElementById('avgTime').innerText = db.length > 0 ? Math.round(totalSeconds / db.length) + " ثانية" : "0 ثانية";
-            let html = "";
-            if(db.length === 0) {
-                html = '<tr><td colspan="6" style="text-align:center; color:#8b949e;">لا توجد بيانات مستخدمين مسجلة.</td></tr>';
-            } else {
-                db.forEach(user => {
-                    let deviceBadge = '<span class="badge bg-windows">Windows/PC</span>';
-                    let ua = user.userAgent.toLowerCase();
-                    if(ua.includes('android')) deviceBadge = '<span class="badge bg-android">Android 📱</span>';
-                    else if(ua.includes('iphone') || ua.includes('ipad')) deviceBadge = '<span class="badge bg-iphone">iPhone 🍏</span>';
-                    let userComplaints = complDB.filter(c => c.user.toLowerCase() === user.username.toLowerCase());
-                    let complHtml = '<span style="color:#8b949e;">لا يوجد</span>';
-                    if(userComplaints.length > 0) {
-                        complHtml = "";
-                        userComplaints.forEach(c => { complHtml += `<div class="report-txt">⚠️ [\${c.date}]: \${c.details}</div>`; });
-                    }
-                    html += `<tr><td style="font-weight:bold; color:#fff;">\${user.username}</td><td>\${deviceBadge}</td><td>\${user.loginTime}</td><td style="color:#58a6ff; font-weight:bold;">\${user.duration || 0} ثانية</td><td>🐍 \${user.snakeTime || 0}ث | 🧱 \${user.tetrisTime || 0}ث</td><td>\${complHtml}</td></tr>`;
-                });
-            }
-            document.getElementById('logsTableBody').innerHTML = html;
+            fetch('/api/admin_get_all_data')
+            .then(res => res.json())
+            .then(data => {
+                let db = data.analytics || [];
+                let complDB = data.reports || [];
+                
+                document.getElementById('totalViews').innerText = db.length;
+                document.getElementById('totalComplaints').innerText = complDB.length;
+                
+                let totalSeconds = 0;
+                db.forEach(item => { totalSeconds += parseInt(item.duration || 0); });
+                document.getElementById('avgTime').innerText = db.length > 0 ? Math.round(totalSeconds / db.length) + " ثانية" : "0 ثانية";
+                
+                let html = "";
+                if(db.length === 0) {
+                    html = '<tr><td colspan="6" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مسجلة سحابياً.</td></tr>';
+                } else {
+                    db.forEach(user => {
+                        let deviceBadge = '<span class="badge bg-windows">Windows/PC</span>';
+                        let ua = user.userAgent.toLowerCase();
+                        if(ua.includes('android')) deviceBadge = '<span class="badge bg-android">Android 📱</span>';
+                        else if(ua.includes('iphone') || ua.includes('ipad')) deviceBadge = '<span class="badge bg-iphone">iPhone 🍏</span>';
+                        
+                        let userComplaints = complDB.filter(c => c.user.toLowerCase() === user.username.toLowerCase());
+                        let complHtml = '<span style="color:#8b949e;">لا يوجد</span>';
+                        if(userComplaints.length > 0) {
+                            complHtml = "";
+                            userComplaints.forEach(c => { complHtml += `<div class="report-txt">⚠️ [\\${c.date}]: \\${c.details}</div>`; });
+                        }
+                        html += `<tr><td style="font-weight:bold; color:#fff;">\\${user.username}</td><td>\\${deviceBadge}</td><td>\\${user.loginTime}</td><td style="color:#58a6ff; font-weight:bold;">\\${user.duration || 0} ثانية</td><td>🐍 \\${user.snakeTime || 0}ث | 🧱 \\${user.tetrisTime || 0}ث</td><td>\\${complHtml}</td></tr>`;
+                    });
+                }
+                document.getElementById('logsTableBody').innerHTML = html;
+            });
         }
         function clearLogsDatabase() {
-            if(confirm("هل أنت متأكد من تصفير المسح؟")) { localStorage.removeItem('albrawe_master_analytics_db'); fetchAndRenderAnalytics(); }
+            if(confirm("هل أنت متأكد من تصفير المسح السحابي المركب؟")) {
+                fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics());
+            }
         }
         fetchAndRenderAnalytics();
     </script>
 </body>
 </html>
 """
-
 LOGIN_HTML = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -150,7 +213,7 @@ LOGIN_HTML = """
 </html>
 """
 
-# تفعيل الامتداد المباشر البرمجي /PASS داخل السيرفر السحابي
+# تفعيل الامتداد المباشر البرمجي /PASS داخل السيرفر السحابي لربط قاعدة البيانات
 @app.route('/PASS', methods=['GET', 'POST'])
 def admin_page():
     if request.method == 'POST':
