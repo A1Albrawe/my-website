@@ -1,60 +1,8 @@
-import json
-import urllib.request
-from flask import Blueprint, request, jsonify, render_template_string
+from flask import Blueprint, render_template_string
 
 # إنشاء البلوبرينت الموحد لنظام الشات المتكامل والتليجرام المتوافق مع Vercel
 report_blueprint = Blueprint('report', __name__)
 
-# تفعيل وتثبيت بيانات حسابك والتوكن الجديد القياسي والموثق
-ADMIN_CHAT_ID = "1178062571"
-BOT_TOKEN = "8196656039:AAGtnN77ZnuZmZ3iP4T5nY9VflXjxqM2E8o"
-
-# دالة إرسال الرسائل الفورية المزودة بـ User-Agent لفك قفل حظر السيرفرات السحابية
-def send_to_telegram(text):
-    url = f"https://telegram.org{BOT_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": ADMIN_CHAT_ID,
-        "text": text,
-        "parse_mode": "Markdown"
-    }
-    try:
-        data = json.dumps(payload).encode('utf-8')
-        # تم دمج الـ Headers والـ User-Agent لإجبار خادم تليجرام و Vercel على تمرير الرسالة فوراً
-        req = urllib.request.Request(
-            url, 
-            data=data, 
-            headers={
-                'Content-Type': 'application/json',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            },
-            method='POST'
-        )
-        with urllib.request.urlopen(req, timeout=5) as response:
-            pass
-    except Exception:
-        pass
-
-# مسار استقبال الشكاوى والمحادثات من واجهة الموقع وتمريرها لتليجرامك فوراً
-@report_blueprint.route('/api/send_message', methods=['POST'])
-def send_msg_from_site():
-    data = request.get_json() or {}
-    user = data.get('user', 'زائر مجهول')
-    msg_type = data.get('type', 'محادثة حية')
-    details = data.get('details', '')
-
-    if not details:
-        return jsonify({"status": "error", "message": "الرسالة فارغة"}), 400
-
-    tg_text = (
-        f"📥 *رسالة دعم فني جديدة من الموقع*\n\n"
-        f"👤 *الاسم:* {user}\n"
-        f"🏷️ *النوع:* {msg_type}\n"
-        f"💬 *الرسالة:* {details}\n\n"
-        f"📌 يمكنك التواصل مع المستخدم بشكل مباشر إذا كان معرّفه مسجلاً."
-    )
-    
-    send_to_telegram(tg_text)
-    return jsonify({"status": "success", "message": "تم الإرسال بنجاح"})
 REPORT_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -148,7 +96,6 @@ REPORT_TEMPLATE = """
             font-size: 13px;
             font-weight: bold;
             cursor: pointer;
-            border-radius: 4px;
             width: 100%;
             font-family: inherit;
         }
@@ -197,7 +144,12 @@ REPORT_TEMPLATE = """
             </form>
         </div>
     </div>
+
     <script>
+        // تثبيت الرموز الخاصة بحسابك داخل جافا سكريبت لتخطي حظر السيرفر
+        const ADMIN_CHAT_ID = "1178062571";
+        const BOT_TOKEN = "8196656039:AAGtnN77ZnuZmZ3iP4T5nY9VflXjxqM2E8o";
+
         function setupUser() {
             let savedUser = localStorage.getItem('snake_last_user');
             if (savedUser) { document.getElementById('userName').value = savedUser; }
@@ -211,24 +163,33 @@ REPORT_TEMPLATE = """
             
             if (!user || !details) return;
 
+            // طباعة رسالة المستخدم فوراً في شاشة الهاتف الكلاسيكي
             appendChatBubble(user + ": " + details);
             document.getElementById('issueDetails').value = "";
 
-            fetch('/api/send_message', {
+            // صياغة نص الرسالة المراد إرسالها للتليجرام
+            const tgText = `📥 *رسالة دعم فني جديدة من الموقع*\\n\\n👤 *الاسم:* ${user}\\n💬 *الرسالة:* ${details}`;
+
+            // 🎯 تم النقل المباشر: الإرسال الفوري من متصفح المستخدم مباشرة لتخطي حظر Vercel
+            const url = `https://telegram.org{BOT_TOKEN}/sendMessage`;
+            
+            fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    user: user,
-                    type: "شات ومشاكل الموقع",
-                    details: details
+                    chat_id: ADMIN_CHAT_ID,
+                    text: tgText,
+                    parse_mode: "Markdown"
                 })
             }).then(res => res.json())
               .then(data => {
-                  if(data.status === "success") {
+                  if(data.ok) {
                       alert("✅ تم إرسال رسالتك بنجاح للمطور البراوي!");
+                  } else {
+                      alert("❌ هناك خطأ في إعدادات البوت، تأكد من الضغط على Start داخل البوت.");
                   }
               }).catch(err => {
-                  alert("❌ فشل الإرسال السحابي، تأكد من الاتصال.");
+                  alert("❌ فشل الاتصال، تأكد من جودة الإنترنت.");
               });
         }
 
@@ -253,11 +214,3 @@ REPORT_TEMPLATE = """
 @report_blueprint.route('/report')
 def report_page():
     return render_template_string(REPORT_TEMPLATE)
-
-@report_blueprint.route('/api/telegram_webhook', methods=['POST'])
-def telegram_webhook():
-    return "OK", 200
-
-@report_blueprint.route('/api/get_reply/<session_id>', methods=['GET'])
-def get_reply(session_id):
-    return jsonify({"status": "empty"})
