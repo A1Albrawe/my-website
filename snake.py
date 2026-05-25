@@ -41,7 +41,6 @@ SNAKE_TEMPLATE = """
             font-size: 14px;
         }
         
-        /* كلاس الاهتزاز عند الخسارة */
         .shake {
             animation: shakeAnim 0.3s linear infinite;
         }
@@ -83,7 +82,6 @@ SNAKE_TEMPLATE = """
             transition: background-color 0.1s ease;
         }
 
-        /* كلاس الوميض عند الأكل */
         .flash {
             background-color: #a4b930 !important;
         }
@@ -180,20 +178,9 @@ SNAKE_TEMPLATE = """
 
         @media (max-width: 480px) {
             body { padding: 5px; }
-            .nokia-phone {
-                background: transparent;
-                border: none;
-                box-shadow: none;
-                padding: 5px;
-            }
-            .nokia-screen {
-                border-width: 6px;
-                padding: 8px;
-            }
-            .key-btn {
-                height: 55px;
-                background: #e0e5e8;
-            }
+            .nokia-phone { background: transparent; border: none; box-shadow: none; padding: 5px; }
+            .nokia-screen { border-width: 6px; padding: 8px; }
+            .key-btn { height: 55px; background: #e0e5e8; }
         }
     </style>
 </head>
@@ -227,13 +214,13 @@ SNAKE_TEMPLATE = """
 
         <div class="nokia-keypad">
             <div class="key-btn">1 <span>.,-</span></div>
-            <div class="key-btn" onclick="changeDirection('UP')">2 <span>▲ فوق</span></div>
+            <div class="key-btn" onclick="changeDirection('UP')" ontouchstart="changeDirection('UP'); event.preventDefault();">2 <span>▲ فوق</span></div>
             <div class="key-btn">3 <span>def</span></div>
-            <div class="key-btn" onclick="changeDirection('LEFT')">4 <span>◀ يسار</span></div>
+            <div class="key-btn" onclick="changeDirection('LEFT')" ontouchstart="changeDirection('LEFT'); event.preventDefault();">4 <span>◀ يسار</span></div>
             <div class="key-btn">5 <span>jkl</span></div>
-            <div class="key-btn" onclick="changeDirection('RIGHT')">6 <span>يمين ▶</span></div>
+            <div class="key-btn" onclick="changeDirection('RIGHT')" ontouchstart="changeDirection('RIGHT'); event.preventDefault();">6 <span>يمين ▶</span></div>
             <div class="key-btn">7 <span>pqrs</span></div>
-            <div class="key-btn" onclick="changeDirection('DOWN')">8 <span>▼ تحت</span></div>
+            <div class="key-btn" onclick="changeDirection('DOWN')" ontouchstart="changeDirection('DOWN'); event.preventDefault();">8 <span>▼ تحت</span></div>
             <div class="key-btn">9 <span>wxyz</span></div>
         </div>
     </div>
@@ -245,53 +232,71 @@ SNAKE_TEMPLATE = """
         let score, snake, food, d, gameInterval;
         let isGameOver = false;
 
-        // ================= تفعيل مولد الأصوات الكلاسيكية المدمج =================
+        // ================= نظام الصوت المتقدم من نوكيا والموسيقى الخلفية =================
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let musicInterval;
 
         function playSound(type) {
             if (!audioCtx) return;
-            
-            // استئناف السياق الصوتي إذا قيدّه المتصفح بالخطأ
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
 
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
             gain.connect(audioCtx.destination);
-            
-            // جعل الصوت "مربعاً وبكسلياً" تماماً كالنغمات القديمة
             osc.type = 'square'; 
 
             if (type === 'eat') {
-                // نغمة أكل سريعة وحادة تصعد للأعلى
-                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
                 gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.08);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.08);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.08);
             } else if (type === 'lose') {
-                // نغمة خسارة تهبط للأسفل تدريجياً
-                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.4);
+                osc.frequency.setValueAtTime(261.63, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(65.41, audioCtx.currentTime + 0.4);
                 gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
                 gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.4);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
             } else if (type === 'win') {
-                // نغمة فوز احتفالية ثلاثية متتالية
                 const now = audioCtx.currentTime;
-                osc.frequency.setValueAtTime(523.25, now); // نوتة C5
-                osc.frequency.setValueAtTime(659.25, now + 0.1); // نوتة E5
-                osc.frequency.setValueAtTime(783.99, now + 0.2); // نوتة G5
-                gain.gain.setValueAtTime(0.15, now);
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                gain.gain.setValueAtTime(0.12, now);
                 gain.gain.linearRampToValueAtTime(0, now + 0.35);
-                osc.start();
-                osc.stop(now + 0.35);
+                osc.start(); osc.stop(now + 0.35);
             }
         }
+
+        function playBackgroundMusic() {
+            if (!audioCtx || isGameOver) return;
+            const notes = [
+                { f: 659.25, d: 0.15 }, { f: 587.33, d: 0.15 }, { f: 392.00, d: 0.3 },
+                { f: 440.00, d: 0.3 },  { f: 523.25, d: 0.15 }, { f: 493.88, d: 0.15 },
+                { f: 293.66, d: 0.3 },  { f: 329.63, d: 0.3 }
+            ];
+            let timePointer = audioCtx.currentTime;
+            notes.forEach(note => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(note.f, timePointer);
+                gain.gain.setValueAtTime(0.02, timePointer); 
+                gain.gain.linearRampToValueAtTime(0, timePointer + note.d - 0.02);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(timePointer); osc.stop(timePointer + note.d);
+                timePointer += note.d;
+            });
+        }
+
+        function startMusicLoop() {
+            stopMusicLoop();
+            playBackgroundMusic();
+            musicInterval = setInterval(playBackgroundMusic, 1900);
+        }
+
+        function stopMusicLoop() { if (musicInterval) clearInterval(musicInterval); }
         // ===================================================================
 
         function initGame() {
@@ -299,7 +304,6 @@ SNAKE_TEMPLATE = """
             isGameOver = false;
             document.getElementById('snakeScore').innerText = "النقاط: " + score;
             document.getElementById('gameOverScreen').style.display = 'none';
-            
             snake = [
                 {x: 10 * box, y: 10 * box},
                 {x: 9 * box, y: 10 * box},
@@ -307,21 +311,15 @@ SNAKE_TEMPLATE = """
             ];
             generateFood();
             d = "RIGHT";
-            
             if(gameInterval) clearInterval(gameInterval);
             gameInterval = setInterval(draw, 110);
+            startMusicLoop();
         }
 
         function generateFood() {
-            food = {
-                x: Math.floor(Math.random() * 30) * box,
-                y: Math.floor(Math.random() * 20) * box
-            };
-            for(let cell of snake) {
-                if(cell.x === food.x && cell.y === food.y) generateFood();
-            }
+            food = { x: Math.floor(Math.random() * 30) * box, y: Math.floor(Math.random() * 20) * box };
+            for(let cell of snake) { if(cell.x === food.x && cell.y === food.y) generateFood(); }
         }
-
         document.onkeydown = function(e) {
             if(isGameOver) return;
             const key = e.keyCode || e.which;
@@ -343,67 +341,37 @@ SNAKE_TEMPLATE = """
 
         const touchArea = document.getElementById('touchArea');
         let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
-
-        touchArea.addEventListener('touchstart', function(event) {
-            touchStartX = event.changedTouches.screenX;
-            touchStartY = event.changedTouches.screenY;
-        }, {passive: true});
-
-        touchArea.addEventListener('touchend', function(event) {
-            touchEndX = event.changedTouches.screenX;
-            touchEndY = event.changedTouches.screenY;
-            handleSwipe();
-        }, {passive: true});
+        touchArea.addEventListener('touchstart', function(event) { touchStartX = event.changedTouches.screenX; touchStartY = event.changedTouches.screenY; }, {passive: true});
+        touchArea.addEventListener('touchend', function(event) { touchEndX = event.changedTouches.screenX; touchEndY = event.changedTouches.screenY; handleSwipe(); }, {passive: true});
 
         function handleSwipe() {
-            const xDiff = touchEndX - touchStartX;
-            const yDiff = touchEndY - touchStartY;
+            const xDiff = touchEndX - touchStartX, yDiff = touchEndY - touchStartY;
             if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                if (Math.abs(xDiff) > 30) { if (xDiff > 0) { changeDirection('RIGHT'); } else { changeDirection('LEFT'); } }
+                if (Math.abs(xDiff) > 30) { if (xDiff > 0) changeDirection('RIGHT'); else changeDirection('LEFT'); }
             } else {
-                if (Math.abs(yDiff) > 30) { if (yDiff > 0) { changeDirection('DOWN'); } else { changeDirection('UP'); } }
+                if (Math.abs(yDiff) > 30) { if (yDiff > 0) changeDirection('DOWN'); else changeDirection('UP'); }
             }
         }
 
         function draw() {
             ctx.clearRect(0, 0, 300, 200);
-            
-            ctx.fillStyle = "#000";
-            ctx.fillRect(food.x + 1, food.y + 1, box - 2, box - 2);
+            ctx.fillStyle = "#000"; ctx.fillRect(food.x + 1, food.y + 1, box - 2, box - 2);
 
             for(let i = 0; i < snake.length; i++) {
-                ctx.fillStyle = "#000";
-                ctx.fillRect(snake[i].x + 1, snake[i].y + 1, box - 2, box - 2);
-                if(i === 0) {
-                    ctx.fillStyle = "#8c9f21";
-                    ctx.fillRect(snake[i].x + 3, snake[i].y + 3, 2, 2);
-                }
+                ctx.fillStyle = "#000"; ctx.fillRect(snake[i].x + 1, snake[i].y + 1, box - 2, box - 2);
+                if(i === 0) { ctx.fillStyle = "#8c9f21"; ctx.fillRect(snake[i].x + 3, snake[i].y + 3, 2, 2); }
             }
 
-            let snakeX = snake[0].x;
-            let snakeY = snake[0].y;
-            
-            if(d === "LEFT") snakeX -= box;
-            if(d === "UP") snakeY -= box;
-            if(d === "RIGHT") snakeX += box;
-            if(d === "DOWN") snakeY += box;
+            let snakeX = snake.x, snakeY = snake.y;
+            if(d === "LEFT") snakeX -= box; if(d === "UP") snakeY -= box; if(d === "RIGHT") snakeX += box; if(d === "DOWN") snakeY += box;
 
             let newHead = {x: snakeX, y: snakeY};
-            
-            if(snakeX < 0 || snakeX >= 300 || snakeY < 0 || snakeY >= 200 || collision(newHead, snake)) {
-                endGame();
-                return;
-            }
+            if(snakeX < 0 || snakeX >= 300 || snakeY < 0 || snakeY >= 200 || collision(newHead, snake)) { endGame(); return; }
 
             if(snakeX === food.x && snakeY === food.y) {
-                score += 10;
-                document.getElementById('snakeScore').innerText = "النقاط: " + score;
-                playSound('eat'); // صوت الأكل
-                
-                // تأثير بصري وميض للشاشة
-                touchArea.classList.add('flash');
-                setTimeout(() => touchArea.classList.remove('flash'), 80);
-                
+                score += 10; document.getElementById('snakeScore').innerText = "النقاط: " + score;
+                playSound('eat');
+                touchArea.classList.add('flash'); setTimeout(() => touchArea.classList.remove('flash'), 80);
                 generateFood();
             } else {
                 snake.pop();
@@ -411,21 +379,12 @@ SNAKE_TEMPLATE = """
             snake.unshift(newHead);
         }
 
-        function collision(head, array) {
-            for(let i = 0; i < array.length; i++) { if(head.x === array[i].x && head.y === array[i].y) return true; }
-            return false;
-        }
+        function collision(head, array) { for(let i = 0; i < array.length; i++) { if(head.x === array[i].x && head.y === array[i].y) return true; } return false; }
 
         function endGame() {
-            clearInterval(gameInterval);
-            isGameOver = true;
-            playSound('lose'); // صوت الخسارة
-            
-            // تأثير بصري اهتزاز للهاتف
+            clearInterval(gameInterval); stopMusicLoop(); isGameOver = true; playSound('lose');
             const phone = document.getElementById('phoneWrapper');
-            phone.classList.add('shake');
-            setTimeout(() => phone.classList.remove('shake'), 300);
-
+            phone.classList.add('shake'); setTimeout(() => phone.classList.remove('shake'), 300);
             document.getElementById('finalScoreText').innerText = "النقاط الحالية: " + score;
             document.getElementById('gameOverScreen').style.display = 'flex';
         }
@@ -433,14 +392,9 @@ SNAKE_TEMPLATE = """
         function resetGame() {
             let nameInput = document.getElementById('playerName').value.trim();
             let finalName = nameInput ? nameInput : "لاعب نوكيا";
-            
-            // فحص كسر الرقم القياسي لعزف نغمة الفوز الاحتفالية
             let scores = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || [];
             let isHighScore = scores.length < 3 || score > scores[scores.length - 1].score;
-            if (isHighScore && score > 0) {
-                playSound('win');
-            }
-
+            if (isHighScore && score > 0) playSound('win');
             saveScore(finalName, score);
             document.getElementById('playerName').value = "";
             initGame();
@@ -448,11 +402,8 @@ SNAKE_TEMPLATE = """
 
         function saveScore(name, score) {
             let scores = JSON.parse(localStorage.getItem('responsive_nokia_scores')) || [];
-            scores.push({name: name, score: score});
-            scores.sort((a, b) => b.score - a.score);
-            scores = scores.slice(0, 3);
-            localStorage.setItem('responsive_nokia_scores', JSON.stringify(scores));
-            loadLeaderboard();
+            scores.push({name: name, score: score}); scores.sort((a, b) => b.score - a.score); scores = scores.slice(0, 3);
+            localStorage.setItem('responsive_nokia_scores', JSON.stringify(scores)); loadLeaderboard();
         }
 
         function loadLeaderboard() {
