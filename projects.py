@@ -42,7 +42,7 @@ def projects_page():
         </div>
         <div class="main-container">
             <div class="card">
-                <h3 style="color:#f0f6fc; margin-top:0;"><i class="fas fa-code-branch"></i> مستودع ومشاريع المهندس البراوي</h3>
+                <h3 style="color:#f0f6fc; margin-top:0;"><i class="fas fa-code-branch"></i>ALBRAWE - البراوي</h3>
                 <p style="line-height:1.6; font-size:14px; color:#8b949e;">يتم حالياً جرد وتحديث حزمة المشاريع البرمجية وتطوير واجهاتها السحابية لتظهر هنا قريباً بأعلى معايير الحماية والأمان.</p>
             </div>
         </div>
