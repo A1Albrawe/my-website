@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, render_template_string, session, 
 
 admin_blueprint = Blueprint('admin', __name__)
 
+# 🔒 بيانات اعتماد لوحة الإدارة الحصينة
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
 
@@ -21,9 +22,9 @@ ADMIN_HTML = """
         .analytics-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
         
         .complaints-inbox-card { background: #1c1616; border: 1px solid #492626; border-top: 4px solid #f85149; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(248,81,73,0.15); }
-        .complaints-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto; }
+        .complaints-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto; padding-left: 5px; }
         
-        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-box { background: #0d1117; border: 1px solid #30363d; padding: 15px; border-radius: 8px; text-align: center; }
         .stat-box h5 { margin: 0 0 8px 0; color: #8b949e; font-size: 13px; }
         .stat-box p { margin: 0; font-size: 22px; font-weight: bold; color: #58a6ff; }
@@ -42,7 +43,6 @@ ADMIN_HTML = """
         .clear-db-btn { background: #d29922; color: #000; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; }
     </style>
 </head>
-"""
 <body>
     <div class="container">
         <div class="main-header">
@@ -59,7 +59,9 @@ ADMIN_HTML = """
         </div>
 
         <div class="grid-stats">
-            <div class="stat-box"><h5>إجمالي الزيارات النشطة</h5><p id="totalViews">0</p></div>
+            <div class="stat-box"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
+            <!-- 📈 إضافة الصندوق المتوهج الجديد لعرض إجمالي الزيارات التاريخية الشاملة بجانب عداد النشط -->
+            <div class="stat-box" style="border-color: #d29922;"><h5 style="color: #ffd700;">إجمالي زيارات الموقع الكلية</h5><p id="historicalViews" style="color: #ffd700;">0</p></div>
             <div class="stat-box"><h5>متوسط الوقت بالموقع</h5><p id="avgTime">0 ثانية</p></div>
             <div class="stat-box"><h5>إجمالي بلاغات الصندوق</h5><p id="totalComplaints">0</p></div>
         </div>
@@ -90,8 +92,10 @@ ADMIN_HTML = """
             .then(data => {
                 let db = data.analytics || [];
                 let complDB = data.reports || [];
+                let historicalCount = data.historicalVisits || 0;
                 
                 document.getElementById('totalViews').innerText = db.length;
+                document.getElementById('historicalViews').innerText = historicalCount;
                 document.getElementById('totalComplaints').innerText = complDB.length;
                 
                 let totalSeconds = 0;
@@ -105,8 +109,8 @@ ADMIN_HTML = """
                     complDB.forEach(c => {
                         inboxHtml += `
                         <div class="report-txt">
-                            <span><i class="fas fa-user" style="color:#8b949e; margin-left:6px;"></i> <strong>${c.user}</strong>: ${c.details}</span>
-                            <span style="color:#8b949e; font-size:11px; font-family:monospace;"><i class="far fa-clock"></i> ${c.date}</span>
+                            <span><i class="fas fa-user" style="color:#8b949e; margin-left:6px;"></i> <strong>\${c.user}</strong>: \${c.details}</span>
+                            <span style="color:#8b949e; font-size:11px; font-family:monospace;"><i class="far fa-clock"></i> \${c.date}</span>
                         </div>`;
                     });
                 }
@@ -117,28 +121,24 @@ ADMIN_HTML = """
                     html = '<tr><td colspan="6" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مسجلة حتى الآن.</td></tr>';
                 } else {
                     db.forEach(user => {
-                        let snake = user.snakeTime || 0;
-                        let tetris = user.tetrisTime || 0;
-                        let xo = user.xoTime || 0;
-                        let shooter = user.shooterTime || 0;
-                        let clicker = user.clickerTime || 0;
+                        let snake = user.snakeTime || 0; let tetris = user.tetrisTime || 0; let xo = user.xoTime || 0; let shooter = user.shooterTime || 0; let clicker = user.clickerTime || 0;
                         let totalGamesSeconds = snake + tetris + xo + shooter + clicker;
                         
                         let gameDuration = `
-                            <div class="game-tag" style="color:#3fb950;"><i class="fas fa-dragon"></i> ثعبان: ${snake}ث</div>
-                            <div class="game-tag" style="color:#d29922;"><i class="fas fa-cubes"></i> تترس: ${tetris}ث</div>
-                            <div class="game-tag" style="color:#a371f7;"><i class="fas fa-times-circle"></i> X-O: ${xo}ث</div>
-                            <div class="game-tag" style="color:#388bfd;"><i class="fas fa-space-shuttle"></i> فضاء: ${shooter}ث</div>
-                            <div class="game-tag" style="color:#ff7b72;"><i class="fas fa-bolt"></i> نيون: ${clicker}ث</div>
+                            <div class="game-tag" style="color:#3fb950;"><i class="fas fa-dragon"></i> ثعبان: \${snake}ث</div>
+                            <div class="game-tag" style="color:#d29922;"><i class="fas fa-cubes"></i> تترس: \${tetris}ث</div>
+                            <div class="game-tag" style="color:#a371f7;"><i class="fas fa-times-circle"></i> X-O: \${xo}ث</div>
+                            <div class="game-tag" style="color:#388bfd;"><i class="fas fa-space-shuttle"></i> فضاء: \${shooter}ث</div>
+                            <div class="game-tag" style="color:#ff7b72;"><i class="fas fa-bolt"></i> نيون: \${clicker}ث</div>
                         `;
                         
                         html += `<tr>
-                            <td style="font-weight:bold; color:#fff;">${user.username}</td>
-                            <td class="device-tag"><i class="fas fa-mobile-alt"></i> ${user.deviceModel || "غير معروف"}</td>
-                            <td class="loc-tag"><i class="fas fa-map-marker-alt"></i> ${user.location || "جاري التحديد..."}</td>
-                            <td>${user.loginTime}</td>
-                            <td><span class="total-games-time"><i class="fas fa-hourglass-half"></i> ${totalGamesSeconds} ثانية</span></td>
-                            <td>${gameDuration}</td>
+                            <td style="font-weight:bold; color:#fff;">\${user.username}</td>
+                            <td class="device-tag"><i class="fas fa-mobile-alt"></i> \${user.deviceModel || "غير معروف"}</td>
+                            <td class="loc-tag"><i class="fas fa-map-marker-alt"></i> \${user.location || "جاري التحديد..."}</td>
+                            <td>\${user.loginTime}</td>
+                            <td><span class="total-games-time"><i class="fas fa-hourglass-half"></i> \${totalGamesSeconds} ثانية</span></td>
+                            <td>\${gameDuration}</td>
                         </tr>`;
                     });
                 }
@@ -146,7 +146,7 @@ ADMIN_HTML = """
             });
         }
         function clearLogsDatabase() {
-            if(confirm("هل أنت متأكد من تصفير ومسح كافة تحليلات الزوار وصندوق الشكاوى بالكامل من السيرفر؟")) {
+            if(confirm("هل أنت متأكد من تصفير ومسح كافة تحليلات الزوار وقاعدة البيانات من السيرفر؟")) {
                 fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics());
             }
         }
