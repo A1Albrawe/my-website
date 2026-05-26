@@ -11,15 +11,16 @@ REPORT_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مركز الدعم الفني - Albrawe</title>
+    <!-- ✅ تم إصلاح رابط مكتبة الأيقونات لتعمل كافة أيقونات القائمة الجانبية المحدثة -->
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { font-family: 'Courier New', Courier, monospace; text-align: center; background: #0d1117; color: #c9d1d9; padding: 0; margin: 0; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
         .header-nav { background-color: #161b22; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f85149; }
         .back-btn { background: #21262d; border: 1px solid #30363d; color: #58a6ff; padding: 6px 15px; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 14px; }
         .menu-toggle { background: #21262d; border: 1px solid #30363d; color: #f85149; font-size: 18px; cursor: pointer; padding: 6px 15px; border-radius: 6px; font-weight: bold; font-family: inherit; }
-        .sidebar-curtain { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background-color: #161b22; border-left: 2px solid #f85149; z-index: 1000; transition: right 0.3s ease; padding: 20px; box-sizing: border-box; text-align: right; }
+        .sidebar-curtain { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background-color: #161b22; border-left: 2px solid #f85149; z-index: 1000; transition: right 0.3s ease; padding: 20px; box-sizing: border-box; text-align: right; overflow-y: auto; }
         .sidebar-curtain.active { right: 0; }
-        .close-btn { background: none; border: none; color: #f85149; font-size: 16px; cursor: pointer; margin-bottom: 30px; font-family: inherit; font-weight: bold; }
+        .close-btn { background: none; border: none; color: #f85149; font-size: 16px; cursor: pointer; margin-bottom: 30px; font-family: inherit; font-weight: bold; width: 100%; text-align: right; }
         .menu-links { display: flex; flex-direction: column; gap: 12px; }
         .menu-item { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: bold; font-size: 15px; padding: 12px; border: 1px solid #30363d; border-radius: 6px; background: #21262d; }
         .main-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
@@ -34,7 +35,8 @@ REPORT_TEMPLATE = """
     </div>
     <div class="sidebar-curtain" id="sidebarCurtain">
         <button class="close-btn" onclick="toggleSidebar(false)">❌ إغلاق القائمة</button>
-        <div class="menu-links">CHIPS_PLACEHOLDER</div>
+        <!-- ✅ تم تعديل معرّف الاستبدال ليتوافق مع معرّف الحقن الموحد الجديد للسيرفر -->
+        <div class="menu-links">SIDEBAR_LINKS_PLACEHOLDER</div>
     </div>
     <div class="main-container">
         <div class="maintenance-card">
@@ -53,11 +55,11 @@ REPORT_TEMPLATE = """
 </html>
 """
 
-# 🎯 تم تغيير الرابط البرمجي الفرعي ليكون الامتداد الصافي الجديد المغلق إجبارياً
+# 🎯 تم تثبيت الرابط البرمجي الفرعي ليكون الامتداد الصافي الجديد المغلق إجبارياً
 @report_blueprint.route('/maintenance')
 def report_page():
     dynamic_links = generate_sidebar_html()
-    return render_template_string(REPORT_TEMPLATE.replace("CHIPS_PLACEHOLDER", dynamic_links))
+    return render_template_string(REPORT_TEMPLATE.replace("SIDEBAR_LINKS_PLACEHOLDER", dynamic_links))
 
 # قفل التوجيه التلقائي للمسار القديم ليصبح ملغياً تماماً ويعطي خطأ حظر
 @report_blueprint.route('/report')
