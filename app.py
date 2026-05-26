@@ -15,7 +15,6 @@ from games_package.clicker import clicker_blueprint
 from projects import projects_blueprint
 from about import about_blueprint
 from scripts import scripts_blueprint
-
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
@@ -36,7 +35,6 @@ app.register_blueprint(clicker_blueprint)
 app.register_blueprint(projects_blueprint)
 app.register_blueprint(about_blueprint)
 app.register_blueprint(scripts_blueprint)
-
 @app.after_request
 def inject_clean_dropdown_fix(response):
     """حقن سكريبت التحليلات لـ Vercel تلقائياً لضمان احتساب الزيارات حياً"""
