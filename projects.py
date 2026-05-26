@@ -1,3 +1,6 @@
+# 📝 عدل العنوان من هنا مباشرة في السطر الثاني دون البحث في الأكواد!
+PROJECTS_MAIN_TITLE = "مستودع ومشاريع المهندس البراوي"
+
 import os
 from flask import Blueprint, render_template_string
 from menu import generate_sidebar_html
@@ -13,12 +16,10 @@ def projects_page():
 
     if os.path.exists(folder_path):
         for file_name in os.listdir(folder_path):
-            # قراءة أي ملف (تطبيقات، نصوص، ملفات مضغوطة، إلخ) وتخطي الملفات المخفية
             if not file_name.startswith('.'):
                 file_path = os.path.join(folder_path, file_name)
                 project_count += 1
                 
-                # جلب معلومات الملف ديناميكياً (الامتداد والحجم بالكيلوبايت)
                 _, file_extension = os.path.splitext(file_name)
                 ext_name = file_extension.replace('.', '').upper() or "FILE"
                 file_size = round(os.path.getsize(file_path) / 1024, 2)
@@ -35,7 +36,7 @@ def projects_page():
                 """
 
     if not cards_html:
-        cards_html = '<p style="text-align:center; color:#8b949e;">المستودع فارغ! ارفع أي ملف أو تطبيق داخل static/my_projects/ ليظهر هنا فوراً.</p>'
+        cards_html = '<p style="text-align:center; color:#8b949e;">المستودع فارغ حالياً! ارفع أي ملف أو تطبيق داخل مجلد static/my_projects/ ليظهر هنا فوراً.</p>'
 
     html = f"""
     <!DOCTYPE html>
@@ -55,7 +56,8 @@ def projects_page():
             .menu-links {{ display: flex; flex-direction: column; gap: 12px; }}
             .main-container {{ flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 20px; }}
             .project-card {{ background: #161b22; border: 1px solid #30363d; border-top: 4px solid #a371f7; border-radius: 12px; padding: 25px; max-width: 600px; width: 100%; text-align: right; box-shadow: 0 10px 20px rgba(0,0,0,0.4); box-sizing: border-box; }}
-            .proj-title {{ margin: 0 0 10px 0; color: #f0f6fc; font-size: 16px; font-family: monospace; direction: ltr; text-align: right; }}
+            .main-card-title {{ background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px 25px; width: 100%; max-width: 600px; box-sizing: border-box; text-align: right; color: #f0f6fc; margin: 0; font-size: 18px; }}
+            .proj-title {{ margin: 0 0 10px 0; color: #58a6ff; font-size: 15px; font-family: monospace; direction: ltr; text-align: right; }}
             .proj-desc {{ line-height: 1.6; font-size: 13.5px; color: #8b949e; margin: 0 0 15px 0; }}
             .proj-footer {{ display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #21262d; padding-top: 12px; }}
             .proj-tech {{ font-size: 11px; color: #a371f7; font-weight: bold; }}
@@ -72,6 +74,7 @@ def projects_page():
             <div class="menu-links">{dynamic_links}</div>
         </div>
         <div class="main-container">
+            <h3 class="main-card-title"><i class="fas fa-code-branch" style="color: #a371f7; margin-left: 8px;"></i> {PROJECTS_MAIN_TITLE}</h3>
             {cards_html}
         </div>
         <script>
