@@ -75,7 +75,6 @@ XO_TEMPLATE = """
             cell.innerText = turn;
             cell.style.color = (turn === "X") ? "#f85149" : "#388bfd";
             playSound((turn === "X") ? 450 : 600);
-            
             checkResult();
         }
 
