@@ -7,7 +7,7 @@ api_blueprint = Blueprint('api', __name__)
 CENTRAL_ANALYTICS_DB = []
 CENTRAL_COMPLAINTS_DB = []
 
-# 📈 العداد التاريخي المضاف حديثاً لحساب جميع الزيارات التي تمت للموقع منذ تشغيله
+# 📈 العداد التاريخي الشامل لحساب جميع الزيارات الكلية للموقع منذ تشغيله دون تصفير
 TOTAL_HISTORICAL_VISITS = 0
 
 @api_blueprint.route('/api/log_visit', methods=['POST'])
@@ -18,10 +18,8 @@ def log_visit():
     username = data.get('username', 'زائر مجهول').strip()
     user_agent = request.headers.get('User-Agent', 'غير معروف')
     
-    # استخراج موقع الزائر الجغرافي الموجه تلقائياً من المتصفح
     location = data.get('location', 'جاري جلب الموقع...').strip()
     
-    # محرك فرز وتحديد الموديل الدقيق لهواتف سامسونج، آيفون، شاومي، إلخ.
     device_model = "كمبيوتر / غير معروف"
     ua_lower = user_agent.lower()
     
@@ -50,7 +48,7 @@ def log_visit():
     user_entry = next((item for item in CENTRAL_ANALYTICS_DB if item["username"] == username), None)
     
     if not user_entry:
-        # ✅ مستخدم جديد تماماً: يتم زيادة العداد التاريخي الشامل فوراً
+        # 📈 زيادة عداد الزيارات الشامل فوراً عند رصد بصمة زائر جديد كلياً
         TOTAL_HISTORICAL_VISITS += 1
         
         user_entry = {
@@ -67,12 +65,10 @@ def log_visit():
         }
         CENTRAL_ANALYTICS_DB.append(user_entry)
     else:
-        # تحديث الموقع والجهاز إذا دخل مجدداً لضمان دقة الرصد النشط
         user_entry["location"] = location
         user_entry["deviceModel"] = device_model
         
     return jsonify({"status": "success"})
-
 @api_blueprint.route('/api/update_duration', methods=['POST'])
 def update_duration():
     global CENTRAL_ANALYTICS_DB
@@ -98,18 +94,32 @@ def update_duration():
                 user_entry["duration"] += 5
     return jsonify({"status": "success"})
 
+@api_blueprint.route('/api/submit_complaint', methods=['POST'])
+def submit_complaint():
+    global CENTRAL_COMPLAINTS_DB
+    data = request.get_json() or {}
+    user = data.get('user', 'زائر مجهول').strip()
+    details = data.get('details', '').strip()
+    if details:
+        complaint_entry = {
+            "user": user,
+            "details": details,
+            "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        }
+        CENTRAL_COMPLAINTS_DB.append(complaint_entry)
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error"}), 400
+
 @api_blueprint.route('/api/admin_get_all_data', methods=['GET'])
 def admin_get_all_data():
-    """تغذية لوحة الآدمن بالبيانات الحية بالإضافة للعداد التاريخي الشامل"""
     return jsonify({
         "analytics": CENTRAL_ANALYTICS_DB,
         "reports": CENTRAL_COMPLAINTS_DB,
-        "historicalVisits": TOTAL_HISTORICAL_VISITS  # ✅ تمرير العداد التاريخي للوحة
+        "historicalVisits": TOTAL_HISTORICAL_VISITS
     })
 
 @api_blueprint.route('/api/admin_clear_data', methods=['POST'])
 def admin_clear_data():
-    """تصفير قاعدة البيانات السحابية المؤقتة (مع الحفاظ على العداد التاريخي ثابت ومحمي)"""
     global CENTRAL_ANALYTICS_DB, CENTRAL_COMPLAINTS_DB
     CENTRAL_ANALYTICS_DB = []
     CENTRAL_COMPLAINTS_DB = []
