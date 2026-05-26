@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify, render_template_string, session, 
 
 admin_blueprint = Blueprint('admin', __name__)
 
-# 🔒 بيانات اعتماد لوحة الإدارة الحصينة
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
 SECRET_GATE_KEY = "open_gate_key_final_2026"
@@ -20,27 +19,22 @@ ADMIN_HTML = """
         .container { max-width: 1400px; margin: 0 auto; }
         .main-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #58a6ff; padding-bottom: 15px; margin-bottom: 25px; }
         .logout-btn { background: #f85149; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-family: inherit; }
-        
         .analytics-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
         .complaints-inbox-card { background: #1c1616; border: 1px solid #492626; border-top: 4px solid #f85149; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(248,81,73,0.15); }
         .complaints-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto; padding-left: 5px; }
-        
         .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-box { background: #0d1117; border: 1px solid #30363d; padding: 18px 15px; border-radius: 10px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .stat-box h5 { margin: 0 0 8px 0; color: #8b949e; font-size: 13px; font-weight: bold; }
         .stat-box p { margin: 0; font-size: 24px; font-weight: bold; color: #58a6ff; }
-        
         .sub-stat-label { display: block; font-size: 11px; font-weight: bold; color: #8b949e; margin-top: 6px; border-top: 1px dashed #21262d; padding-top: 5px; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #0d1117; border-radius: 8px; overflow: hidden; }
         th, td { padding: 14px 12px; text-align: right; border-bottom: 1px solid #30363d; font-size: 12.5px; }
         th { background-color: #21262d; color: #79c0ff; font-weight: bold; position: sticky; top: 0; }
         tr:hover { background-color: rgba(88, 166, 255, 0.04); }
-        
         .device-tag { color: #ffd700; font-weight: bold; }
         .loc-tag { color: #3fb950; font-weight: bold; }
         .total-site-time { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.06); padding: 3px 6px; border-radius: 5px; border: 1px solid rgba(88,166,255,0.2); }
         .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.06); padding: 3px 6px; border-radius: 5px; border: 1px solid rgba(255,215,0,0.2); }
-        
         .route-path-box { font-size: 11.5px; color: #a371f7; font-weight: bold; background: rgba(163,113,247,0.06); padding: 4px 8px; border-radius: 6px; border: 1px dashed rgba(163,113,247,0.3); line-height: 1.4; word-break: break-all; }
         .game-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.03); border: 1px solid #30363d; }
         .report-txt { background: #211b1b; border-right: 4px solid #f85149; padding: 12px; margin: 4px 0; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.5; color: #ff7b72; display: flex; justify-content: space-between; align-items: center; }
@@ -56,12 +50,10 @@ ADMIN_HTML = """
                 <a href="/albrawe-admin/logout" class="logout-btn">تسجيل الخروج 🚪</a>
             </div>
         </div>
-        
         <div class="complaints-inbox-card">
             <h3 style="margin:0; color:#ff7b72; font-size:16px; border-bottom:1px solid #492626; padding-bottom:8px;"><i class="fas fa-inbox"></i> صندوق الشكاوى والبلاغات السحابي الموحد</h3>
             <div class="complaints-grid" id="globalComplaintsInbox"></div>
         </div>
-
         <div class="grid-stats">
             <div class="stat-box"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
             <div class="stat-box" style="border-color: #d29922;"><h5 style="color: #ffd700;">إجمالي زيارات الموقع الكلية</h5><p id="historicalViews">0</p></div>
@@ -72,7 +64,6 @@ ADMIN_HTML = """
             </div>
             <div class="stat-box"><h5>إجمالي بلاغات الصندوق</h5><p id="totalComplaints">0</p></div>
         </div>
-        
         <div class="analytics-card">
             <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:8px;"><i class="fas fa-folder-open"></i> الأرشيف التاريخي الشامل ومستودع بيانات الزوار</h3>
             <div style="overflow-x: auto;">
@@ -96,7 +87,6 @@ ADMIN_HTML = """
     </div>
     <script>
         function fetchAndRenderAnalytics() {
-            // سحب البيانات من ذاكرة خادم بايثون الحية مباشرة لتعمل الواجهة من أي جهاز آخر كلياً
             fetch('/api/admin_get_all_data')
             .then(res => res.json())
             .then(data => {
@@ -109,7 +99,7 @@ ADMIN_HTML = """
                 liveDB.forEach(liveUser => {
                     let existingIndex = archiveDB.findIndex(archiveUser => archiveUser.username === liveUser.username);
                     if (existingIndex !== -1) {
-                        let currentStep = window.location.pathname.replace('/', '') || 'الرئيسية';
+                        let currentStep = 'الرئيسية';
                         if (liveUser.snakeTime > 0) currentStep = 'لعبة الثعبان 🐍';
                         else if (liveUser.tetrisTime > 0) currentStep = 'لعبة التترس 🧱';
                         else if (liveUser.xoTime > 0) currentStep = 'لعبة X-O ❌';
@@ -128,7 +118,6 @@ ADMIN_HTML = """
                     }
                 });
                 
-                // حفظ نسخة من قاعدة البيانات الرديفة لجهازك الفردي الحالي لضمان التثبيت العالي الحماية
                 if(archiveDB.length > 0) {
                     localStorage.setItem('permanent_archive_db', JSON.stringify(archiveDB));
                 } else if(localStorage.getItem('permanent_archive_db')) {
@@ -167,6 +156,7 @@ ADMIN_HTML = """
                     inboxHtml = '<p style="color:#8b949e; font-size:13px; text-align:center; margin:10px 0;">الصندوق نظيف كلياً؛ لا توجد أي شكاوى مرفوعة حالياً من زوار الويب. ✨</p>';
                 } else {
                     complDB.forEach(c => {
+                        // ✅ تم حذف علامة $ تماماً واستبدالها بنظام الدمج النصي الصريح لإنهاء خطأ الـ 500 كلياً وحظر التحطم
                         inboxHtml += '<div class="report-txt">' +
                             '<span><i class="fas fa-user" style="color:#8b949e; margin-left:6px;"></i> <strong>' + c.user + '</strong>: ' + c.details + '</span>' +
                             '<span style="color:#8b949e; font-size:11px; font-family:monospace;"><i class="far fa-clock"></i> ' + c.date + '</span>' +
@@ -261,10 +251,10 @@ LOGIN_HTML = """
 </html>
 """
 
+# ✅ قمنا بإلغاء نصوص f-string تماماً من الـ Route الحصين ليعود السيرفر للعمل الفوري بنسبة 100%
 @admin_blueprint.route('/albrawe-secure-panel-2026', methods=['GET', 'POST'])
 def admin_page():
     gate_key = request.args.get('key', '')
-    
     if request.method == 'POST':
         user = request.form.get('username')
         passwd = request.form.get('password')
@@ -274,14 +264,11 @@ def admin_page():
             return render_template_string(ADMIN_HTML)
         else:
             return render_template_string(LOGIN_HTML + "<script>alert('❌ خطأ فادح: بيانات الاعتماد غير صحيحة!');</script>")
-            
     if session.get('admin_logged_in') and session.get('gate_key_authenticated'):
         return render_template_string(ADMIN_HTML)
-        
     if gate_key == SECRET_GATE_KEY:
         session['gate_key_authenticated'] = True
         return render_template_string(LOGIN_HTML)
-        
     abort(404)
 
 @admin_blueprint.route('/albrawe-admin/logout')
