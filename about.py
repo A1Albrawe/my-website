@@ -36,7 +36,7 @@ def about_page():
             <button class="menu-toggle" onclick="toggleSidebar(true)">☰ القائمة</button>
             <!-- وتوسيط الاسم البرمجي الحركي للهوية التعريفية -->
             <a href="/" class="brand-center-link">Albrawe</a>
-            <span style="font-weight:bold; color:#ff7b72;">👤 من نحن</span>
+            <span style="font-weight:bold; color:#ff7b72;">👤 About us </span>
         </div>
         <div class="sidebar-curtain" id="sidebarCurtain">
             <button class="close-btn" onclick="toggleSidebar(false)">❌ إغلاق القائمة</button>
