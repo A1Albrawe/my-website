@@ -14,7 +14,8 @@ def generate_sidebar_html():
             <i class="fas fa-chevron-down" id="dropdownArrow" style="transition: 0.3s; font-size: 12px; color: #58a6ff;"></i>
         </button>
         <div class="dropdown-sub-menu" id="gamesSubMenu" style="display: none; flex-direction: column; gap: 8px; padding: 8px 15px 0 0;">
-            <a href="/snake" class="menu-item" style="color: #3fb950; font-size: 14px; padding: 10px;"><i class="fas fa-snake"></i> لعبة الثعبان الكلاسيكية 🐍</a>
+            <!-- تم تصحيح الأيقونة هنا إلى fa-dragon لضمان ظهورها بشكل صحيح -->
+            <a href="/snake" class="menu-item" style="color: #3fb950; font-size: 14px; padding: 10px;"><i class="fas fa-dragon"></i> لعبة الثعبان الكلاسيكية 🐍</a>
             <a href="/tetris" class="menu-item" style="color: #d29922; font-size: 14px; padding: 10px;"><i class="fas fa-cubes"></i> لعبة التترس البكسلية 🧱</a>
         </div>
     </div>
@@ -26,7 +27,9 @@ def generate_sidebar_html():
     
     <!-- 🛠️ الشكاوى تم تحويل الرابط للمسار الجديد المقفل كلياً تحت الصيانة -->
     <a href="/maintenance" class="menu-item" style="color: #f85149;"><i class="fas fa-tools"></i> الإبلاغ عن مشكلة (تحت الصيانة) 🛠️</a>
-    <a href="https://t.me" target="_blank" class="menu-item" style="color: #58a6ff;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام 🌐</a>
+    
+    <!-- 🌐 تم تحديث رابط التليجرام الخاص بك بنجاح -->
+    <a href="https://t.me/I_Albrawe" target="_blank" class="menu-item" style="color: #58a6ff;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام 🌐</a>
     
     <script>
         function toggleGamesDropdown(event) {
@@ -35,7 +38,7 @@ def generate_sidebar_html():
             const subMenu = document.getElementById('gamesSubMenu');
             const arrow = document.getElementById('dropdownArrow');
             if (subMenu.style.display === 'none' || subMenu.style.display === '') {
-                subMenu.style.display = 'flex';
+                subMenu.style.display = 'block'; // تم تعديلها إلى block لضمان التوافق العمودي وتجنب التداخل
                 arrow.style.transform = 'rotate(180deg)';
                 arrow.style.color = '#3fb950';
             } else {
