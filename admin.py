@@ -16,78 +16,124 @@ ADMIN_HTML = """
     <title>لوحة التحليلات والرقابة السيبرانية | Albrawe</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
-        body { font-family: 'Courier New', Courier, monospace; background: #06090d; color: #c9d1d9; padding: 15px; margin: 0; box-sizing: border-box; }
-        .container { width: 100%; max-width: 1400px; margin: 0 auto; }
+        body { font-family: 'Courier New', Courier, monospace; background: #06090d; color: #c9d1d9; padding: 12px; margin: 0; box-sizing: border-box; }
+        .container { width: 100%; max-width: 1440px; margin: 0 auto; }
         
-        .main-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 12px; margin-bottom: 20px; }
-        @media (max-width: 600px) { .main-header { flex-direction: column; gap: 10px; text-align: center; } }
+        .main-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 8px; margin-bottom: 15px; }
+        @media (max-width: 600px) { .main-header { flex-direction: column; gap: 8px; text-align: center; } }
         
-        .logout-btn { background: #f85149; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-family: inherit; font-size: 12.5px; transition: 0.2s; }
-        .logout-btn:hover { background: #da3633; box-shadow: 0 0 12px #f85149; }
+        .logout-btn { background: #f85149; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-family: inherit; font-size: 11.5px; transition: 0.2s; }
+        .logout-btn:hover { background: #da3633; box-shadow: 0 0 10px #f85149; }
         
-        .complaints-inbox-card { background: #161212; border: 1px solid #492626; border-top: 3px solid #f85149; border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(248,81,73,0.08); }
-        .complaints-grid { display: flex; flex-direction: column; gap: 8px; max-height: 150px; overflow-y: auto; }
+        .complaints-inbox-card { background: #161212; border: 1px solid #492626; border-top: 3px solid #f85149; border-radius: 8px; padding: 12px; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(248,81,73,0.06); }
+        .complaints-grid { display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto; }
         
-        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-box { background: #0d1117; border: 1px solid #30363d; padding: 18px 12px; border-radius: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .stat-box h5 { margin: 0 0 6px 0; color: #8b949e; font-size: 12.5px; font-weight: bold; }
-        .stat-box p { margin: 0; font-size: 24px; font-weight: bold; color: #58a6ff; font-family: monospace; }
-        .sub-stat-label { display: block; font-size: 11px; font-weight: bold; color: #8b949e; margin-top: 5px; border-top: 1px dashed #21262d; padding-top: 4px; }
-        .section-title { color: #79c0ff; margin: 20px 0 10px 0; font-size: 16px; border-bottom: 1px solid #30363d; padding-bottom: 6px; text-align: right; }
-        .cards-mesh { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 15px; margin-top: 15px; }
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .stat-box { background: #0d1117; border: 1px solid #30363d; padding: 12px 8px; border-radius: 8px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .stat-box h5 { margin: 0 0 4px 0; color: #8b949e; font-size: 11.5px; font-weight: bold; }
+        .stat-box p { margin: 0; font-size: 18px; font-weight: bold; color: #58a6ff; font-family: monospace; }
+        .sub-stat-label { display: block; font-size: 10.5px; color: #8b949e; margin-top: 4px; border-top: 1px dashed #21262d; padding-top: 3px; }
+        .section-title { color: #79c0ff; margin: 15px 0 8px 0; font-size: 14px; border-bottom: 1px solid #30363d; padding-bottom: 4px; text-align: right; display: flex; align-items: center; gap: 6px; }
+        .section-title.live { color: #3fb950; }
+        .section-title.archive { color: #8b949e; }
         
-        .user-panel-card { background: #0d1117; border: 1px solid #30363d; border-right: 4px solid #a371f7; border-radius: 10px; padding: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 10px; text-align: right; transition: 0.2s; }
-        .user-panel-card:hover { border-color: #58a6ff; transform: translateY(-2px); }
+        .cards-mesh { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin-bottom: 20px; }
         
-        .card-top-info { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 6px; }
-        .card-username { font-size: 14px; font-weight: bold; color: #fff; }
-        .card-device { font-size: 11.5px; color: #ffd700; font-weight: bold; }
+        .user-panel-card { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 10px 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 6px; text-align: right; font-size: 11.5px; }
+        .user-panel-card.live-border { border-right: 4px solid #3fb950; }
+        .user-panel-card.archive-border { border-right: 4px solid #484f58; opacity: 0.85; }
         
-        .card-meta-line { font-size: 12px; color: #c9d1d9; display: flex; align-items: center; gap: 6px; }
-        .card-meta-line i { color: #8b949e; width: 16px; text-align: center; }
+        .card-top-info { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 4px; }
+        .card-username { font-size: 12.5px; font-weight: bold; color: #fff; }
+        .card-device { font-size: 10.5px; color: #ffd700; font-weight: bold; }
         
-        .flag-img { width: 18px; height: 13px; border-radius: 2px; object-fit: cover; box-shadow: 0 0 3px rgba(255,255,255,0.2); }
-        .time-badge { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(88,166,255,0.15); font-family: monospace; }
-        .games-total-badge { color: #3fb950; font-weight: bold; background: rgba(63,185,80,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(63,185,80,0.15); font-family: monospace; }
+        .card-meta-line { display: flex; align-items: center; gap: 5px; color: #c9d1d9; }
+        .card-meta-line i { color: #8b949e; width: 14px; text-align: center; }
         
-        /* 🎮 لوحة عدادات الألعاب الستة المضاءة نيون بداخل كل بطاقة زائر للتفرقة والفرز البياني */
-        .games-dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; background: #161b22; padding: 8px; border-radius: 6px; border: 1px solid #21262d; margin-top: 4px; }
-        .mini-game-tag { font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; padding: 3px 5px; background: #0d1117; border-radius: 4px; border: 1px solid #30363d; font-family: monospace; }
+        .flag-img { width: 15px; height: 11px; border-radius: 1px; object-fit: cover; }
+        .time-badge { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.04); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(88,166,255,0.12); font-family: monospace; }
+        .games-total-badge { color: #3fb950; font-weight: bold; background: rgba(63,185,80,0.04); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(63,185,80,0.12); font-family: monospace; }
         
-        .clear-db-btn { background: #21262d; border: 1px solid #d29922; color: #d29922; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; transition: 0.2s; white-space: nowrap; }
-        .clear-db-btn:hover { background: #d29922; color: #000; }
+        .drop-trigger-btn { background: #161b22; border: 1px solid #30363d; color: #c9d1d9; width: 100%; padding: 4px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; text-align: right; display: flex; justify-content: space-between; align-items: center; font-family: inherit; }
+        .drop-trigger-btn:hover { border-color: #58a6ff; color: #fff; }
+        
+        .drop-content-panel { display: none; background: #10141a; border: 1px solid #21262d; padding: 6px; border-radius: 4px; margin-top: 2px; }
+        .route-path-box { font-size: 10.5px; color: #a371f7; line-height: 1.4; word-break: break-all; }
+        
+        .games-dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+        .mini-game-tag { font-size: 10px; display: flex; justify-content: space-between; padding: 2px 4px; background: #0d1117; border-radius: 3px; border: 1px solid #21262d; font-family: monospace; }
+        
+        .clear-db-btn { background: #21262d; border: 1px solid #d29922; color: #d29922; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 11px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="main-header">
-            <h2><i class="fas fa-chart-network" style="color:#a371f7; margin-left:6px;"></i> رادار الرقابة والتحليلات المطور V3</h2>
-            <div style="display:flex; gap:10px; align-items:center;">
+            <h2><i class="fas fa-chart-network" style="color:#a371f7; margin-left:5px;"></i> رادار الرقابة والتحليلات المطور V3</h2>
+            <div style="display:flex; gap:8px; align-items:center;">
                 <button class="clear-db-btn" onclick="clearLogsDatabase()"><i class="fas fa-trash-alt"></i> تصفير السجلات</button>
                 <a href="/albrawe-admin-panel-2026/logout" class="logout-btn">تسجيل الخروج 🚪</a>
             </div>
         </div>
         
         <div class="complaints-inbox-card">
-            <h3 style="margin:0; color:#ff7b72; font-size:14px; border-bottom:1px solid #492626; padding-bottom:6px;"><i class="fas fa-envelope-open-text"></i> صندوق الشكاوى والبلاغات الحي المباشر</h3>
+            <h3 style="margin:0; color:#ff7b72; font-size:13px; border-bottom:1px solid #492626; padding-bottom:4px;"><i class="fas fa-envelope-open-text"></i> صندوق الشكاوى والبلاغات الحي المباشر</h3>
             <div class="complaints-grid" id="globalComplaintsInbox"></div>
         </div>
 
         <div class="grid-stats">
-            <div class="stat-box" style="border-top: 3px solid #58a6ff;"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
-            <div class="stat-box" style="border-top: 3px solid #d29922;"><h5>إجمالي زيارات الموقع الكلية</h5><p id="historicalViews" style="color: #d29922;">0</p></div>
-            <div class="stat-box" style="border-top: 3px solid #3fb950;">
+            <div class="stat-box" style="border-top: 2px solid #58a6ff;"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
+            <div class="stat-box" style="border-top: 2px solid #d29922;"><h5>إجمالي زيارات الموقع الكلية</h5><p id="historicalViews" style="color: #d29922;">0</p></div>
+            <div class="stat-box" style="border-top: 2px solid #3fb950;">
                 <h5 style="color: #3fb950;">مجموع وقت استخدام جميع الزوار</h5>
                 <p id="totalGlobalUsageTime" style="color: #3fb950;">0 ثانية</p>
-                <span class="sub-stat-label" id="avgUsageTime">متوسط الاستخدام الفردي: 0 ثانية ⏱️</span>
+                <span class="sub-stat-label" id="avgUsageTime">متوسط الاستخدام الفردي: 0 ثانية</span>
             </div>
-            <div class="stat-box" style="border-top: 3px solid #f85149;"><h5>إجمالي بلاغات الصندوق</h5><p id="totalComplaints" style="color: #f85149;">0</p></div>
+            <div class="stat-box" style="border-top: 2px solid #f85149;"><h5>إجمالي بلاغات الصندوق</h5><p id="totalComplaints" style="color: #f85149;">0</p></div>
         </div>
         
-        <h3 class="section-title"><i class="fas fa-users"></i> مستودع الحركات التراكمي وجداول بيانات الزوار الأرشيفية</h3>
-        <div class="cards-mesh" id="logsCardsContainer"></div>
+        <h3 class="section-title live"><i class="fas fa-broadcast-tower"></i> الرصد اللحظي النشط (الموجودين بالموقع حالياً)</h3>
+        <div class="cards-mesh" id="liveCardsContainer"></div>
+        
+        <h3 class="section-title archive"><i class="fas fa-history"></i> سجل ومستودع الزوار المغادرين التاريخي</h3>
+        <div class="cards-mesh" id="archiveCardsContainer"></div>
     </div>
     <script>
+        BarkCardDropdown = (panelId) => {
+            const panel = document.getElementById(panelId);
+            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // ✅ محرك التفتيت الزمني التلقائي الفخم المصلح للأعوام والشهور لمنع الأرقام الكبيرة المزعجة
+        function formatFriendlyTime(totalSeconds) {
+            if (totalSeconds <= 0 || isNaN(totalSeconds)) return "0 ثانية";
+            
+            let years = Math.floor(totalSeconds / (365 * 24 * 3600));
+            let remainder = totalSeconds % (365 * 24 * 3600);
+            
+            let months = Math.floor(remainder / (30 * 24 * 3600));
+            remainder = remainder % (30 * 24 * 3600);
+            
+            let days = Math.floor(remainder / (24 * 3600));
+            remainder = remainder % (24 * 3600);
+            
+            let hours = Math.floor(remainder / 3600);
+            remainder = remainder % 3600;
+            
+            let minutes = Math.floor(remainder / 60);
+            let seconds = remainder % 60;
+            
+            let timeParts = [];
+            if (years > 0) timeParts.push(years + " سنة");
+            if (months > 0) timeParts.push(months + " شهر");
+            if (days > 0) timeParts.push(days + " يوم");
+            if (hours > 0) timeParts.push(hours + " ساعة");
+            if (minutes > 0) timeParts.push(minutes + " دقيقة");
+            if (seconds > 0 || timeParts.length === 0) timeParts.push(seconds + " ثانية");
+            
+            return timeParts.join(" و ");
+        }
+
         function fetchAndRenderAnalytics() {
             fetch('/api/admin_get_all_data')
             .then(res => res.json())
@@ -130,20 +176,25 @@ ADMIN_HTML = """
                 
                 let totalSeconds = 0;
                 archiveDB.forEach(item => { totalSeconds += (item.duration || 0); });
-                document.getElementById('totalGlobalUsageTime').innerText = totalSeconds + " ثانية";
+                document.getElementById('totalGlobalUsageTime').innerText = formatFriendlyTime(totalSeconds);
+                
                 let avgCalc = archiveDB.length > 0 ? Math.round(totalSeconds / archiveDB.length) : 0;
-                document.getElementById('avgUsageTime').innerText = "متوسط الاستخدام الفردي: " + avgCalc + " ثانية ⏱️";
+                document.getElementById('avgUsageTime').innerText = "متوسط الاستخدام الفردي: " + formatFriendlyTime(avgCalc);
                 
                 let inboxHtml = "";
-                if(complDB.length === 0) { inboxHtml = '<p style="color:#8b949e; font-size:12px; text-align:center; margin:10px 0;">الصندوق نظيف كلياً.</p>'; } else {
+                if(complDB.length === 0) { inboxHtml = '<p style="color:#8b949e; font-size:11px; text-align:center; margin:5px 0;">الصندوق نظيف كلياً.</p>'; } else {
                     complDB.forEach(c => {
                         inboxHtml += '<div class="report-txt"><span><i class="fas fa-user"></i> <strong>' + c.user + '</strong>: ' + c.details + '</span><span>' + c.date + '</span></div>';
                     });
                 }
                 document.getElementById('globalComplaintsInbox').innerHTML = inboxHtml;
                 
-                let cardsHtml = "";
-                if(archiveDB.length === 0) { cardsHtml = '<p style="grid-column: 1/-1; text-align:center; color:#8b949e; padding:20px;">لا توجد سجلات مستخدمين مؤرشفة حتى الآن.</p>'; } else {
+                let liveCardsHtml = ""; let archiveCardsHtml = "";
+                
+                if(archiveDB.length === 0) {
+                    let emptyMsg = '<p style="grid-column: 1/-1; text-align:center; color:#8b949e; padding:10px;">لا توجد سجلات.</p>';
+                    liveCardsHtml = emptyMsg; archiveCardsHtml = emptyMsg;
+                } else {
                     archiveDB.slice().reverse().forEach(user => {
                         let snake = user.snakeTime || 0; let tetris = user.tetrisTime || 0; let xo = user.xoTime || 0; let shooter = user.shooterTime || 0; let clicker = user.clickerTime || 0; let card = user.cardTime || 0;
                         let totalGamesSeconds = snake + tetris + xo + shooter + clicker + card;
@@ -160,34 +211,47 @@ ADMIN_HTML = """
                         let currentDevice = user.deviceModel || "Android Device 📱";
                         let stepsList = user.browsingHistory || ["الرئيسية 🏠"];
                         
-                        cardsHtml += '<div class="user-panel-card">' +
+                        let isUserStillLive = liveDB.some(l => l.username === user.username);
+                        let cardIdSuffix = user.username.replace(/[^a-zA-Z0-9]/g, '');
+                        let pathPanelId = 'pathPanel_' + cardIdSuffix;
+                        let gamesPanelId = 'gamesPanel_' + cardIdSuffix;
+                        
+                        let cardBodyHtml = '<div class="user-panel-card ' + (isUserStillLive ? 'live-border' : 'archive-border') + '">' +
                             '<div class="card-top-info"><span class="card-username"><i class="fas fa-user-circle"></i> ' + user.username + '</span><span class="card-device">' + currentDevice + '</span></div>' +
-                            '<div class="card-meta-line"><i class="fas fa-map-marker-alt"></i> ' + flagImgHtml + ' <span class="loc-tag">' + currentLoc + '</span></div>' +
+                            '<div class="card-meta-line"><i class="fas fa-map-marker-alt"></i> ' + flagImgHtml + ' <span style="color:#3fb950; font-weight:bold;">' + currentLoc + '</span></div>' +
                             '<div class="card-meta-line"><i class="fas fa-clock"></i> <span>الدخول: ' + user.loginTime + '</span></div>' +
-                            '<div class="card-meta-line"><i class="fas fa-browser"></i> <span>الموقع الأم: <span class="time-badge">' + (user.duration || 0) + 'ث</span></span></div>' +
-                            '<div class="card-meta-line"><i class="fas fa-hourglass-half"></i> <span>إجمالي الألعاب: <span class="games-total-badge">' + totalGamesSeconds + 'ث</span></span></div>' +
-                            '<div class="route-path-box">' + stepsList.join(' ➔ ') + '</div>' +
-                            '<div class="games-dashboard">' +
-                                '<div class="mini-game-tag" style="color:#3fb950;"><span>🐍 ثعبان</span><span>' + snake + 'ث</span></div>' +
-                                '<div class="mini-game-tag" style="color:#d29922;"><span>🧱 تترس</span><span>' + tetris + 'ث</span></div>' +
-                                '<div class="mini-game-tag" style="color:#a371f7;"><span>❌ X-O</span><span>' + xo + 'ث</span></div>' +
-                                '<div class="mini-game-tag" style="color:#388bfd;"><span>🚀 فضاء</span><span>' + shooter + 'ث</span></div>' +
-                                '<div class="mini-game-tag" style="color:#ff7b72;"><span>⚡ نقر</span><span>' + clicker + 'ث</span></div>' +
-                                '<div class="mini-game-tag" style="color:#58a6ff;"><span>🃏 بطاقات</span><span>' + card + 'ث</span></div>' +
+                            '<div class="card-meta-line"><i class="fas fa-browser"></i> <span>الموقع: <span class="time-badge">' + formatFriendlyTime(user.duration || 0) + '</span> | الألعاب: <span class="games-total-badge">' + formatFriendlyTime(totalGamesSeconds) + '</span></span></div>' +
+                            
+                            '<button class="drop-trigger-btn" onclick="BarkCardDropdown(\'' + pathPanelId + '\')"><span><i class="fas fa-map-signs"></i> مسار التنقل والصفحات</span> <i class="fas fa-chevron-down"></i></button>' +
+                            '<div class="drop-content-panel" id="' + pathPanelId + '"><div class="route-path-box">' + stepsList.join(' ➔ ') + '</div></div>' +
+                            
+                            '<button class="drop-trigger-btn" onclick="BarkCardDropdown(\'' + gamesPanelId + '\')"><span><i class="fas fa-gamepad"></i> عدادات الستة ألعاب الفرعية</span> <i class="fas fa-chevron-down"></i></button>' +
+                            '<div class="drop-content-panel" id="' + gamesPanelId + '">' +
+                                '<div class="games-dashboard">' +
+                                    '<div class="mini-game-tag" style="color:#3fb950;"><span>🐍 ثعبان</span><span>' + formatFriendlyTime(snake) + '</span></div>' +
+                                    '<div class="mini-game-tag" style="color:#d29922;"><span>🧱 تترس</span><span>' + formatFriendlyTime(tetris) + '</span></div>' +
+                                    '<div class="mini-game-tag" style="color:#a371f7;"><span>❌ X-O</span><span>' + formatFriendlyTime(xo) + '</span></div>' +
+                                    '<div class="mini-game-tag" style="color:#388bfd;"><span>🚀 فضاء</span><span>' + formatFriendlyTime(shooter) + '</span></div>' +
+                                    '<div class="mini-game-tag" style="color:#ff7b72;"><span>⚡ نقر</span><span>' + formatFriendlyTime(clicker) + '</span></div>' +
+                                    '<div class="mini-game-tag" style="color:#58a6ff;"><span>🃏 بطاقات</span><span>' + formatFriendlyTime(card) + '</span></div>' +
+                                '</div>' +
                             '</div>' +
                         '</div>';
+                        
+                        if(isUserStillLive) { liveCardsHtml += cardBodyHtml; } else { archiveCardsHtml += cardBodyHtml; }
                     });
                 }
-                document.getElementById('logsCardsContainer').innerHTML = cardsHtml;
+                
+                if(liveCardsHtml === "") liveCardsHtml = '<p style="grid-column: 1/-1; text-align:center; color:#8b949e; padding:10px; font-size:11px;">لا توجد أي زيارات نشطة داخل الموقع حالياً. 🛰️</p>';
+                if(archiveCardsHtml === "") archiveCardsHtml = '<p style="grid-column: 1/-1; text-align:center; color:#8b949e; padding:10px; font-size:11px;">لا توجد سجلات مغادرين في الأرشيف.</p>';
+                
+                document.getElementById('liveCardsContainer').innerHTML = liveCardsHtml;
+                document.getElementById('archiveCardsContainer').innerHTML = archiveCardsHtml;
             });
         }
         function clearLogsDatabase() { if(confirm("هل أنت متأكد من مسح الأرشيف التراكمي وتصفير السجلات بالكامل؟")) { localStorage.removeItem('permanent_archive_db'); localStorage.removeItem('backup_historical'); fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics()); } }
         fetchAndRenderAnalytics(); setInterval(fetchAndRenderAnalytics, 4000);
     </script>
-</body>
-</html>
-"""
-
 LOGIN_HTML = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
