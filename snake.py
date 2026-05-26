@@ -20,12 +20,11 @@ def get_leaderboard():
 def submit_score():
     global GLOBAL_LEADERBOARD
     data = request.get_json() or {}
-    name = data.get('name', 'لاعب مجهول').strip()
+    name = data.get('name', 'لاعب مجهول').strip() or 'لاعب مجهول'
     score = int(data.get('score', 0))
     
-    if score > 0 and name:
+    if score > 0:
         GLOBAL_LEADERBOARD.append({"name": name, "score": score})
-        # ترتيب المصفوفة من الأعلى للأقل وقصها لتستعرض أفضل 3 لاعبين فقط عالمياً
         GLOBAL_LEADERBOARD.sort(key=lambda x: x['score'], reverse=True)
         GLOBAL_LEADERBOARD = GLOBAL_LEADERBOARD[:3]
         
@@ -47,7 +46,6 @@ SNAKE_TEMPLATE = """
         .main-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .nokia-phone { background: #161b22; border: 3px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 20px; width: 100%; max-width: 370px; padding: 25px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); box-sizing: border-box; position: relative; }
         .nokia-screen { background-color: #0d1117; border: 2px solid #30363d; border-radius: 10px; padding: 10px; position: relative; box-sizing: border-box; touch-action: none; }
-        .flash { background-color: #238636 !important; }
         .highscore-flash { animation: rf 0.15s ease infinite alternate; }
         @keyframes rf { 0% { background-color: #0d1117; } 100% { background-color: #21262d; border-color: #ffd700; } }
         .score-container { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 13px; border-bottom: 1px solid #30363d; padding-bottom: 6px; margin-bottom: 10px; color: #58a6ff; }
@@ -73,7 +71,7 @@ SNAKE_TEMPLATE = """
         <span style="font-weight:bold; color:#fff;">🐍 لعبة الثعبان السحابية </span>
     </div>
 """
-SNAKE_TEMPLATE_BODY = """
+SNAKE_BODY_TEMPLATE = """
     <div class="main-container">
         <div class="nokia-phone" id="phoneWrapper">
             <div class="nokia-screen" id="nokiaScreen">
@@ -89,13 +87,12 @@ SNAKE_TEMPLATE_BODY = """
                 <div class="canvas-container">
                     <canvas id="snakeCanvas" width="240" height="160"></canvas>
                     <div id="pauseOverlay" class="overlay-txt">مؤقت ⏸️</div>
-                    <div id="recordOverlay" class="overlay-txt" style="background:#ffd700; color:#000; border-color:#000;">🏆 رقم قياسي عالمي جديد! 🏆</div>
                     
                     <div id="gameOverScreen" class="overlay-txt" style="display:block;">
                         <h4 id="goTitle" style="margin:0 0 5px 0; color:#58a6ff;">مرحباً بك</h4>
                         <p id="finalScoreText" style="margin:0 0 8px 0; font-size:12px; font-weight:bold;"></p>
                         <input type="text" id="playerName" style="padding:6px; font-size:12px; border:1px solid #30363d; background:#0d1117; color:#fff; margin-bottom:8px; text-align:center; width:85%; font-family:inherit; font-weight:bold; box-sizing:border-box;" placeholder="اسم المستخدم" maxlength="10">
-                        <br><button style="background:#238636; color:#fff; border:1px solid #2ea44f; padding:6px 15px; font-size:12px; font-weight:bold; cursor:pointer; border-radius:6px;" onclick="submitPlayer()">بدء اللعب الفوري</button>
+                        <br><button style="background:#238636; color:#fff; border:1px solid #2ea44f; padding:6px 15px; font-size:12px; font-weight:bold; cursor:pointer; border-radius:6px;" onclick="submitPlayer()">بدء اللعب السحابي</button>
                     </div>
                 </div>
 
@@ -120,161 +117,169 @@ SNAKE_TEMPLATE_BODY = """
             </div>
         </div>
     </div>
-
+"""
+SNAKE_JS_TEMPLATE = """
     <script>
-        const canvas = document.getElementById('snakeCanvas'), ctx = canvas.getContext('2d'), box = 10;
-        let score = 0, snake = [], food = {x: 0, y: 0}, d = "RIGHT", gameInterval = null, musicInterval = null;
-        let isGameOver = true, isPaused = false, isMuted = false, globalVolume = 0.5, currentUser = "";
-        let canScore = true;
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const musicNotes = [659.25, 587.33, 392.00, 440.00, 523.25, 493.88, 293.66, 329.63];
-
-        function toggleMute() { isMuted = !isMuted; document.getElementById('muteToggle').innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>'; document.getElementById('volumeSlider').value = isMuted ? 0 : globalVolume; if(isMuted) stopMusic(); else if(!isGameOver && !isPaused) startMusic(); }
-        function updateVolume(v) { globalVolume = parseFloat(v); isMuted = globalVolume === 0; document.getElementById('muteToggle').innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>'; stopMusic(); if(!isMuted && !isGameOver && !isPaused) startMusic(); }
+        const canvas = document.getElementById('snakeCanvas');
+        const ctx = canvas.getContext('2d');
+        const box = 10;
         
-        function playSound(t) {
-            if (!audioCtx || isMuted || globalVolume === 0) return;
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type = 'square';
-            if (t === 'eat') { o.frequency.setValueAtTime(600, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.06); g.gain.setValueAtTime(0.08 * globalVolume, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime + 0.06); }
-            else if (t === 'lose') { o.frequency.setValueAtTime(220, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.5); g.gain.setValueAtTime(0.25 * globalVolume, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime + 0.5); }
-            else if (t === 'win') { const now = audioCtx.currentTime; o.frequency.setValueAtTime(523, now); o.frequency.setValueAtTime(659, now + 0.08); o.frequency.setValueAtTime(784, now + 0.16); g.gain.setValueAtTime(0.15 * globalVolume, now); o.start(); o.stop(now + 0.3); }
-        }
+        let snake = [];
+        let food = {};
+        let score = 0;
+        let d = '';
+        let gameLoopInterval;
+        let isPaused = false;
+        let isMuted = false;
+        let gameActive = false;
+        let currentHighScore = 0;
 
-        function playMusic() {
-            if (!audioCtx || isGameOver || isMuted || globalVolume === 0 || isPaused) return;
-            let tp = audioCtx.currentTime;
-            musicNotes.forEach(f => {
-                const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = 'triangle';
-                o.frequency.setValueAtTime(f, tp); g.gain.setValueAtTime(0.02 * globalVolume, tp);
-                g.gain.linearRampToValueAtTime(0, tp + 0.18); o.connect(g); g.connect(audioCtx.destination);
-                o.start(tp); o.stop(tp + 0.2); tp += 0.2;
+        fetchLeaderboard();
+
+        function fetchLeaderboard() {
+            fetch('/api/get_leaderboard')
+            .then(res => res.json())
+            .then(data => {
+                let html = '';
+                if(data && data.length > 0) {
+                    currentHighScore = data[0].score;
+                    data.forEach((item, index) => {
+                        html += `<div class="score-row"><span>${index+1}. ${item.name}</span><strong>${item.score} ن</strong></div>`;
+                    });
+                }
+                document.getElementById('leaderboardContent').innerHTML = html;
             });
         }
-        
-        function startMusic() { stopMusic(); if(!isMuted && globalVolume > 0 && !isPaused) { playMusic(); musicInterval = setInterval(playMusic, musicNotes.length * 200); } }
-        function stopMusic() { if(musicInterval) clearInterval(musicInterval); }
-        function togglePause() { if(isGameOver) return; isPaused = !isPaused; document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none'; if(isPaused) stopMusic(); else startMusic(); }
 
         function submitPlayer() {
-            let n = document.getElementById('playerName').value.trim(); if(!n) return;
-            currentUser = n; localStorage.setItem('snake_last_user', n);
+            const nameInput = document.getElementById('playerName').value.trim();
+            if(!nameInput && !gameActive) {
+                alert('الرجاء كتابة اسم مستخدم لبدء حفظ نتيجتك سحابياً!');
+                return;
+            }
             document.getElementById('gameOverScreen').style.display = 'none';
-            isGameOver = false; initGame();
+            initGame();
         }
+
         function initGame() {
-            if(gameInterval) clearInterval(gameInterval); 
-            stopMusic();
-
-            score = 0; isPaused = false; isGameOver = false; canScore = true;
-            document.getElementById('snakeScore').innerText = "النقاط: " + score;
-            document.getElementById('recordOverlay').style.display = 'none';
-            document.getElementById('nokiaScreen').classList.remove('highscore-flash');
-            
-            snake = [{x: 100, y: 80}, {x: 90, y: 80}, {x: 80, y: 80}];
-            genFood(); d = "RIGHT";
-            gameInterval = setInterval(draw, 120); 
-            startMusic();
-        }
-        
-        function genFood() { 
-            food = { x: Math.floor(Math.random() * 24) * box, y: Math.floor(Math.random() * 16) * box }; 
-            for(let i = 0; i < snake.length; i++) { if(snake[i].x === food.x && snake[i].y === food.y) genFood(); } 
-            canScore = true;
+            snake = [{x: 12 * box, y: 8 * box}];
+            generateFood();
+            score = 0;
+            d = 'RIGHT';
+            isPaused = false;
+            gameActive = true;
+            document.getElementById('snakeScore').innerText = 'النقاط: ' + score;
+            document.getElementById('phoneWrapper').classList.remove('highscore-flash');
+            if(gameLoopInterval) clearInterval(gameLoopInterval);
+            gameLoopInterval = setInterval(draw, 100);
         }
 
-        document.onkeydown = function(e) {
-            if(e.keyCode === 32) { e.preventDefault(); togglePause(); return; }
-            if(isGameOver || isPaused) return; const k = e.keyCode, c = e.key ? e.key.toLowerCase() : "";
-            if ((k === 37 || c === 'a' || c === 'ص') && d !== "RIGHT") d = "LEFT";
-            else if ((k === 38 || c === 'w' || c === 'ص') && d !== "DOWN") d = "UP";
-            else if ((k === 39 || c === 'd' || c === 'ي') && d !== "LEFT") d = "RIGHT";
-            else if ((k === 40 || c === 's' || c === 'س') && d !== "UP") d = "DOWN";
-        };
-        
+        function generateFood() {
+            food = {
+                x: Math.floor(Math.random() * (canvas.width / box)) * box,
+                y: Math.floor(Math.random() * (canvas.height / box)) * box
+            };
+        }
+
         function changeDirection(dir) {
-            if(isGameOver || isPaused) return;
-            if(dir === "LEFT" && d !== "RIGHT") d = "LEFT";
-            if(dir === "UP" && d !== "DOWN") d = "UP";
-            if(dir === "RIGHT" && d !== "LEFT") d = "RIGHT";
-            if(dir === "DOWN" && d !== "UP") d = "DOWN";
+            if(!gameActive || isPaused) return;
+            if(dir === 'LEFT' && d !== 'RIGHT') d = 'LEFT';
+            if(dir === 'UP' && d !== 'DOWN') d = 'UP';
+            if(dir === 'RIGHT' && d !== 'LEFT') d = 'RIGHT';
+            if(dir === 'DOWN' && d !== 'UP') d = 'DOWN';
         }
 
-        let tsX = 0, tsY = 0;
-        window.addEventListener('touchstart', e => { if(e.touches && e.touches.length > 0) { tsX = e.touches.screenX; tsY = e.touches.screenY; } }, {passive: true});
-        window.addEventListener('touchend', e => {
-            if(isPaused || isGameOver || !e.changedTouches || e.changedTouches.length === 0) return; 
-            const xDiff = e.changedTouches.screenX - tsX, yDiff = e.changedTouches.screenY - tsY;
-            if(Math.abs(xDiff) > Math.abs(yDiff)) { if(Math.abs(xDiff) > 30) changeDirection(xDiff > 0 ? 'RIGHT' : 'LEFT'); }
-            else { if(Math.abs(yDiff) > 30) changeDirection(yDiff > 0 ? 'DOWN' : 'UP'); }
-        }, {passive: true});
+        document.addEventListener('keydown', e => {
+            if(e.key === 'ArrowLeft') changeDirection('LEFT');
+            if(e.key === 'ArrowUp') changeDirection('UP');
+            if(e.key === 'ArrowRight') changeDirection('RIGHT');
+            if(e.key === 'ArrowDown') changeDirection('DOWN');
+            if(e.code === 'Space') togglePause();
+        });
+
+        function togglePause() {
+            if(!gameActive) return;
+            isPaused = !isPaused;
+            document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none';
+            if(isPaused) { clearInterval(gameLoopInterval); } else { gameLoopInterval = setInterval(draw, 100); }
+        }
+
+        function toggleMute() {}
+        function updateVolume(val) {}
+
+        function checkCollision(head, array) {
+            for(let i = 0; i < array.length; i++) {
+                if(head.x === array[i].x && head.y === array[i].y) return true;
+            }
+            return false;
+        }
 
         function draw() {
-            if (isPaused || isGameOver) return; 
-            ctx.clearRect(0, 0, 240, 160);
-            
-            ctx.fillStyle = "#f85149"; ctx.fillRect(food.x + 1, food.y + 1, box - 2, box - 2);
-            snake.forEach((c, i) => { ctx.fillStyle = i === 0 ? "#58a6ff" : "#3fb950"; ctx.fillRect(c.x + 1, c.y + 1, box - 2, box - 2); });
+            ctx.fillStyle = '#161b22';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            let hX = snake[0].x, hY = snake[0].y;
-            if(d === "LEFT") hX -= box; else if(d === "UP") hY -= box; else if(d === "RIGHT") hX += box; else if(d === "DOWN") hY += box;
-            let nH = {x: hX, y: hY};
+            for(let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = (i === 0) ? '#58a6ff' : '#3fb950';
+                ctx.strokeStyle = '#0d1117';
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+                ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+            }
 
-            if(hX < 0 || hX >= 240 || hY < 0 || hY >= 160 || snake.some(c => c.x === nH.x && c.y === nH.y)) { endGame(); return; }
+            ctx.fillStyle = '#f85149';
+            ctx.fillRect(food.x, food.y, box, box);
 
-            if(hX === food.x && hY === food.y) {
-                if(canScore) { score += 10; document.getElementById('snakeScore').innerText = "النقاط: " + score; playSound('eat'); canScore = false; genFood(); }
-            } else { snake.pop(); }
-            snake.unshift(nH);
+            let snakeX = snake[0].x;
+            let snakeY = snake[0].y;
+
+            if(d === 'LEFT') snakeX -= box;
+            if(d === 'UP') snakeY -= box;
+            if(d === 'RIGHT') snakeX += box;
+            if(d === 'DOWN') snakeY -= box;
+
+            if(snakeX === food.x && snakeY === food.y) {
+                score += 10;
+                document.getElementById('snakeScore').innerText = 'النقاط: ' + score;
+                generateFood();
+                if(score > currentHighScore && currentHighScore > 0) {
+                    document.getElementById('phoneWrapper').classList.add('highscore-flash');
+                }
+            } else {
+                snake.pop();
+            }
+
+            let newHead = { x: snakeX, y: snakeY };
+
+            if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || checkCollision(newHead, snake)) {
+                clearInterval(gameLoopInterval);
+                gameActive = false;
+                handleGameOver();
+                return;
+            }
+
+            snake.unshift(newHead);
         }
 
-        function endGame() {
-            clearInterval(gameInterval); stopMusic(); isGameOver = true; playSound('lose');
-            
-            // 🎯 ضخ النتيجة الجديدة مباشرة إلى السيرفر السحابي الموحد لكل العالم عبر الـ FETCH
+        function handleGameOver() {
+            const pName = document.getElementById('playerName').value.trim() || 'لاعب مجهول';
+            document.getElementById('goTitle').innerText = 'انتهت اللعبة! 💀';
+            document.getElementById('finalScoreText').innerText = `أحرزت: ${score} نقطة`;
+            document.getElementById('gameOverScreen').style.display = 'block';
+
             fetch('/api/submit_score', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: currentUser, score: score })
-            }).then(res => res.json())
-              .then(data => {
-                  displayLeaderboard(data.leaderboard);
-                  if(data.leaderboard.length > 0 && data.leaderboard[0].name === currentUser && score > 0) {
-                      playSound('win');
-                      document.getElementById('recordOverlay').style.display = 'block';
-                      document.getElementById('nokiaScreen').classList.add('highscore-flash');
-                  }
-              });
-
-            document.getElementById('goTitle').innerText = "انتهت اللعبة";
-            document.getElementById('finalScoreText').innerText = "نقاط الجولة المحققة: " + score;
-            document.getElementById('playerName').value = currentUser;
-            document.getElementById('gameOverScreen').style.display = 'block';
-        }
-
-        // 🎯 سحب وعرض اللوحة الموحدة فور فتح الصفحة
-        function loadLead() {
-            fetch('/api/get_leaderboard')
+                body: JSON.stringify({ name: pName, score: score })
+            })
             .then(res => res.json())
-            .then(data => displayLeaderboard(data));
+            .then(data => { fetchLeaderboard(); });
         }
-
-        function displayLeaderboard(list) {
-            let h = "";
-            list.forEach((s, i) => { h += `<div class="score-row"><span>${i+1}. ${s.name}</span><span>${s.score}</span></div>`; });
-            document.getElementById('leaderboardContent').innerHTML = h;
-        }
-
-        let lastUser = localStorage.getItem('snake_last_user');
-        if(lastUser) { document.getElementById('playerName').value = lastUser; }
-        loadLead();
     </script>
 </body>
 </html>
 """
 
-# دمج الأجزاء الثلاثة البرمجية وعرض القالب الكامل لـ Flask
 @snake_blueprint.route('/snake')
-def snake_game():
-    return render_template_string(SNAKE_TEMPLATE + SNAKE_TEMPLATE_BODY)
+def snake_page():
+    # دمج الأجزاء الثلاثة ديناميكياً داخل دالة الـ Flask للاستجابة السريعة
+    FULL_PAGE = SNAKE_TEMPLATE + SNAKE_BODY_TEMPLATE + SNAKE_JS_TEMPLATE
+    return render_template_string(FULL_PAGE)
