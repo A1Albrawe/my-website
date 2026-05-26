@@ -68,7 +68,7 @@ SHOOTER_TEMPLATE = """
                 </div>
             </div>
             
-            <!-- 🕹️ تم تثبيت الاتجاه الطبيعي بالملّي: اليسار (◀) لليسار، واليمين (▶) لليمين كلياً -->
+            <!-- 🕹️ تم تثبيت الاتجاه الطبيعي بالملّي: اليسار (◀) لليسار، واليمين (▶) لليمين كلياً دون إنعكاس -->
             <div class="control-pad">
                 <button class="ctrl-btn" 
                         ontouchstart="event.preventDefault(); handleButtonPress('L', true)" 
@@ -111,7 +111,7 @@ SHOOTER_TEMPLATE = """
         function playSound(type) {
             if(isGameOver || audioCtx.state === 'suspended') return;
             const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination);
-            if(type==='shoot'){ o.type='square'; o.frequency.setValueAtTime(800, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime+0.05); g.gain.setValueAtTime(0.012, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.05); }
+            if(type==='shoot'){ o.type='square'; o.frequency.setValueAtTime(800, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime+0.05); g.gain.setValueAtTime(0.015, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.05); }
             else if(type==='hit'){ o.type='sawtooth'; o.frequency.setValueAtTime(180, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(30, audioCtx.currentTime+0.1); g.gain.setValueAtTime(0.04, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.1); }
             else if(type==='bossAlert'){ o.type='sawtooth'; o.frequency.setValueAtTime(220, audioCtx.currentTime); o.frequency.setValueAtTime(440, audioCtx.currentTime+0.15); g.gain.setValueAtTime(0.06, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.3); }
             else if(type==='lose'){ o.type='sawtooth'; o.frequency.setValueAtTime(130, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(20, audioCtx.currentTime+0.5); g.gain.setValueAtTime(0.15, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.5); }
