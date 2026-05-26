@@ -34,7 +34,6 @@ ADMIN_HTML = """
         .clear-db-btn { background: #d29922; color: #000; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; }
     </style>
 </head>
-"""
 <body>
     <div class="container">
         <div class="main-header">
@@ -115,7 +114,7 @@ ADMIN_HTML = """
             }
         }
         fetchAndRenderAnalytics();
-        setInterval(fetchAndRenderAnalytics, 4000); // تحديث دوري رصدي تلقائي كل 4 ثوانٍ
+        setInterval(fetchAndRenderAnalytics, 4000); // رصد نبض حركات الزوار كل 4 ثوانٍ
     </script>
 </body>
 </html>
@@ -155,6 +154,7 @@ LOGIN_HTML = """
 </html>
 """
 
+# ✅ حصر وتثبيت المسار الحصري والوحيد المفتوح للآدمن كاملاً لحمايته ومنع أي مسارات عامة أخرى
 @admin_blueprint.route('/albrawe-secure-panel-2026', methods=['GET', 'POST'])
 def admin_page():
     if request.method == 'POST':
@@ -165,10 +165,12 @@ def admin_page():
             return render_template_string(ADMIN_HTML)
         else:
             return render_template_string(LOGIN_HTML + "<script>alert('❌ خطأ فادح: بيانات الاعتماد غير صحيحة!');</script>")
+            
     if session.get('admin_logged_in'):
         return render_template_string(ADMIN_HTML)
     return render_template_string(LOGIN_HTML)
 
+# توجيه الخروج الآمن ليعود لنفس الرابط التكتيكي المغلق
 @admin_blueprint.route('/albrawe-admin/logout')
 def admin_logout():
     session.pop('admin_logged_in', None)
