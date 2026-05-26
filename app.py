@@ -14,6 +14,7 @@ from games_package.clicker import clicker_blueprint
 from projects import projects_blueprint
 from about import about_blueprint
 from scripts import scripts_blueprint
+
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
@@ -40,46 +41,30 @@ except Exception:
     pass
 
 # استدعاء باقة الألعاب الخمسة المحدثة بشكل محمي معزول تماماً
-try:
-    app.register_blueprint(snake_blueprint)
-except Exception:
-    pass
+try: app.register_blueprint(snake_blueprint)
+except Exception: pass
 
-try:
-    app.register_blueprint(tetris_blueprint)
-except Exception:
-    pass
+try: app.register_blueprint(tetris_blueprint)
+except Exception: pass
 
-try:
-    app.register_blueprint(xo_blueprint)
-except Exception:
-    pass
+try: app.register_blueprint(xo_blueprint)
+except Exception: pass
 
-try:
-    app.register_blueprint(shooter_blueprint)
-except Exception:
-    pass
+try: app.register_blueprint(shooter_blueprint)
+except Exception: pass
 
-try:
-    app.register_blueprint(clicker_blueprint)
-except Exception:
-    pass
+try: app.register_blueprint(clicker_blueprint)
+except Exception: pass
 
 # استدعاء المسارات التكميلية المستقلة
-try:
-    app.register_blueprint(projects_blueprint)
-except Exception:
-    pass
+try: app.register_blueprint(projects_blueprint)
+except Exception: pass
 
-try:
-    app.register_blueprint(about_blueprint)
-except Exception:
-    pass
+try: app.register_blueprint(about_blueprint)
+except Exception: pass
 
-try:
-    app.register_blueprint(scripts_blueprint)
-except Exception:
-    pass
+try: app.register_blueprint(scripts_blueprint)
+except Exception: pass
 @app.after_request
 def inject_global_analytics_tracker(response):
     """
@@ -129,14 +114,12 @@ def inject_global_analytics_tracker(response):
                     let currentPath = window.location.pathname.replace('/', '') || 'site';
                     let localDuration = 0;
                     
-                    // حساب مدة البقاء محلياً في ذاكرة جهاز العميل دون إرسال طلبات مستمرة للسيرفر
                     setInterval(() => {
                         if (typeof isPaused !== 'undefined' && isPaused) return;
                         if (typeof isGameOver !== 'undefined' && isGameOver) return;
                         localDuration += 5;
                     }, 5000);
                     
-                    // ✅ إرسال كامل الوقت المستغرق كـ دفعة واحدة مجمعة بمجرد خروج الزائر أو انتقاله
                     window.addEventListener("beforeunload", () => {
                         if (localDuration > 0) {
                             navigator.sendBeacon('/api/update_duration', JSON.stringify({ 
