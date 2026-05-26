@@ -99,12 +99,12 @@ ADMIN_HTML = """
         <div class="cards-mesh" id="archiveCardsContainer"></div>
     </div>
     <script>
-        BarkCardDropdown = (panelId) => {
+        // 🔒 حماية السيرفر الصارمة: تعريف دالة المنسدلات القياسية بـ const صراحة لمنع تحطيم بايثون
+        const BarkCardDropdown = (panelId) => {
             const panel = document.getElementById(panelId);
             panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
         }
 
-        // ✅ محرك التفتيت الزمني التلقائي الفخم المصلح للأعوام والشهور لمنع الأرقام الكبيرة المزعجة
         function formatFriendlyTime(totalSeconds) {
             if (totalSeconds <= 0 || isNaN(totalSeconds)) return "0 ثانية";
             
@@ -261,54 +261,4 @@ LOGIN_HTML = """
     <title>تسجيل دخول الإدارة | Albrawe</title>
     <style>
         body { font-family: monospace; background: #0d1117; color: #c9d1d9; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .login-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #f85149; padding: 30px; border-radius: 12px; width: 100%; max-width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; text-align: right; }
-        input { padding: 10px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #fff; font-family: inherit; width: 100%; box-sizing: border-box; }
-        input:focus { border-color: #f85149; outline: none; }
-        .btn { background: #f85149; color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-family: inherit; margin-top: 10px; }
-    </style>
-</head>
-<body>
-    <div class="login-card">
-        <h3 style="margin-top:0; text-align:center; color:#fff;">🔐 نظام تفتيش الإدارة السرية</h3>
-        <form method="POST" action="/albrawe-admin-panel-2026">
-            <div class="form-group">
-                <label>اسم المسؤول:</label>
-                <input type="text" name="username" required autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label>كلمة المرور التكتيكية:</label>
-                <input type="password" name="password" required>
-            </div>
-            <button type="submit" class="btn">تأكيد الهوية البيومترية 🛡️</button>
-        </form>
-    </div>
-</body>
-</html>
-"""
-
-@admin_blueprint.route('/', methods=['GET', 'POST'])
-@admin_blueprint.route('/albrawe-admin-panel-2026', methods=['GET', 'POST'])
-def admin_page():
-    gate_key = request.args.get('key', '')
-    if request.method == 'POST':
-        user = request.form.get('username')
-        passwd = request.form.get('password')
-        if user == ADMIN_USER and passwd == ADMIN_PASS:
-            session['admin_logged_in'] = True
-            session['gate_key_authenticated'] = True
-            return render_template_string(ADMIN_HTML)
-        else:
-            return render_template_string(LOGIN_HTML + "<script>alert('❌ خطأ فادح: بيانات الاعتماد غير صحيحة!');</script>")
-    if session.get('admin_logged_in') and session.get('gate_key_authenticated'):
-        return render_template_string(ADMIN_HTML)
-    if gate_key == SECRET_GATE_KEY:
-        session['gate_key_authenticated'] = True
-        return render_template_string(LOGIN_HTML)
-    abort(404)
-
-@admin_blueprint.route('/albrawe-admin/logout')
-def admin_logout():
-    session.pop('admin_logged_in', None)
-    session.pop('gate_key_authenticated', None)
-    return redirect('/')
+        .login-card { background: #161b2
