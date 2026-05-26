@@ -35,7 +35,6 @@ HOME_HTML = """
         .main-title { font-size: 26px; font-weight: bold; color: #fff; text-shadow: 0 0 10px #58a6ff; margin-bottom: 5px; text-align: center; }
         .sub-title { font-size: 13px; color: #8b949e; text-align: center; margin-bottom: 30px; font-weight: bold; }
         
-        /* شبكة حزم الألعاب الفاخرة */
         .arcade-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-bottom: 30px; }
         
         .game-card { background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 20px; text-align: center; text-decoration: none; color: inherit; transition: 0.2s ease; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; overflow: hidden; }
@@ -44,7 +43,6 @@ HOME_HTML = """
         .game-title { font-size: 16px; font-weight: bold; color: #fff; margin: 0; }
         .game-desc { font-size: 11.5px; color: #8b949e; margin: 0; line-height: 1.4; }
         
-        /* قواطع نيونية مستقلة لكل لعبة فرعية بمقاس متزن */
         .card-snake { border-top: 4px solid #3fb950; }
         .card-snake .game-icon { color: #3fb950; }
         .card-tetris { border-top: 4px solid #d29922; }
@@ -70,41 +68,41 @@ HOME_HTML = """
         <div class="arcade-grid">
             <!-- 🐍 1. لعبة الثعبان -->
             <a href="/snake" class="game-card card-snake">
-                <div class="game-icon"><i class="fas fa-snake"></i> 🐍</div>
+                <div class="game-icon">🐍</div>
                 <h3 class="game-title">ثعبان النيون</h3>
                 <p class="game-desc">التقط التفاح المشع وحطم الأرقام القياسية مع تفعيل خوارزمية التسارع اللانهائي.</p>
             </a>
             
             <!-- 🧱 2. لعبة التترس -->
             <a href="/tetris" class="game-card card-tetris">
-                <div class="game-icon"><i class="fas fa-th"></i> 🧱</div>
+                <div class="game-icon">🧱</div>
                 <h3 class="game-title">تترس التطور</h3>
                 <p class="game-desc">قم بتركيب المكعبات الهندسية الفلورسنتية القياسية مع ميزة التفاف الحواف الفوري.</p>
             </a>
             <!-- ❌ 3. لعبة XO -->
             <a href="/xo" class="game-card card-xo">
-                <div class="game-icon"><i class="fas fa-times-circle"></i> ❌</div>
+                <div class="game-icon">❌</div>
                 <h3 class="game-title">مصفوفة X-O</h3>
                 <p class="game-desc">المواجهة الثنائية الكلاسيكية داخل لوحة الذكاء الفوري النيونية المضيئة.</p>
             </a>
             
             <!-- 🚀 4. قاصف الفضاء -->
             <a href="/shooter" class="game-card card-shooter">
-                <div class="game-icon"><i class="fas fa-space-shuttle"></i> 🚀</div>
+                <div class="game-icon">🚀</div>
                 <h3 class="game-title">قاصف الفضاء الكلاسيكي</h3>
                 <p class="game-desc">احمِ المجرة بواسطة 3 قلوب محاولات، ودمر أسراب الأعداء وواجه الزعيم الأكبر.</p>
             </a>
             
             <!-- ⚡ 5. تحدي النقر -->
             <a href="/clicker" class="game-card card-clicker">
-                <div class="game-icon"><i class="fas fa-bolt"></i> ⚡</div>
+                <div class="game-icon">⚡</div>
                 <h3 class="game-title">تحدي النقر السريع</h3>
                 <p class="game-desc">اختبر سرعة استجابة أصابعك واجمع مئات النقرات الصاعقة خلال 10 ثوانٍ فقط.</p>
             </a>
             
             <!-- 🃏 6. لعبة البطاقات الجديدة -->
             <a href="/card_game" class="game-card card-cards">
-                <div class="game-icon"><i class="fas fa-clone"></i> 🃏</div>
+                <div class="game-icon">🃏</div>
                 <h3 class="game-title">تحدي كروت الذاكرة</h3>
                 <p class="game-desc">اللعبة السادسة الجديدة! قم بمطابقة الرموز المخفية واختبر كفاءة ذاكرتك اللحظية.</p>
             </a>
