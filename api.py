@@ -3,19 +3,18 @@ from flask import Blueprint, request, jsonify
 
 api_blueprint = Blueprint('api', __name__)
 
-# 🔒 الذاكرة السحابية المركزية المؤقتة بداخل السيرفر لجمع البيانات
+# 🔒 المصفوفات السحابية المؤقتة بداخل خادم السيرفر لتخزين التحليلات
 CENTRAL_ANALYTICS_DB = []
 CENTRAL_COMPLAINTS_DB = []
 
 @api_blueprint.route('/api/log_visit', methods=['POST'])
 def log_visit():
-    """مسار استقبال وحقن حركة دخول الزائر وتسجيل نظامه"""
+    """مسار رصد وحقن مستخدم جديد قادم للموقع"""
     global CENTRAL_ANALYTICS_DB
     data = request.get_json() or {}
     username = data.get('username', 'زائر مجهول').strip()
     user_agent = request.headers.get('User-Agent', 'غير معروف')
     
-    # التحقق مما إذا كان الزائر مسجلاً مسبقاً لتحديث بياناته أو إنشائه
     user_entry = next((item for item in CENTRAL_ANALYTICS_DB if item["username"] == username), None)
     
     if not user_entry:
@@ -33,11 +32,11 @@ def log_visit():
 
 @api_blueprint.route('/api/update_duration', methods=['POST'])
 def update_duration():
-    """تحديث الوقت المستغرق للزائر حياً في الموقع وفي الألعاب"""
+    """تحديث نبضات عداد بقاء المستخدم والمدد المستغرقة في الألعاب حياً"""
     global CENTRAL_ANALYTICS_DB
     data = request.get_json() or {}
     username = data.get('username', '').strip()
-    game_type = data.get('game', '') # snake أو tetris أو site
+    game_type = data.get('game', '')
     
     if username:
         user_entry = next((item for item in CENTRAL_ANALYTICS_DB if item["username"] == username), None)
@@ -53,7 +52,7 @@ def update_duration():
 
 @api_blueprint.route('/api/admin_get_all_data', methods=['GET'])
 def admin_get_all_data():
-    """تغذية لوحة الإدارة بكافة التحليلات والشكاوى المخزنة سحابياً"""
+    """تغذية لوحة الآدمن بالبيانات الحية فوراً"""
     return jsonify({
         "analytics": CENTRAL_ANALYTICS_DB,
         "reports": CENTRAL_COMPLAINTS_DB
@@ -61,7 +60,7 @@ def admin_get_all_data():
 
 @api_blueprint.route('/api/admin_clear_data', methods=['POST'])
 def admin_clear_data():
-    """مسح وتصفير الذاكرة السحابية بالكامل بطلب من الآدمن"""
+    """تصفير قاعدة البيانات السحابية المؤقتة"""
     global CENTRAL_ANALYTICS_DB, CENTRAL_COMPLAINTS_DB
     CENTRAL_ANALYTICS_DB = []
     CENTRAL_COMPLAINTS_DB = []
