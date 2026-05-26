@@ -68,7 +68,6 @@ SHOOTER_TEMPLATE = """
                 </div>
             </div>
             
-            <!-- 🕹️ تم تثبيت الاتجاه الطبيعي بالملّي: اليسار (◀) لليسار، واليمين (▶) لليمين كلياً دون إنعكاس -->
             <div class="control-pad">
                 <button class="ctrl-btn" 
                         ontouchstart="event.preventDefault(); handleButtonPress('L', true)" 
@@ -97,6 +96,8 @@ SHOOTER_TEMPLATE = """
         let player, lasers, enemyLasers, enemies, stars, meteors, particles, boss, score, currentStage, isGameOver = true, isPaused = false, gameInterval, musicInterval;
         let lastShotTime = 0, shotDelay = 200; 
         let controls = { left: false, right: false, fire: false };
+        // ✅ إضافة مفتاح التحول لمنع تكرار ظهور الزعيم في نفس المرحلة
+        let bossSpawnedInStage = false; 
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const bkgNotes = [110, 130.81, 147, 165];
@@ -111,7 +112,7 @@ SHOOTER_TEMPLATE = """
         function playSound(type) {
             if(isGameOver || audioCtx.state === 'suspended') return;
             const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination);
-            if(type==='shoot'){ o.type='square'; o.frequency.setValueAtTime(800, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime+0.05); g.gain.setValueAtTime(0.015, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.05); }
+            if(type==='shoot'){ o.type='square'; o.frequency.setValueAtTime(800, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime+0.05); g.gain.setValueAtTime(0.012, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.05); }
             else if(type==='hit'){ o.type='sawtooth'; o.frequency.setValueAtTime(180, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(30, audioCtx.currentTime+0.1); g.gain.setValueAtTime(0.04, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.1); }
             else if(type==='bossAlert'){ o.type='sawtooth'; o.frequency.setValueAtTime(220, audioCtx.currentTime); o.frequency.setValueAtTime(440, audioCtx.currentTime+0.15); g.gain.setValueAtTime(0.06, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.3); }
             else if(type==='lose'){ o.type='sawtooth'; o.frequency.setValueAtTime(130, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(20, audioCtx.currentTime+0.5); g.gain.setValueAtTime(0.15, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.5); }
@@ -138,6 +139,7 @@ SHOOTER_TEMPLATE = """
             document.getElementById('bossAlertText').style.display = 'none';
             player = { x: canvas.width / 2 - 18, y: canvas.height - 50, w: 36, h: 26, speed: 5.5, lives: 3, invulnerable: 0 };
             lasers = []; enemyLasers = []; enemies = []; particles = []; boss = null; score = 0; currentStage = 1; isGameOver = false; isPaused = false;
+            bossSpawnedInStage = false;
             
             stars = [];
             for(let i=0; i<35; i++) { stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, size: Math.random()*1.8, speed: Math.random()*1.2 + 0.3 }); }
@@ -232,11 +234,14 @@ SHOOTER_TEMPLATE = """
                 } 
             });
 
-            if (score >= 150 && !boss) {
+            // ✅ إصلاح قفل تكرار الزعيم: يُولد الزعيم فقط إذا بلغت نقاط المرحلة ولم يُولد بعد في هذه المرحلة
+            let targetBossScore = currentStage * 150;
+            if (score >= targetBossScore && !boss && !bossSpawnedInStage) {
                 document.getElementById('bossAlertText').style.display = 'block';
                 playSound('bossAlert');
                 boss = { x: canvas.width / 2 - 45, y: -60, w: 90, h: 35, speed: 1.5 + (currentStage * 0.3), direction: 1, hp: 8 + (currentStage * 4), maxHp: 8 + (currentStage * 4) };
                 enemies = []; 
+                bossSpawnedInStage = true; // قفل البناء للزعيم
             }
 
             if (boss) {
@@ -258,7 +263,9 @@ SHOOTER_TEMPLATE = """
                         
                         if(boss.hp <= 0) {
                             createExplosion(boss.x + boss.w/2, boss.y + boss.h/2, '#a371f7');
-                            score += 50; boss = null; currentStage++;
+                            score += 50; boss = null; 
+                            currentStage++; // الانتقال الفعلي والموثق للمرحلة التالية
+                            bossSpawnedInStage = false; // فتح قفل الزعيم للمرحلة القادمة الجديدة
                             document.getElementById('bossAlertText').style.display = 'none';
                             document.getElementById('scoreDisplay').innerText = "النقاط: " + score;
                             document.getElementById('stageDisplay').innerText = "المرحلة: " + currentStage + " 🌌";
@@ -267,10 +274,11 @@ SHOOTER_TEMPLATE = """
                     }
                 });
             } else {
-                if(Math.random() < 0.016 * (1 + currentStage*0.2) && enemies.length < 5) {
+                // الأعداء العاديون يهجمون فقط في غياب الزعيم
+                if(Math.random() < 0.016 * (1 + currentStage*0.25) && enemies.length < 5) {
                     let spawnX = Math.random() * (canvas.width - 26);
                     let overlapping = enemies.some(e => Math.abs(e.x - spawnX) < 32 && e.y < 40);
-                    if(!overlapping) enemies.push({ x: spawnX, y: -22, w: 26, h: 20, speed: 1.2 + (currentStage * 0.25) });
+                    if(!overlapping) enemies.push({ x: spawnX, y: -22, w: 26, h: 20, speed: 1.2 + (currentStage * 0.3) });
                 }
             }
 
