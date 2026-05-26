@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify, render_template_string, session, 
 
 admin_blueprint = Blueprint('admin', __name__)
 
-# 🔒 بيانات اعتماد لوحة الإدارة الحصينة
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
 
@@ -26,8 +25,11 @@ ADMIN_HTML = """
         
         .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-box { background: #0d1117; border: 1px solid #30363d; padding: 15px; border-radius: 8px; text-align: center; }
-        .stat-box h5 { margin: 0 0 8px 0; color: #8b949e; font-size: 13px; }
+        .stat-box h5 { margin: 0 0 6px 0; color: #8b949e; font-size: 13px; }
         .stat-box p { margin: 0; font-size: 22px; font-weight: bold; color: #58a6ff; }
+        
+        /* ⏱️ تنسيق مصغر وناعم ومضيء لعرض متوسط الاستخدام أسفل المدة الإجمالية مباشرة */
+        .sub-stat-label { display: block; font-size: 11px; font-weight: 500; color: #8b949e; margin-top: 5px; border-top: 1px dashed #21262d; padding-top: 4px; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #0d1117; border-radius: 8px; overflow: hidden; }
         th, td { padding: 12px 15px; text-align: right; border-bottom: 1px solid #30363d; font-size: 12.5px; }
@@ -60,9 +62,15 @@ ADMIN_HTML = """
 
         <div class="grid-stats">
             <div class="stat-box"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
-            <!-- 📈 إضافة الصندوق المتوهج الجديد لعرض إجمالي الزيارات التاريخية الشاملة بجانب عداد النشط -->
             <div class="stat-box" style="border-color: #d29922;"><h5 style="color: #ffd700;">إجمالي زيارات الموقع الكلية</h5><p id="historicalViews" style="color: #ffd700;">0</p></div>
-            <div class="stat-box"><h5>متوسط الوقت بالموقع</h5><p id="avgTime">0 ثانية</p></div>
+            
+            <!-- ✅ تعديل الخانة هندسياً: دمج مدة الاستخدام الإجمالية للموقع وتحتها بشكل مصغر متوسط استخدام الزائر المضيء -->
+            <div class="stat-box" style="border-color: #388bfd;">
+                <h5 style="color: #388bfd;">إجمالي مدة استخدام الموقع</h5>
+                <p id="totalUsageTime" style="color: #388bfd;">0 ثانية</p>
+                <span class="sub-stat-label" id="avgUsageTime">متوسط الاستخدام: 0 ثانية ⏱️</span>
+            </div>
+            
             <div class="stat-box"><h5>إجمالي بلاغات الصندوق</h5><p id="totalComplaints">0</p></div>
         </div>
         
@@ -98,9 +106,15 @@ ADMIN_HTML = """
                 document.getElementById('historicalViews').innerText = historicalCount;
                 document.getElementById('totalComplaints').innerText = complDB.length;
                 
+                // حساب مجموع المدد الزمنية الإجمالية لكافة المتصفحين حياً
                 let totalSeconds = 0;
                 db.forEach(item => { totalSeconds += (item.duration || 0); });
-                document.getElementById('avgTime').innerText = db.length > 0 ? Math.round(totalSeconds / db.length) + " ثانية" : "0 ثانية";
+                
+                // حقن إجمالي مدة استخدام الموقع حياً بالثواني
+                document.getElementById('totalUsageTime').innerText = totalSeconds + " ثانية";
+                // حقن متوسط استخدام الزائر المنفرد بشكل مصغر بالأسفل بدقة تامة
+                let avgCalc = db.length > 0 ? Math.round(totalSeconds / db.length) : 0;
+                document.getElementById('avgUsageTime').innerText = "متوسط الاستخدام: " + avgCalc + " ثانية ⏱️";
                 
                 let inboxHtml = "";
                 if(complDB.length === 0) {
@@ -146,7 +160,7 @@ ADMIN_HTML = """
             });
         }
         function clearLogsDatabase() {
-            if(confirm("هل أنت متأكد من تصفير ومسح كافة تحليلات الزوار وقاعدة البيانات من السيرفر؟")) {
+            if(confirm("هل أنت متأكد من تصفير ومسح سجل الحركة الفردي الحالي من السيرفر؟")) {
                 fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics());
             }
         }
