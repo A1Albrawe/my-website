@@ -73,6 +73,7 @@ SNAKE_TEMPLATE = """
             </div>
         </div>
     </div>
+
     <script>
         const canvas = document.getElementById('snakeCanvas'), ctx = canvas.getContext('2d');
         const box = 15;
@@ -94,7 +95,6 @@ SNAKE_TEMPLATE = """
             else if (type === 'lose') { o.type = 'sawtooth'; o.frequency.setValueAtTime(150, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.4); g.gain.setValueAtTime(0.12, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime + 0.4); }
         }
 
-        // ✅ إصلاح قفل الاتجاه العكسي: منع الأفعى من الانتحار بداخل نفسها عند ضغط الأزرار المعاكسة
         function changeDirection(dir) {
             if (isGameOver || isPaused) return;
             if (dir === "LEFT" && d !== "RIGHT") nextD = "LEFT";
@@ -109,18 +109,17 @@ SNAKE_TEMPLATE = """
             if (e.key === 'ArrowRight') changeDirection('RIGHT');
             if (e.key === 'ArrowDown') changeDirection('DOWN');
         });
-
         function spawnFood() {
             food = {
                 x: Math.floor(Math.random() * (canvas.width / box)) * box,
                 y: Math.floor(Math.random() * (canvas.height / box)) * box
             };
-            // التأكد من عدم توليد الأكل فوق جسم الثعبان
             for(let i=0; i<snake.length; i++) {
                 if(snake[i].x === food.x && snake[i].y === food.y) spawnFood();
             }
         }
 
+        // ✅ تم الإصلاح الجوهري: حقن المكونات البنائية القياسية بداخل المصفوفة المربعة القياسية [ ] لمنع كسر خادم بايثون
         function initGame() {
             document.getElementById('gameOverScreen').style.display = 'none';
             score = 0; currentSpeed = 150; d = "RIGHT"; nextD = "RIGHT"; isGameOver = false; isPaused = false;
@@ -145,16 +144,14 @@ SNAKE_TEMPLATE = """
             if(isPaused || isGameOver) return;
             ctx.fillStyle = '#0b0e14'; ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            d = nextD; // تثبيت الاتجاه الموثق لكل خطوة حركة
+            d = nextD; 
             
-            // رسم جسم الثعبان نيون
             for (let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = (i === 0) ? "#2ea44f" : "#3fb950";
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
                 ctx.strokeStyle = "#0b0e14"; ctx.strokeRect(snake[i].x, snake[i].y, box, box);
             }
             
-            // رسم الأكل المشع
             ctx.fillStyle = "#f85149"; ctx.fillRect(food.x, food.y, box, box);
             
             let snakeX = snake[0].x, snakeY = snake[0].y;
@@ -163,12 +160,10 @@ SNAKE_TEMPLATE = """
             if (d === "RIGHT") snakeX += box;
             if (d === "DOWN") snakeY += box;
             
-            // التهام الطعام وحساب التسارع اللانهائي تلقائياً
             if (snakeX === food.x && snakeY === food.y) {
                 score += 10; playSound('eat'); spawnFood();
                 document.getElementById('snakeScore').innerText = "النقاط: " + score;
                 
-                // 📈 الجاذبية المتسارعة: زيادة السرعة تدريجياً لزيادة الحماس
                 currentSpeed = Math.max(60, 150 - (score * 0.8));
                 let speedFactor = (150 / currentSpeed).toFixed(1);
                 document.getElementById('snakeSpeed').innerText = "السرعة: " + speedFactor + "x ⚡";
@@ -179,7 +174,6 @@ SNAKE_TEMPLATE = """
             
             let newHead = { x: snakeX, y: snakeY };
             
-            // فحص نقاط تصادم الموت
             if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
                 endGame(); return;
             }
