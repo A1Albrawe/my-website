@@ -1,5 +1,5 @@
 # 📝 عدل العناوين والنصوص من هنا مباشرة في السطور الأولى دون البحث في الأكواد!
-SCRIPTS_MAIN_TITLE = "مكتبة الأدوات و الاسكربتات"
+SCRIPTS_MAIN_TITLE = "مكتبة الأدوات والأتمتة"
 SCRIPTS_SUB_TEXT   = "يستعرض المحرك أدناه الأكواد المصدرية الداخلية للملف المرفوع بشكل مباشر وحي من السيرفر:"
 EMPTY_FOLDER_TEXT  = "المستودع فارغ حالياً! ارفع أي ملف أو تطبيق بايثون (.py) داخل مجلد static/my_scripts/ ليظهر كوده هنا فوراً."
 
@@ -22,6 +22,7 @@ def scripts_page():
                 file_path = os.path.join(folder_path, file_name)
                 script_count += 1
                 
+                # محاولة قراءة الكود الداخلي للملف لعرضه حياً للزوار
                 file_content = "تعذر قراءة محتوى هذا الملف النصي أو أنه ملف ثنائي مصمت."
                 try:
                     with open(file_path, 'r', encoding='utf-8') as f:
@@ -29,11 +30,12 @@ def scripts_page():
                 except Exception:
                     pass
                 
+                # بناء كروت السكريبتات وحقن المتغيرات الفردية بدون تضارب
                 scripts_html += f"""
                 <div class="script-card">
-                    <h4 class="script-title"><i class="fab fa-python"></i> ملف البرمجة: {{file_name}}</h4>
+                    <h4 class="script-title"><i class="fab fa-python"></i> ملف البرمجة: {file_name}</h4>
                     <p class="script-purpose">{SCRIPTS_SUB_TEXT}</p>
-                    <pre class="code-block"><code>{{file_content}}</code></pre>
+                    <pre class="code-block"><code>{file_content}</code></pre>
                 </div>
                 """
 
@@ -53,7 +55,7 @@ def scripts_page():
             .header-nav {{ background-color: #161b22; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #388bfd; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }}
             .menu-toggle {{ background: #21262d; border: 1px solid #30363d; color: #388bfd; font-size: 18px; cursor: pointer; padding: 6px 15px; border-radius: 6px; font-weight: bold; font-family: inherit; }}
             
-            /* ✨ تأثير النيون الموحد لاسم المطور للتوجيه الفوري للرئيسية */
+            /* ✨ تأثير النيون لاسم المطور للتوجيه الفوري للرئيسية */
             .brand-center-link {{ text-decoration: none; font-family: 'Courier New', Courier, monospace; font-size: 20px; font-weight: bold; color: #fff; text-shadow: 0 0 5px #388bfd, 0 0 10px #388bfd; transition: 0.2s; }}
             .brand-center-link:hover {{ text-shadow: 0 0 10px #fff, 0 0 20px #388bfd; }}
             
@@ -72,9 +74,8 @@ def scripts_page():
     <body>
         <div class="header-nav">
             <button class="menu-toggle" onclick="toggleSidebar(true)">☰ القائمة</button>
-            <!-- وتوسيط الاسم البرمجي الحركي -->
             <a href="/" class="brand-center-link">Albrawe</a>
-            <span style="font-weight:bold; color:#388bfd;">⚙️ الإسكربتات ({{script_count}})</span>
+            <span style="font-weight:bold; color:#388bfd;">⚙️ مكتبة الأدوات ({script_count})</span>
         </div>
         <div class="sidebar-curtain" id="sidebarCurtain">
             <button class="close-btn" onclick="toggleSidebar(false)">❌ إغلاق القائمة</button>
