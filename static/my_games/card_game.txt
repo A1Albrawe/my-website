@@ -2,4 +2,4 @@
 ----
 fas fa-bolt 
 ----
-#ff7b72
+#F5F5DC
