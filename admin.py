@@ -115,7 +115,7 @@ ADMIN_HTML = """
             }
         }
         fetchAndRenderAnalytics();
-        setInterval(fetchAndRenderAnalytics, 4000); // تحديث فوري تلقائي لرصد نبض الزوار كل 4 ثوانٍ حياً
+        setInterval(fetchAndRenderAnalytics, 4000); // تحديث دوري رصدي تلقائي كل 4 ثوانٍ
     </script>
 </body>
 </html>
