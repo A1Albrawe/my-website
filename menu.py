@@ -76,7 +76,7 @@ def generate_sidebar_html():
         <!-- 🎮 قائمة الألعاب المنسدلة المعزولة والشجرية -->
         <div class="dropdown-wrapper" style="margin: 4px 0;">
             <button class="dropdown-toggle-btn-clean" onclick="toggleGamesDropdown(event)">
-                <span><i class="fas fa-gamepad" style="margin-left: 8px;"></i> الألعاب الحالية (Games)</span>
+                <span><i class="fas fa-gamepad" style="margin-left: 8px;"></i>  (Games)</span>
                 <i class="fas fa-chevron-down" id="dropdownArrow" style="transition: 0.3s; font-size: 11px; color: #58a6ff;"></i>
             </button>
             <div class="dropdown-sub-menu-clean" id="gamesSubMenu">
@@ -86,7 +86,7 @@ def generate_sidebar_html():
         </div>
         
         <!-- 📂 أقسام القائمة الرئيسية المحدثة بتنسيق ناعم وشديد التناسق -->
-        <a href="/projects" class="menu-item-clean" style="color: #a371f7;"><i class="fas fa-project-diagram"></i> معرض المشاريع البرمجية</a>
+        <a href="/projects" class="menu-item-clean" style="color: #a371f7;"><i class="fas fa-project-diagram"></i> معرض المشاريع </a>
         <a href="/about" class="menu-item-clean" style="color: #ff7b72;"><i class="fas fa-user-shield"></i> من نحن (About us)</a>
         <a href="/scripts" class="menu-item-clean" style="color: #388bfd;"><i class="fab fa-python"></i> إسكربتات بايثون</a>
         
@@ -95,7 +95,7 @@ def generate_sidebar_html():
         
         <!-- 🛠️ الروابط الفرعية والدعم -->
         <a href="/maintenance" class="menu-item-clean" style="color: #f85149; font-size: 13px; opacity: 0.8;"><i class="fas fa-tools"></i> الإبلاغ عن مشكلة (صيانة)</a>
-        <a href="https://t.me" target="_blank" class="menu-item-clean" style="color: #58a6ff; font-size: 13px;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام</a>
+        <a href="https://t.me/I_Albrawe" target="_blank" class="menu-item-clean" style="color: #58a6ff; font-size: 13px;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام</a>
     </div>
     
     <script>
