@@ -1,10 +1,10 @@
-from flask import Flask, request, response, render_template_string
+from flask import Flask, request, render_template_string
 from home import home_blueprint
 from report import report_blueprint
 from admin import admin_blueprint
 from api import api_blueprint
 
-# استدعاء حزمة الألعاب الخمسة المجمعة والصفحات المستقلة
+# استدعاء حزمة الألعاب الخمسة المجمعة والصفحات المستقلة من مجلداتها
 from games_package.snake import snake_blueprint
 from games_package.tetris import tetris_blueprint
 from games_package.xo import xo_blueprint
@@ -17,18 +17,20 @@ from scripts import scripts_blueprint
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
-# تسجيل كافة صفحات وأدوات وألعاب خادم الموقع بالسيرفر المركزي
+# تسجيل جميع حزم الـ Blueprints لصفحات وأدوات خادم النظام المركزي
 app.register_blueprint(home_blueprint)
 app.register_blueprint(report_blueprint)
 app.register_blueprint(admin_blueprint)
 app.register_blueprint(api_blueprint)
 
+# تسجيل ألعاب مجلد حزمة الألعاب (games_package)
 app.register_blueprint(snake_blueprint)
 app.register_blueprint(tetris_blueprint)
 app.register_blueprint(xo_blueprint)
 app.register_blueprint(shooter_blueprint)
 app.register_blueprint(clicker_blueprint)
 
+# تسجيل مسارات صفحات الجذر المستقلة لتعديل نصوصها بحرية
 app.register_blueprint(projects_blueprint)
 app.register_blueprint(about_blueprint)
 app.register_blueprint(scripts_blueprint)
