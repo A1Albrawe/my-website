@@ -16,7 +16,7 @@ ADMIN_HTML = """
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { font-family: 'Courier New', Courier, monospace; background: #0d1117; color: #c9d1d9; padding: 20px; margin: 0; }
-        .container { max-width: 1100px; margin: 0 auto; }
+        .container { max-width: 1200px; margin: 0 auto; }
         .main-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #58a6ff; padding-bottom: 15px; margin-bottom: 25px; }
         .logout-btn { background: #f85149; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-family: inherit; }
         .analytics-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
@@ -24,13 +24,18 @@ ADMIN_HTML = """
         .stat-box { background: #0d1117; border: 1px solid #30363d; padding: 15px; border-radius: 8px; text-align: center; }
         .stat-box h5 { margin: 0 0 8px 0; color: #8b949e; font-size: 13px; }
         .stat-box p { margin: 0; font-size: 22px; font-weight: bold; color: #58a6ff; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #0d1117; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px 15px; text-align: right; border-bottom: 1px solid #30363d; font-size: 13px; }
+        th, td { padding: 12px 15px; text-align: right; border-bottom: 1px solid #30363d; font-size: 12.5px; }
         th { background-color: #21262d; color: #79c0ff; font-weight: bold; }
         tr:hover { background-color: rgba(88, 166, 255, 0.03); }
+        
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #fff; }
         .bg-android { background: #3fb950; } .bg-iphone { background: #ffd700; color: #000; } .bg-windows { background: #1f6feb; }
-        .report-txt { background: rgba(248, 81, 73, 0.1); border-right: 3px solid #f85149; padding: 6px; margin: 4px 0; border-radius: 0 4px 4px 0; font-size: 12px; }
+        
+        /* تنسيق كتل عرض مدد الألعاب الخماسية الملونة داخل الجدول */
+        .game-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.04); border: 1px solid #30363d; }
+        .report-txt { background: rgba(248, 81, 73, 0.1); border-right: 3px solid #f85149; padding: 8px; margin: 6px 0; border-radius: 0 6px 6px 0; font-size: 12px; line-height: 1.5; color: #ff7b72; }
         .clear-db-btn { background: #d29922; color: #000; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; }
     </style>
 </head>
@@ -46,10 +51,10 @@ ADMIN_HTML = """
         <div class="grid-stats">
             <div class="stat-box"><h5>إجمالي الزيارات النشطة</h5><p id="totalViews">0</p></div>
             <div class="stat-box"><h5>متوسط الوقت بالموقع</h5><p id="avgTime">0 ثانية</p></div>
-            <div class="stat-box"><h5>إجمالي الشكاوى النشطة</h5><p id="totalComplaints">0</p></div>
+            <div class="stat-box"><h5>إجمالي البلاغات والشكاوى</h5><p id="totalComplaints">0</p></div>
         </div>
         <div class="analytics-card">
-            <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:8px;">👥 سجل حركة بيانات المستخدمين بالتفصيل</h3>
+            <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:8px;">👥 سجل حركة بيانات المستخدمين والبلاغات بالتفصيل</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -58,8 +63,8 @@ ADMIN_HTML = """
                             <th>نوع الهاتف / المتصفح</th>
                             <th>وقت الدخول</th>
                             <th>الوقت المستغرق</th>
-                            <th>مدة الألعاب (ثعبان / تترس)</th>
-                            <th>الشكاوى والبلاغات المرسلة</th>
+                            <th>سجل العدادات الخماسية للألعاب 🎮</th>
+                            <th>الشكاوى والبلاغات السحابية المرسلة</th>
                         </tr>
                     </thead>
                     <tbody id="logsTableBody"></tbody>
@@ -88,13 +93,24 @@ ADMIN_HTML = """
                         let ua = (user.userAgent || "").toLowerCase();
                         if(ua.includes('android')) deviceBadge = '<span class="badge bg-android">Android 📱</span>';
                         else if(ua.includes('iphone') || ua.includes('ipad')) deviceBadge = '<span class="badge bg-iphone">iPhone 🍏</span>';
+                        
+                        // جلب الشكاوى الفنية الموجهة عبر الويب لهذا المستخدم بالتحديد
                         let userComplaints = complDB.filter(c => (c.user || "").toLowerCase() === (user.username || "").toLowerCase());
-                        let complHtml = '<span style="color:#8b949e;">لا يوجد</span>';
+                        let complHtml = '<span style="color:#8b949e;">لا يوجد بلاغات</span>';
                         if(userComplaints.length > 0) {
                             complHtml = "";
-                            userComplaints.forEach(c => { complHtml += `<div class="report-txt">⚠️ [${c.date}]: ${c.details}</div>`; });
+                            userComplaints.forEach(c => { complHtml += `<div class="report-txt"><i class="fas fa-exclamation-triangle"></i> [${c.date}]: ${c.details}</div>`; });
                         }
-                        let gameDuration = `🐍 ${user.snakeTime || 0}ث | 🧱 ${user.tetrisTime || 0}ث`;
+                        
+                        // تجميع وعرض سجل العدادات الخمسة المطور للألعاب بالكامل
+                        let gameDuration = `
+                            <div class="game-tag" style="color:#3fb950;"><i class="fas fa-dragon"></i> ثعبان: ${user.snakeTime || 0}ث</div>
+                            <div class="game-tag" style="color:#d29922;"><i class="fas fa-cubes"></i> تترس: ${user.tetrisTime || 0}ث</div>
+                            <div class="game-tag" style="color:#a371f7;"><i class="fas fa-times-circle"></i> X-O: ${user.xoTime || 0}ث</div>
+                            <div class="game-tag" style="color:#388bfd;"><i class="fas fa-space-shuttle"></i> فضاء: ${user.shooterTime || 0}ث</div>
+                            <div class="game-tag" style="color:#ff7b72;"><i class="fas fa-bolt"></i> نيون: ${user.clickerTime || 0}ث</div>
+                        `;
+                        
                         html += `<tr>
                             <td style="font-weight:bold; color:#fff;">${user.username}</td>
                             <td>${deviceBadge}</td>
@@ -114,7 +130,7 @@ ADMIN_HTML = """
             }
         }
         fetchAndRenderAnalytics();
-        setInterval(fetchAndRenderAnalytics, 4000); // رصد نبض حركات الزوار كل 4 ثوانٍ
+        setInterval(fetchAndRenderAnalytics, 4000); // تحديث دوري ذكي لرصد الشكاوى والعدادات كل 4 ثوانٍ
     </script>
 </body>
 </html>
@@ -154,7 +170,6 @@ LOGIN_HTML = """
 </html>
 """
 
-# ✅ حصر وتثبيت المسار الحصري والوحيد المفتوح للآدمن كاملاً لحمايته ومنع أي مسارات عامة أخرى
 @admin_blueprint.route('/albrawe-secure-panel-2026', methods=['GET', 'POST'])
 def admin_page():
     if request.method == 'POST':
@@ -165,12 +180,10 @@ def admin_page():
             return render_template_string(ADMIN_HTML)
         else:
             return render_template_string(LOGIN_HTML + "<script>alert('❌ خطأ فادح: بيانات الاعتماد غير صحيحة!');</script>")
-            
     if session.get('admin_logged_in'):
         return render_template_string(ADMIN_HTML)
     return render_template_string(LOGIN_HTML)
 
-# توجيه الخروج الآمن ليعود لنفس الرابط التكتيكي المغلق
 @admin_blueprint.route('/albrawe-admin/logout')
 def admin_logout():
     session.pop('admin_logged_in', None)
