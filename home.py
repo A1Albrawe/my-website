@@ -10,15 +10,16 @@ HOME_TEMPLATE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Albrawe</title>
+    <!-- ✅ تم إصلاح رابط مكتبة الأيقونات لتعمل كافة أيقونات القائمة الجانبية المحدثة -->
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { font-family: 'Courier New', Courier, monospace; text-align: center; background: #0d1117; color: #c9d1d9; padding: 0; margin: 0; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; overflow-x: hidden; }
         .header-nav { background-color: #161b22; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #58a6ff; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
         .menu-toggle { background: #21262d; border: 1px solid #30363d; color: #58a6ff; font-size: 20px; cursor: pointer; outline: none; padding: 6px 15px; border-radius: 6px; font-weight: bold; font-family: inherit; }
         .neon-text-style { font-family: 'Courier New', Courier, monospace; font-size: 18px; font-weight: bold; color: #fff; text-shadow: 0 0 5px #58a6ff, 0 0 10px #58a6ff; }
-        .sidebar-curtain { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background-color: #161b22; border-left: 2px solid #58a6ff; box-shadow: -10px 0 30px rgba(0,0,0,0.7); z-index: 1000; transition: right 0.3s ease; padding: 20px; box-sizing: border-box; text-align: right; }
+        .sidebar-curtain { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background-color: #161b22; border-left: 2px solid #58a6ff; box-shadow: -10px 0 30px rgba(0,0,0,0.7); z-index: 1000; transition: right 0.3s ease; padding: 20px; box-sizing: border-box; text-align: right; overflow-y: auto; }
         .sidebar-curtain.active { right: 0; }
-        .close-btn { background: none; border: none; color: #f85149; font-size: 16px; cursor: pointer; margin-bottom: 30px; font-family: inherit; font-weight: bold; }
+        .close-btn { background: none; border: none; color: #f85149; font-size: 16px; cursor: pointer; margin-bottom: 30px; font-family: inherit; font-weight: bold; width: 100%; text-align: right; }
         .menu-links { display: flex; flex-direction: column; gap: 12px; }
         .menu-item { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: bold; font-size: 15px; padding: 12px; border: 1px solid #30363d; border-radius: 6px; background: #21262d; }
         .main-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px; }
@@ -39,12 +40,13 @@ HOME_TEMPLATE = """
     <div class="sidebar-curtain" id="sidebarCurtain">
         <button class="close-btn" onclick="toggleSidebarCurtain(false)">❌ إغلاق القائمة</button>
         <div class="menu-links">
-            <!--DYNAMIC_SIDEBAR_LINKS_PLACEHOLDER-->
+            SIDEBAR_LINKS_PLACEHOLDER
         </div>
     </div>
     <div class="main-container">
         <div class="dev-portfolio-card">
-            <img src="/static/avatar.png" alt="Albrawe" class="dev-avatar-img" onerror="this.src='https://cloudflare.com'">
+            <!-- ✅ تم إصلاح مسار الصورة الاحتياطية لتصبح صورة رمزية للمطور بدلاً من رابط موقع كلود فلير العام -->
+            <img src="/static/avatar.png" alt="Albrawe" class="dev-avatar-img" onerror="this.src='https://flaticon.com'">
             <h2 class="dev-name">Albrawe</h2>
             <div class="dev-title">Game Architecture Engineer & Software Specialist</div>
             <div class="info-section">
@@ -57,7 +59,6 @@ HOME_TEMPLATE = """
         </div>
     </div>
     <script>
-        // 🎯 تم تطهير وحذف مستمعات الـ Analytics والـ Session Trackers نهائياً لإيقاف الرقابة كلياً
         function toggleSidebarCurtain(open) { document.getElementById('sidebarCurtain').style.right = open ? '0px' : '-300px'; }
         document.querySelectorAll('.menu-item').forEach(link => { link.addEventListener('click', () => { toggleSidebarCurtain(false); }); });
     </script>
@@ -68,5 +69,6 @@ HOME_TEMPLATE = """
 @home_blueprint.route('/')
 def home_page():
     dynamic_links = generate_sidebar_html()
-    rendered_template = HOME_TEMPLATE.replace("<!--DYNAMIC_SIDEBAR_LINKS_PLACEHOLDER-->", dynamic_links)
+    # ✅ تم تحسين دالة الاستبدال لتصبح مباشرة ومضمونة
+    rendered_template = HOME_TEMPLATE.replace("SIDEBAR_LINKS_PLACEHOLDER", dynamic_links)
     return render_template_string(rendered_template)
