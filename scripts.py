@@ -1,3 +1,8 @@
+# 📝 عدل العناوين والنصوص من هنا مباشرة في السطور الأولى دون البحث في الأكواد!
+SCRIPTS_MAIN_TITLE = "مكتبة الأدوات والأتمتة"
+SCRIPTS_SUB_TEXT   = "يستعرض المحرك أدناه الأكواد المصدرية الداخلية للملف المرفوع بشكل مباشر وحي من السيرفر:"
+EMPTY_FOLDER_TEXT  = "المستودع فارغ حالياً! ارفع أي ملف أو تطبيق بايثون (.py) داخل مجلد static/my_scripts/ ليظهر كوده هنا فوراً."
+
 import os
 from flask import Blueprint, render_template_string
 from menu import generate_sidebar_html
@@ -17,7 +22,7 @@ def scripts_page():
                 file_path = os.path.join(folder_path, file_name)
                 script_count += 1
                 
-                # قراءة الكود الداخلي للملف لعرضه حياً للزوار
+                # محاولة قراءة الكود الداخلي للملف لعرضه حياً للزوار
                 file_content = "تعذر قراءة محتوى هذا الملف النصي أو أنه ملف ثنائي مصمت."
                 try:
                     with open(file_path, 'r', encoding='utf-8') as f:
@@ -28,13 +33,13 @@ def scripts_page():
                 scripts_html += f"""
                 <div class="script-card">
                     <h4 class="script-title"><i class="fab fa-python"></i> ملف البرمجة: {file_name}</h4>
-                    <p class="script-purpose">يستعرض المحرك أدناه الأكواد المصدرية الداخلية للملف المرفوع بشكل مباشر وحي من السيرفر:</p>
+                    <p class="script-purpose">{SCRIPTS_SUB_TEXT}</p>
                     <pre class="code-block"><code>{file_content}</code></pre>
                 </div>
                 """
 
     if not scripts_html:
-        scripts_html = '<p style="text-align:center; color:#8b949e;">لا توجد أدوات! ارفع ملفات بايثون (.py) داخل static/my_scripts/ لتستعرض أكوادها هنا.</p>'
+        scripts_html = f'<p style="text-align:center; color:#8b949e; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; width: 100%; max-width: 650px; box-sizing: border-box; font-size: 13.5px; line-height: 1.6;">{EMPTY_FOLDER_TEXT}</p>'
 
     html = f"""
     <!DOCTYPE html>
@@ -53,8 +58,9 @@ def scripts_page():
             .close-btn {{ background: none; border: none; color: #f85149; font-size: 16px; cursor: pointer; margin-bottom: 30px; font-family: inherit; font-weight: bold; width: 100%; text-align: right; }}
             .menu-links {{ display: flex; flex-direction: column; gap: 12px; }}
             .main-container {{ flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 25px; }}
+            .main-card-title {{ background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px 25px; width: 100%; max-width: 650px; box-sizing: border-box; text-align: right; color: #f0f6fc; margin: 0; font-size: 18px; }}
             .script-card {{ background: #161b22; border: 1px solid #30363d; border-top: 4px solid #388bfd; border-radius: 12px; padding: 25px; max-width: 650px; width: 100%; text-align: right; box-shadow: 0 10px 20px rgba(0,0,0,0.4); box-sizing: border-box; }}
-            .script-title {{ margin: 0 0 10px 0; color: #f0f6fc; font-size: 16px; font-family: monospace; direction: ltr; text-align: right; }}
+            .script-title {{ margin: 0 0 10px 0; color: #58a6ff; font-size: 16px; font-family: monospace; direction: ltr; text-align: right; }}
             .script-purpose {{ line-height: 1.6; font-size: 13.5px; color: #8b949e; margin: 0 0 15px 0; }}
             .code-block {{ background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 15px; font-family: 'Consolas', monospace; font-size: 13px; color: #79c0ff; overflow-x: auto; text-align: left; direction: ltr; margin: 0; }}
         </style>
@@ -62,13 +68,14 @@ def scripts_page():
     <body>
         <div class="header-nav">
             <button class="menu-toggle" onclick="toggleSidebar(true)">☰ القائمة</button>
-            <span style="color:#fff; font-weight:bold;">⚙️ شاشة عرض الأكواد الحية ({script_count})</span>
+            <span style="color:#fff; font-weight:bold;">⚙️ مكتبة الأدوات ({script_count})</span>
         </div>
         <div class="sidebar-curtain" id="sidebarCurtain">
             <button class="close-btn" onclick="toggleSidebar(false)">❌ إغلاق القائمة</button>
             <div class="menu-links">{dynamic_links}</div>
         </div>
         <div class="main-container">
+            <h3 class="main-card-title"><i class="fas fa-terminal" style="color: #388bfd; margin-left: 8px;"></i> {SCRIPTS_MAIN_TITLE}</h3>
             {scripts_html}
         </div>
         <script>
