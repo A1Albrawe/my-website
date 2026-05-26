@@ -32,7 +32,6 @@ SHOOTER_TEMPLATE = """
         
         .overlay-txt { display: none; position: absolute; font-size: 20px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(13, 17, 23, 0.98); border: 2px solid #388bfd; padding: 25px; border-radius: 14px; text-align: center; width: 88%; box-shadow: 0 0 30px #388bfd; box-sizing: border-box; z-index: 5; }
         
-        /* 🕹️ أزرار القيادة الكلاسيكية الكبيرة مع تباعد هندسي ممتاز يمنع تعليق التاتش */
         .control-pad { margin-top: 15px; display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 12px; width: 100%; }
         .ctrl-btn { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 15px; font-size: 22px; color: #388bfd; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: none; box-shadow: 0 4px #05070b; }
         .ctrl-btn:active { transform: translateY(2px); box-shadow: 0 2px #05070b; }
@@ -42,7 +41,6 @@ SHOOTER_TEMPLATE = """
         .pause-action-btn { grid-column: span 3; background: #161b22; border: 1px solid #8b949e; color: #8b949e; font-size: 13px; font-weight: bold; border-radius: 10px; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; font-family: inherit; touch-action: none; }
     </style>
 </head>
-"""
 <body>
     <div class="header-nav">
         <a href="/" class="back-btn">◀ الرئيسة</a>
@@ -70,7 +68,7 @@ SHOOTER_TEMPLATE = """
                 </div>
             </div>
             
-            <!-- 🕹️ تصحيح اتجاه الأزرار المعكوسة بالملّي: زر اليسار (◀) في اليسار وزر اليمين (▶) في اليمين -->
+            <!-- 🕹️ تم تثبيت الاتجاه الطبيعي بالملّي: اليسار (◀) لليسار، واليمين (▶) لليمين كلياً -->
             <div class="control-pad">
                 <button class="ctrl-btn" 
                         ontouchstart="event.preventDefault(); handleButtonPress('L', true)" 
@@ -105,8 +103,8 @@ SHOOTER_TEMPLATE = """
 
         function handleButtonPress(btn, isPressed) {
             if(isPressed && audioCtx.state === 'suspended') audioCtx.resume();
-            if (btn === 'L') controls.left = isPressed; // حماية وربط حركة اليسار المصلحة
-            if (btn === 'R') controls.right = isPressed; // حماية وربط حركة اليمين المصلحة
+            if (btn === 'L') controls.left = isPressed; 
+            if (btn === 'R') controls.right = isPressed; 
             if (btn === 'F') controls.fire = isPressed;
         }
 
@@ -138,7 +136,6 @@ SHOOTER_TEMPLATE = """
         function startGame() {
             document.getElementById('gameOverScreen').style.display = 'none';
             document.getElementById('bossAlertText').style.display = 'none';
-            // ✅ ترقية حياة اللاعب إلى 3 قلوب بدلاً من الخسارة المباشرة من أول لمسة
             player = { x: canvas.width / 2 - 18, y: canvas.height - 50, w: 36, h: 26, speed: 5.5, lives: 3, invulnerable: 0 };
             lasers = []; enemyLasers = []; enemies = []; particles = []; boss = null; score = 0; currentStage = 1; isGameOver = false; isPaused = false;
             
@@ -172,7 +169,7 @@ SHOOTER_TEMPLATE = """
         function togglePause() { if(isGameOver) return; isPaused = !isPaused; document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none'; }
 
         function drawClassicPlayer(x, y, w, h) {
-            if (player.invulnerable > 0 && Math.floor(Date.now() / 100) % 2 === 0) return; // ومضة الحماية عند الضرر
+            if (player.invulnerable > 0 && Math.floor(Date.now() / 100) % 2 === 0) return; 
             ctx.fillStyle = '#388bfd'; ctx.beginPath();
             ctx.moveTo(x + w/2, y); ctx.lineTo(x, y + h); ctx.lineTo(x + w/2, y + h - 6); ctx.lineTo(x + w, y + h); ctx.closePath(); ctx.fill();
             ctx.fillStyle = '#58a6ff'; ctx.fillRect(x + w/2 - 2, y + 4, 4, 12);
@@ -197,7 +194,7 @@ SHOOTER_TEMPLATE = """
             player.lives--;
             updateLivesDisplay();
             playSound('hit');
-            if (player.lives <= 0) { endGame(); } else { player.invulnerable = 90; } // 1.5 ثانية حصانة وميضية
+            if (player.lives <= 0) { endGame(); } else { player.invulnerable = 90; } 
         }
 
         function gameLoop() {
@@ -206,15 +203,12 @@ SHOOTER_TEMPLATE = """
             
             if (player.invulnerable > 0) player.invulnerable--;
             
-            // نجوم الفلفلة الخلفية السينمائية
             ctx.fillStyle = 'rgba(255,255,255,0.4)';
             stars.forEach(s => { s.y += s.speed; if(s.y > canvas.height) s.y = 0; ctx.fillRect(s.x, s.y, s.size, s.size); });
             
-            // ✅ تجسيد الشهب الكروية الصخرية ذات اللون الداكن لتظهر كفضاء كلاسيكي احترافي
             ctx.fillStyle = '#1c2128';
             meteors.forEach(m => { m.y += m.speed; if(m.y > canvas.height) { m.y = -50; m.x = Math.random()*canvas.width; } ctx.beginPath(); ctx.arc(m.x, m.y, m.size, 0, Math.PI*2); ctx.fill(); });
 
-            // حركة الأزرار المصلحة:controls.left ينقل يساراً و right ينقل يميناً بدقة مطلقة
             if(controls.left) player.x = Math.max(0, player.x - player.speed);
             if(controls.right) player.x = Math.min(canvas.width - player.w, player.x + player.speed);
             drawClassicPlayer(player.x, player.y, player.w, player.h);
@@ -230,7 +224,6 @@ SHOOTER_TEMPLATE = """
 
             lasers.forEach((l, li) => { l.y -= 8; ctx.fillStyle = '#ffd700'; ctx.fillRect(l.x, l.y, l.w, l.h); if(l.y < 0) lasers.splice(li, 1); });
             
-            // تحديث مقذوفات ليزر الأعداء والزعيم وفحص تصادمها مع قلب اللاعب
             enemyLasers.forEach((el, eli) => { 
                 el.y += 5.5; ctx.fillStyle = '#ff7b72'; ctx.fillRect(el.x, el.y, el.w, el.h); 
                 if(el.y > canvas.height) enemyLasers.splice(eli, 1); 
@@ -239,7 +232,6 @@ SHOOTER_TEMPLATE = """
                 } 
             });
 
-            // 👑 موازنة اللعبة والزعيم الأكبر: يتطلب بلوغ 150 نقطة بدلاً من السهولة السابقة
             if (score >= 150 && !boss) {
                 document.getElementById('bossAlertText').style.display = 'block';
                 playSound('bossAlert');
