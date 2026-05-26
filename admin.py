@@ -50,10 +50,11 @@ ADMIN_HTML = """
         .time-badge { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(88,166,255,0.15); font-family: monospace; }
         .games-total-badge { color: #3fb950; font-weight: bold; background: rgba(63,185,80,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(63,185,80,0.15); font-family: monospace; }
         
+        /* 🎮 لوحة عدادات الألعاب الستة المضاءة نيون بداخل كل بطاقة زائر للتفرقة والفرز البياني */
         .games-dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; background: #161b22; padding: 8px; border-radius: 6px; border: 1px solid #21262d; margin-top: 4px; }
         .mini-game-tag { font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; padding: 3px 5px; background: #0d1117; border-radius: 4px; border: 1px solid #30363d; font-family: monospace; }
         
-        .clear-db-btn { background: #21262d; border: 1px solid #d29922; color: #d29922; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; transition: 0.2s; }
+        .clear-db-btn { background: #21262d; border: 1px solid #d29922; color: #d29922; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; transition: 0.2s; white-space: nowrap; }
         .clear-db-btn:hover { background: #d29922; color: #000; }
     </style>
 </head>
@@ -105,6 +106,7 @@ ADMIN_HTML = """
                         else if (liveUser.xoTime > 0) currentStep = 'لعبة X-O ❌';
                         else if (liveUser.shooterTime > 0) currentStep = 'قاصف الفضاء 🚀';
                         else if (liveUser.clickerTime > 0) currentStep = 'تحدي النقر ⚡';
+                        else if (liveUser.cardTime > 0) currentStep = 'لعبة البطاقات 🃏';
                         
                         let historyArray = archiveDB[existingIndex].browsingHistory || ["الرئيسية 🏠"];
                         if (historyArray[historyArray.length - 1] !== currentStep) {
@@ -143,8 +145,8 @@ ADMIN_HTML = """
                 let cardsHtml = "";
                 if(archiveDB.length === 0) { cardsHtml = '<p style="grid-column: 1/-1; text-align:center; color:#8b949e; padding:20px;">لا توجد سجلات مستخدمين مؤرشفة حتى الآن.</p>'; } else {
                     archiveDB.slice().reverse().forEach(user => {
-                        let snake = user.snakeTime || 0; let tetris = user.tetrisTime || 0; let xo = user.xoTime || 0; let shooter = user.shooterTime || 0; let clicker = user.clickerTime || 0;
-                        let totalGamesSeconds = snake + tetris + xo + shooter + clicker;
+                        let snake = user.snakeTime || 0; let tetris = user.tetrisTime || 0; let xo = user.xoTime || 0; let shooter = user.shooterTime || 0; let clicker = user.clickerTime || 0; let card = user.cardTime || 0;
+                        let totalGamesSeconds = snake + tetris + xo + shooter + clicker + card;
                         let currentLoc = user.location || "القاهرة - مصر";
                         let countryCode = "eg"; 
                         let locLower = currentLoc.toLowerCase();
@@ -170,7 +172,8 @@ ADMIN_HTML = """
                                 '<div class="mini-game-tag" style="color:#d29922;"><span>🧱 تترس</span><span>' + tetris + 'ث</span></div>' +
                                 '<div class="mini-game-tag" style="color:#a371f7;"><span>❌ X-O</span><span>' + xo + 'ث</span></div>' +
                                 '<div class="mini-game-tag" style="color:#388bfd;"><span>🚀 فضاء</span><span>' + shooter + 'ث</span></div>' +
-                                '<div class="mini-game-tag" style="color:#ff7b72; grid-column:span 2;"><span>⚡ نيون النقر</span><span>' + clicker + 'ث</span></div>' +
+                                '<div class="mini-game-tag" style="color:#ff7b72;"><span>⚡ نقر</span><span>' + clicker + 'ث</span></div>' +
+                                '<div class="mini-game-tag" style="color:#58a6ff;"><span>🃏 بطاقات</span><span>' + card + 'ث</span></div>' +
                             '</div>' +
                         '</div>';
                     });
