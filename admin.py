@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify, render_template_string, session, 
 
 admin_blueprint = Blueprint('admin', __name__)
 
-# 🔒 بيانات اعتماد لوحة الإدارة المحصنة (تعدل من هنا بأي وقت)
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
 
@@ -40,7 +39,7 @@ ADMIN_HTML = """
         .loc-tag { color: #3fb950; font-weight: bold; }
         .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,215,0,0.2); }
         
-        .game-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.02); border: 1px solid #30363d; }
+        .game-tag { inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.02); border: 1px solid #30363d; }
         .report-txt { background: #211b1b; border-right: 4px solid #f85149; padding: 12px; margin: 2px 0; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.5; color: #ff7b72; display: flex; justify-content: space-between; align-items: center; }
         .clear-db-btn { background: #d29922; color: #000; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; }
     </style>
@@ -117,7 +116,6 @@ ADMIN_HTML = """
                     inboxHtml = '<p style="color:#8b949e; font-size:13px; text-align:center; margin:10px 0;">الصندوق نظيف كلياً؛ لا توجد أي شكاوى مرفوعة حالياً من زوار الويب. ✨</p>';
                 } else {
                     complDB.forEach(c => {
-                        // ✅ تم الإصلاح الفني الحاسم: إضافة الهروب المائل لمنع تضارب بايثون مع الـ JavaScript المتغير في الصورة
                         inboxHtml += `
                         <div class="report-txt">
                             <span><i class="fas fa-user" style="color:#8b949e; margin-left:6px;"></i> <strong>\${c.user}</strong>: \${c.details}</span>
