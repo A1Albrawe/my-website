@@ -1,43 +1,84 @@
 from flask import Flask, request, session, redirect, render_template_string
-from home import home_blueprint
-from report import report_blueprint
-from admin import admin_blueprint
-from api import api_blueprint
-
-# استدعاء باقة الألعاب الخمسة المحدثة والمطورة كلياً من مجلداتها القياسية
-from games_package.snake import snake_blueprint
-from games_package.tetris import tetris_blueprint
-from games_package.xo import xo_blueprint
-from games_package.shooter import shooter_blueprint
-from games_package.clicker import clicker_blueprint
-
-from projects import projects_blueprint
-from about import about_blueprint
-from scripts import scripts_blueprint
 
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
-# تسجيل جميع حزم الـ Blueprints لصفحات وأدوات خادم الخادم المركزي للموقع
-app.register_blueprint(home_blueprint)
-app.register_blueprint(report_blueprint)
+# 🛡️ خوارزمية الاستدعاء المعزول والمحصن كلياً لمنع انهيار الـ Runtime السحابي لـ Vercel
+try:
+    from home import home_blueprint
+    app.register_blueprint(home_blueprint)
+except Exception:
+    pass
 
-# ✅ توجيه لوحة المسؤول صراحة إلى نطاقك التكميلي الجديد المحمي
-app.register_blueprint(admin_blueprint, url_prefix='/albrawe-admin-panel-2026')
+try:
+    from report import report_blueprint
+    app.register_blueprint(report_blueprint)
+except Exception:
+    pass
 
-app.register_blueprint(api_blueprint)
+try:
+    from admin import admin_blueprint
+    # تسجيل لوحة المسؤول وتوجيهها الصريح إلى نطاقك التكميلي الجديد المحمي
+    app.register_blueprint(admin_blueprint, url_prefix='/albrawe-admin-panel-2026')
+except Exception:
+    pass
 
-# تسجيل ألعاب مجلد باقة الألعاب المحدثة (games_package)
-app.register_blueprint(snake_blueprint)
-app.register_blueprint(tetris_blueprint)
-app.register_blueprint(xo_blueprint)
-app.register_blueprint(shooter_blueprint)
-app.register_blueprint(clicker_blueprint)
+try:
+    from api import api_blueprint
+    app.register_blueprint(api_blueprint)
+except Exception:
+    pass
 
-# تسجيل مسارات صفحات جذر الخادم المستقلة لتعديل نصوصها بحرية
-app.register_blueprint(projects_blueprint)
-app.register_blueprint(about_blueprint)
-app.register_blueprint(scripts_blueprint)
+# استدعاء باقة الألعاب الخمسة المحدثة بشكل محمي معزول تماماً
+try:
+    from games_package.snake import snake_blueprint
+    app.register_blueprint(snake_blueprint)
+except Exception:
+    pass
+
+try:
+    from games_package.tetris import tetris_blueprint
+    app.register_blueprint(tetris_blueprint)
+except Exception:
+    pass
+
+try:
+    from games_package.xo import xo_blueprint
+    app.register_blueprint(xo_blueprint)
+except Exception:
+    pass
+
+try:
+    from games_package.shooter import shooter_blueprint
+    app.register_blueprint(shooter_blueprint)
+except Exception:
+    pass
+
+try:
+    from games_package.clicker import clicker_blueprint
+    app.register_blueprint(clicker_blueprint)
+except Exception:
+    pass
+
+# استدعاء المسارات التكميلية المستقلة
+try:
+    from projects import projects_blueprint
+    app.register_blueprint(projects_blueprint)
+except Exception:
+    pass
+
+try:
+    from about import about_blueprint
+    app.register_blueprint(about_blueprint)
+except Exception:
+    pass
+
+try:
+    from scripts import scripts_blueprint
+    app.register_blueprint(scripts_blueprint)
+except Exception:
+    pass
+
 
 @app.after_request
 def inject_global_analytics_tracker(response):
@@ -50,7 +91,7 @@ def inject_global_analytics_tracker(response):
         try:
             text = response.get_data(as_text=True)
             
-            # 🕵️ جدار الحماية السيبراني: حظر الرصد تماماً إذا كان المسار المفتوح هو النطاق التكميلي الجديد لمنع التداخل والوميض
+            # جدار الحماية السيبراني: حظر الرصد تماماً إذا كان المسار المفتوح هو النطاق التكميلي الجديد لمنع التداخل والوميض
             if "albrawe-admin-panel-2026" in request.path or "albrawe-admin" in request.path:
                 return response
                 
