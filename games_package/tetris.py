@@ -51,7 +51,7 @@ TETRIS_TEMPLATE = """
             </div>
             <div class="game-area">
                 <canvas id="tetrisCanvas" width="220" height="440"></canvas>
-                <div id="pauseOverlay" class="overlay-txt"><i class="fas fa-pause-circle"></i> اللعبة موقوتة ⏸️</div>
+                <div id="pauseOverlay" class="overlay-txt"><i class="fas fa-pause-circle"></i> اللعبة مؤقوتة ⏸️</div>
                 
                 <div id="gameOverScreen" class="overlay-txt" style="display:block;">
                     <h4 id="goTitle" style="margin:0 0 5px 0; color:#d29922;">محرك تترس المطور</h4>
@@ -109,48 +109,48 @@ TETRIS_TEMPLATE = """
                 o.start(tp); o.stop(tp + 0.2); tp += 0.2;
             });
         }
-        function startMusic() { stopMusic(); if(!isGameOver) { playMusic(); musicInterval = setInterval(playMusic, musicNotes.length * 200); } function stopMusic() { if(musicInterval) clearInterval(musicInterval); } }
+        function startMusic() { stopMusic(); if(!isGameOver) { playMusic(); musicInterval = setInterval(playMusic, musicNotes.length * 200); } }
         function stopMusic() { if(musicInterval) clearInterval(musicInterval); }
 
-        // ✅ شحن وضبط مصفوفات البكسل النشطة (1) لمنع خطأ التحجيم والانهيار سحابياً لـ Vercel
+        // ✅ شحن وضبط مصفوفات البكسل النشطة (1) لجميع زوايا الالتفاف الأربعة القياسية ومنع الاختفاء العشوائي للقطع
         const I = [
-            [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
-            [[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]],
-            [[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]],
-            [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]]
+            [ [0,0,0,0], [1,1,1,1], [0,0,0,0], [0,0,0,0] ],
+            [ [0,0,1,0], [0,0,1,0], [0,0,1,0], [0,0,1,0] ],
+            [ [0,0,0,0], [0,0,0,0], [1,1,1,1], [0,0,0,0] ],
+            [ [0,1,0,0], [0,1,0,0], [0,1,0,0], [0,1,0,0] ]
         ];
         const T = [
-            [[0,1,0],[1,1,1],[0,0,0]],
-            [[0,1,0],[0,1,1],[0,1,0]],
-            [[0,0,0],[1,1,1],[0,1,0]],
-            [[0,1,0],[1,1,0],[0,1,0]]
+            [ [0,1,0], [1,1,1], [0,0,0] ],
+            [ [0,1,0], [0,1,1], [0,1,0] ],
+            [ [0,0,0], [1,1,1], [0,1,0] ],
+            [ [0,1,0], [1,1,0], [0,1,0] ]
         ];
         const Z = [
-            [[1,1,0],[0,1,1],[0,0,0]],
-            [[0,0,1],[0,1,1],[0,1,0]],
-            [[0,0,0],[1,1,0],[0,1,1]],
-            [[0,1,0],[1,1,0],[1,0,0]]
+            [ [1,1,0], [0,1,1], [0,0,0] ],
+            [ [0,0,1], [0,1,1], [0,1,0] ],
+            [ [0,0,0], [1,1,0], [0,1,1] ],
+            [ [0,1,0], [1,1,0], [1,0,0] ]
         ];
         const S = [
-            [[0,1,1],[1,1,0],[0,0,0]],
-            [[0,1,0],[0,1,1],[0,0,1]],
-            [[0,0,0],[0,1,1],[1,1,0]],
-            [[1,0,0],[1,1,0],[0,1,0]]
+            [ [0,1,1], [1,1,0], [0,0,0] ],
+            [ [0,1,0], [0,1,1], [0,0,1] ],
+            [ [0,0,0], [0,1,1], [1,1,0] ],
+            [ [1,0,0], [1,1,0], [0,1,0] ]
         ];
         const O = [
-            [[1,1],[1,1]]
+            [ [1,1], [1,1] ]
         ];
         const L = [
-            [[0,0,1],[1,1,1],[0,0,0]],
-            [[0,1,0],[0,1,0],[0,1,1]],
-            [[0,0,0],[1,1,1],[1,0,0]],
-            [[1,1,0],[0,1,0],[0,1,0]]
+            [ [0,0,1], [1,1,1], [0,0,0] ],
+            [ [0,1,0], [0,1,0], [0,1,1] ],
+            [ [0,0,0], [1,1,1], [1,0,0] ],
+            [ [1,1,0], [0,1,0], [0,1,0] ]
         ];
         const J = [
-            [[1,0,0],[1,1,1],[0,0,0]],
-            [[0,1,1],[0,1,0],[0,1,0]],
-            [[0,0,0],[1,1,1],[0,0,1]],
-            [[0,1,0],[0,1,0],[1,1,0]]
+            [ [1,0,0], [1,1,1], [0,0,0] ],
+            [ [0,1,1], [0,1,0], [0,1,0] ],
+            [ [0,0,0], [1,1,1], [0,0,1] ],
+            [ [0,1,0], [0,1,0], [1,1,0] ]
         ];
 
         const PIECES = [
@@ -228,7 +228,7 @@ TETRIS_TEMPLATE = """
         }
 
         let p = null;
-        function randomPiece() { let r = Math.floor(Math.random() * PIECES.length); return new Piece(PIECES[r][0], PIECES[r][1]); }
+        function randomPiece() { let r = Math.floor(Math.random() * PIECES.length); return new Piece(PIECES[r], PIECES[r]); }
 
         function initGame() {
             document.getElementById('gameOverScreen').style.display = 'none';
