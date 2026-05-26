@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, render_template_string, session, 
 
 admin_blueprint = Blueprint('admin', __name__)
 
-# 🔒 بيانات اعتماد لوحة الإدارة الحصينة لعام 2026
+# 🔒 بيانات اعتماد لوحة الإدارة الحصينة والمشفرة لعام 2026
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
 
@@ -16,39 +16,40 @@ ADMIN_HTML = """
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { font-family: 'Courier New', Courier, monospace; background: #0d1117; color: #c9d1d9; padding: 20px; margin: 0; }
-        .container { max-width: 1300px; margin: 0 auto; }
+        .container { max-width: 1350px; margin: 0 auto; }
         .main-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #58a6ff; padding-bottom: 15px; margin-bottom: 25px; }
         .logout-btn { background: #f85149; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-family: inherit; }
-        .analytics-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
         
+        .analytics-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
         .complaints-inbox-card { background: #1c1616; border: 1px solid #492626; border-top: 4px solid #f85149; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(248,81,73,0.15); }
         .complaints-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto; padding-left: 5px; }
         
-        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-box { background: #0d1117; border: 1px solid #30363d; padding: 15px; border-radius: 8px; text-align: center; }
-        .stat-box h5 { margin: 0 0 6px 0; color: #8b949e; font-size: 13px; }
-        .stat-box p { margin: 0; font-size: 22px; font-weight: bold; color: #58a6ff; }
+        /* 📊 لوحة توزيع كروت الإحصائيات رباعية الأبعاد */
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: #0d1117; border: 1px solid #30363d; padding: 18px 15px; border-radius: 10px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .stat-box h5 { margin: 0 0 8px 0; color: #8b949e; font-size: 13px; font-weight: bold; }
+        .stat-box p { margin: 0; font-size: 24px; font-weight: bold; color: #58a6ff; }
         
-        .sub-stat-label { display: block; font-size: 11px; font-weight: 500; color: #8b949e; margin-top: 5px; border-top: 1px dashed #21262d; padding-top: 4px; }
-        
+        .sub-stat-label { display: block; font-size: 11px; font-weight: bold; color: #8b949e; margin-top: 6px; border-top: 1px dashed #21262d; padding-top: 5px; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #0d1117; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px 15px; text-align: right; border-bottom: 1px solid #30363d; font-size: 12.5px; }
-        th { background-color: #21262d; color: #79c0ff; font-weight: bold; }
-        tr:hover { background-color: rgba(88, 166, 255, 0.03); }
+        th, td { padding: 14px 16px; text-align: right; border-bottom: 1px solid #30363d; font-size: 13px; }
+        th { background-color: #21262d; color: #79c0ff; font-weight: bold; position: sticky; top: 0; }
+        tr:hover { background-color: rgba(88, 166, 255, 0.04); }
         
         .device-tag { color: #ffd700; font-weight: bold; }
         .loc-tag { color: #3fb950; font-weight: bold; }
-        .total-site-time { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(88,166,255,0.2); }
-        .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,215,0,0.2); }
+        .total-site-time { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.06); padding: 3px 8px; border-radius: 5px; border: 1px solid rgba(88,166,255,0.2); }
+        .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.06); padding: 3px 8px; border-radius: 5px; border: 1px solid rgba(255,215,0,0.2); }
         
-        .game-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.02); border: 1px solid #30363d; }
-        .clear-db-btn { background: #d29922; color: #000; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; }
+        .game-tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 2px 1px; background: rgba(255,255,255,0.03); border: 1px solid #30363d; }
+        .report-txt { background: #211b1b; border-right: 4px solid #f85149; padding: 12px; margin: 4px 0; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.5; color: #ff7b72; display: flex; justify-content: space-between; align-items: center; }
+        .clear-db-btn { background: #d29922; color: #000; border: none; padding: 6px 14px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="main-header">
-            <h2 style="margin:0; color:#fff;">📊 رادار الرقابة وتحليلات الزوار المركزي</h2>
+            <h2 style="margin:0; color:#fff;"><i class="fas fa-shield-alt" style="color:#58a6ff; margin-left:6px;"></i> رادار الرقابة وتحليلات الزوار المركزي</h2>
             <div style="display:flex; gap:10px; align-items:center;">
                 <button class="clear-db-btn" onclick="clearLogsDatabase()">تصفير السجلات 🗑️</button>
                 <a href="/albrawe-admin/logout" class="logout-btn">تسجيل الخروج 🚪</a>
@@ -63,18 +64,16 @@ ADMIN_HTML = """
         <div class="grid-stats">
             <div class="stat-box"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
             <div class="stat-box" style="border-color: #d29922;"><h5 style="color: #ffd700;">إجمالي زيارات الموقع الكلية</h5><p id="historicalViews">0</p></div>
-            
             <div class="stat-box" style="border-color: #388bfd;">
                 <h5 style="color: #388bfd;">إجمالي مدة استخدام الموقع</h5>
                 <p id="totalUsageTime" style="color: #388bfd;">0 ثانية</p>
                 <span class="sub-stat-label" id="avgUsageTime">متوسط الاستخدام: 0 ثانية ⏱️</span>
             </div>
-            
             <div class="stat-box"><h5>إجمالي بلاغات الصندوق</h5><p id="totalComplaints">0</p></div>
         </div>
         
         <div class="analytics-card">
-            <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:8px;">👥 سجل تدقيق حركات المستخدمين وعدادات الألعاب</h3>
+            <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:8px;"><i class="fas fa-history"></i> الأرشيف التاريخي الشامل ومستودع بيانات الزوار</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -82,8 +81,7 @@ ADMIN_HTML = """
                             <th>الاسم الرمزي</th>
                             <th>الموديل الدقيق للجهاز 📱</th>
                             <th>الموقع الجغرافي 🌍</th>
-                            <th>وقت الدخول</th>
-                            <!-- ✅ إضافة العمودين بوضوح هندسي كامل للفصل التام للرؤية -->
+                            <th>تاريخ ووقت الدخول 📅</th>
                             <th>مدة تصفح الموقع الأم 🖥️</th>
                             <th>إجمالي وقت الألعاب ⏳</th>
                             <th>تفصيل عدادات الألعاب الخمسة 🎮</th>
@@ -99,22 +97,35 @@ ADMIN_HTML = """
             fetch('/api/admin_get_all_data')
             .then(res => res.json())
             .then(data => {
-                let db = data.analytics || [];
+                let liveDB = data.analytics || [];
                 let complDB = data.reports || [];
                 let historicalCount = data.historicalVisits || 0;
                 
-                if (db.length === 0 && localStorage.getItem('backup_analytics')) {
-                    db = JSON.parse(localStorage.getItem('backup_analytics'));
-                } else if (db.length > 0) {
-                    localStorage.setItem('backup_analytics', JSON.stringify(db));
-                }
+                // 🔄 استدعاء المرآة الأرشيفية المحدثة من ذاكرة المتصفح الصلبة لمنع تصفير السيرفر السحابي
+                let archiveDB = JSON.parse(localStorage.getItem('permanent_archive_db') || "[]");
                 
-                // ✅ ترقية وتعديل الخوارزمية: جعل العداد التاريخي تراكمي تصاعدي للأبد ولا ينقص نهائياً عند خروج أي زائر
+                liveDB.forEach(liveUser => {
+                    let existingIndex = archiveDB.findIndex(archiveUser => archiveUser.username === liveUser.username);
+                    if (existingIndex !== -1) {
+                        archiveDB[existingIndex] = liveUser; // مزامنة وتحديث الثواني للزائر الحالي حياً
+                    } else {
+                        archiveDB.push(liveUser); // أرشفة الزائر الجديد للأبد
+                    }
+                });
+                
+                localStorage.setItem('permanent_archive_db', JSON.stringify(archiveDB));
+
+                // تثبيت العداد التاريخي التراكمي الشامل تصاعدياً ومنع انخفاضه نهائياً
                 let lastSavedHistorical = parseInt(localStorage.getItem('backup_historical') || "0");
                 if (historicalCount > lastSavedHistorical) {
                     localStorage.setItem('backup_historical', historicalCount);
                 } else {
                     historicalCount = lastSavedHistorical;
+                }
+                
+                if (historicalCount < archiveDB.length) {
+                    historicalCount = archiveDB.length;
+                    localStorage.setItem('backup_historical', historicalCount);
                 }
 
                 if (complDB.length === 0 && localStorage.getItem('backup_complaints')) {
@@ -123,15 +134,15 @@ ADMIN_HTML = """
                     localStorage.setItem('backup_complaints', JSON.stringify(complDB));
                 }
                 
-                document.getElementById('totalViews').innerText = db.length;
+                document.getElementById('totalViews').innerText = liveDB.length;
                 document.getElementById('historicalViews').innerText = historicalCount;
                 document.getElementById('totalComplaints').innerText = complDB.length;
                 
                 let totalSeconds = 0;
-                db.forEach(item => { totalSeconds += (item.duration || 0); });
+                archiveDB.forEach(item => { totalSeconds += (item.duration || 0); });
                 
                 document.getElementById('totalUsageTime').innerText = totalSeconds + " ثانية";
-                let avgCalc = db.length > 0 ? Math.round(totalSeconds / db.length) : 0;
+                let avgCalc = archiveDB.length > 0 ? Math.round(totalSeconds / archiveDB.length) : 0;
                 document.getElementById('avgUsageTime').innerText = "متوسط الاستخدام: " + avgCalc + " ثانية ⏱️";
                 
                 let inboxHtml = "";
@@ -147,16 +158,13 @@ ADMIN_HTML = """
                 }
                 document.getElementById('globalComplaintsInbox').innerHTML = inboxHtml;
                 
+                // ✅ بناء وعرض السطور النقية من مصفوفة الأرشيف التراكمية التاريخية للأبد
                 let html = "";
-                if(db.length === 0) {
-                    html = '<tr><td colspan="7" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مسجلة حتى الآن.</td></tr>';
+                if(archiveDB.length === 0) {
+                    html = '<tr><td colspan="7" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مؤرشفة حتى الآن.</td></tr>';
                 } else {
-                    db.forEach(user => {
-                        let snake = user.snakeTime || 0; 
-                        let tetris = user.tetrisTime || 0; 
-                        let xo = user.xoTime || 0; 
-                        let shooter = user.shooterTime || 0; 
-                        let clicker = user.clickerTime || 0;
+                    archiveDB.slice().reverse().forEach(user => {
+                        let snake = user.snakeTime || 0; let tetris = user.tetrisTime || 0; let xo = user.xoTime || 0; let shooter = user.shooterTime || 0; let clicker = user.clickerTime || 0;
                         let totalGamesSeconds = snake + tetris + xo + shooter + clicker;
                         
                         let currentLoc = user.location;
@@ -171,7 +179,6 @@ ADMIN_HTML = """
                             '<div class="game-tag" style="color:#388bfd;"><i class="fas fa-space-shuttle"></i> فضاء: ' + shooter + 'ث</div>' +
                             '<div class="game-tag" style="color:#ff7b72;"><i class="fas fa-bolt"></i> نيون: ' + clicker + 'ث</div>';
                         
-                        // ✅ إضافة وتجسيد خانة مدة تصفح الموقع الأم المنفصلة (user.duration) لإنهاء الإبهام
                         html += '<tr>' +
                             '<td style="font-weight:bold; color:#fff;">' + user.username + '</td>' +
                             '<td class="device-tag"><i class="fas fa-mobile-alt"></i> ' + currentDevice + '</td>' +
@@ -186,9 +193,10 @@ ADMIN_HTML = """
                 document.getElementById('logsTableBody').innerHTML = html;
             });
         }
+        
         function clearLogsDatabase() {
-            if(confirm("هل أنت متأكد من تصفير ومسح سجل الحركة الفردي الحالي من السيرفر؟")) {
-                localStorage.removeItem('backup_analytics');
+            if(confirm("هل أنت متأكد من مسح السجل التراكمي وتصفير الأرشيف التاريخي بالكامل من لوحتك؟")) {
+                localStorage.removeItem('permanent_archive_db');
                 localStorage.removeItem('backup_historical');
                 localStorage.removeItem('backup_complaints');
                 fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics());
