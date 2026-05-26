@@ -42,6 +42,9 @@ except Exception:
     pass
 
 # استدعاء باقة الألعاب الخمسة المحدثة بشكل محمي معزول تماماً
+try: app.register_blueprint(card_game_blueprint)
+except Exception: pass
+    
 try: app.register_blueprint(snake_blueprint)
 except Exception: pass
 
