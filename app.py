@@ -22,7 +22,7 @@ app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 app.register_blueprint(home_blueprint)
 app.register_blueprint(report_blueprint)
 
-# ✅ تسجيل وتوجيه لوحة المسؤول صراحة إلى نطاقك التكميلي الجديد المحمي
+# ✅ توجيه لوحة المسؤول صراحة إلى نطاقك التكميلي الجديد المحمي
 app.register_blueprint(admin_blueprint, url_prefix='/albrawe-admin-panel-2026')
 
 app.register_blueprint(api_blueprint)
