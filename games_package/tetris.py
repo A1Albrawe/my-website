@@ -26,17 +26,23 @@ TETRIS_TEMPLATE = """
         
         .game-area { position: relative; width: 100%; display: flex; justify-content: center; }
         canvas { background-color: #0d1117; display: block; border: 2px solid #30363d; border-radius: 6px; }
-        .overlay-txt { display: none; position: absolute; font-size: 18px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(22, 27, 34, 0.95); border: 2px solid #d29922; padding: 12px; border-radius: 8px; text-align: center; width: 85%; box-sizing: border-box; z-index: 5; }
         
-        .control-pad { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 220px; margin-left: auto; margin-right: auto; }
-        .ctrl-btn { background: #21262d; border: 1px solid #30363d; border-radius: 12px; padding: 12px; font-size: 18px; color: #d29922; cursor: pointer; user-select: none; font-weight: bold; box-shadow: 0 3px #0d1117; }
+        /* شاشة مؤقت اللعبة المتوهجة بالكامل */
+        .overlay-txt { display: none; position: absolute; font-size: 22px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(13, 17, 23, 0.95); border: 2px solid #d29922; padding: 20px; border-radius: 12px; text-align: center; width: 85%; box-shadow: 0 0 25px #d29922; box-sizing: border-box; z-index: 5; }
+        
+        /* 🕹️ لوحة التحكم الميكانيكية المكتملة والأنيقة */
+        .control-pad { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 240px; margin-left: auto; margin-right: auto; }
+        .ctrl-btn { background: #21262d; border: 1px solid #30363d; border-radius: 12px; padding: 15px; font-size: 20px; color: #d29922; cursor: pointer; user-select: none; font-weight: bold; box-shadow: 0 4px #0d1117; transition: 0.1s; }
         .ctrl-btn:active { transform: translateY(2px); box-shadow: 0 1px #0d1117; }
+        
+        /* ⏸️ تنسيق مستقل وعريض لزر التوقف المؤقت لمنع الغموض البصري */
+        .pause-action-btn { grid-column: span 3; background: #21262d; border: 1px solid #f85149; color: #f85149; font-size: 14px; font-weight: bold; border-radius: 8px; padding: 10px; cursor: pointer; box-shadow: 0 3px #0d1117; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px; font-family: inherit; }
+        .pause-action-btn:active { transform: translateY(1px); box-shadow: 0 1px #0d1117; }
     </style>
 </head>
 <body>
     <div class="header-nav">
         <a href="/" class="back-btn">◀ الرئيسة</a>
-        <!-- حقن رابط المطور المركزي في منتصف شريط التنقل -->
         <a href="/" class="brand-center-link">Albrawe</a>
         <span style="font-weight:bold; color:#d29922;">🧱 لعبة التترس</span>
     </div>
@@ -50,7 +56,7 @@ TETRIS_TEMPLATE = """
             </div>
             <div class="game-area">
                 <canvas id="tetrisCanvas" width="200" height="400"></canvas>
-                <div id="pauseOverlay" class="overlay-txt">مؤقت ⏸️</div>
+                <div id="pauseOverlay" class="overlay-txt"><i class="fas fa-pause-circle"></i> اللعبة مؤقوتة ⏸️</div>
                 
                 <div id="gameOverScreen" class="overlay-txt" style="display:block;">
                     <h4 id="goTitle" style="margin:0 0 5px 0; color:#d29922;">مرحباً بك في التترس</h4>
@@ -59,12 +65,17 @@ TETRIS_TEMPLATE = """
                 </div>
             </div>
             <div class="control-pad">
+                <!-- أزرار التوجيه الميكانيكية البارزة للعين -->
                 <button class="ctrl-btn" onclick="moveBlock('L')">◀</button>
                 <button class="ctrl-btn" onclick="rotateBlock()">🔄</button>
                 <button class="ctrl-btn" onclick="moveBlock('R')">▶</button>
+                
                 <div></div>
                 <button class="ctrl-btn" onclick="moveBlock('D')">▼</button>
-                <button class="ctrl-btn" onclick="togglePause()"><i class="fas fa-pause"></i></button>
+                <div></div>
+                
+                <!-- ✅ عزل وتجسيد زر الإيقاف المؤقت بشكل منفصل وواضح بالأسفل -->
+                <button class="pause-action-btn" onclick="togglePause()"><i class="fas fa-pause"></i> إيقاف مؤقت / استئناف اللعب</button>
             </div>
         </div>
     </div>
@@ -99,14 +110,14 @@ TETRIS_TEMPLATE = """
         function startMusic() { stopMusic(); if(!isGameOver) { playMusic(); musicInterval = setInterval(playMusic, musicNotes.length * 200); } }
         function stopMusic() { if(musicInterval) clearInterval(musicInterval); }
 
-        // مصفوفات تدوير الأشكال السبعة القياسية كاملة لمنع تشوه المكعبات
-        const I = [ [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], [[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]], [[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]], [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]] ];
-        const T = [ [[0,1,0],[1,1,1],[0,0,0]], [[0,1,0],[0,1,1],[0,1,0]], [[0,0,0],[1,1,1],[0,1,0]], [[0,1,0],[1,1,0],[0,1,0]] ];
-        const Z = [ [[1,1,0],[0,1,1],[0,0,0]], [[0,0,1],[0,1,1],[0,1,0]], [[0,0,0],[1,1,0],[0,1,1]], [[0,1,0],[1,1,0],[1,0,0]] ];
-        const S = [ [[0,1,1],[1,1,0],[0,0,0]], [[0,1,0],[0,1,1],[0,0,1]], [[0,0,0],[0,1,1],[1,1,0]], [[1,0,0],[1,1,0],[0,1,0]] ];
-        const O = [ [[0,1,1,0],[0,1,1,0],[0,0,0,0],[0,0,0,0]] ];
-        const L = [ [[1,0,0],[1,1,1],[0,0,0]], [[0,1,1],[0,1,0],[0,1,0]], [[0,0,0],[1,1,1],[0,0,1]], [[0,1,0],[0,1,0],[1,1,0]] ];
-        const J = [ [[0,0,1],[1,1,1],[0,0,0]], [[0,1,0],[0,1,0],[0,1,1]], [[0,0,0],[1,1,1],[1,0,0]], [[1,1,0],[0,1,0],[0,1,0]] ];
+        // ✅ مصفوفات تدوير الأشكال السبعة القياسية كاملة الأرقام لضمان البروز وعدم حدوث الـ Freeze
+        const I = [ [ [0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0] ], [ [0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0] ] ];
+        const T = [ [ [0,1,0],[1,1,1],[0,0,0] ], [ [0,1,0],[0,1,1],[0,1,0] ] ];
+        const Z = [ [ [1,1,0],[0,1,1],[0,0,0] ], [ [0,0,1],[0,1,1],[0,1,0] ] ];
+        const S = [ [ [0,1,1],[1,1,0],[0,0,0] ], [ [0,1,0],[0,1,1],[0,0,1] ] ];
+        const O = [ [ [1,1],[1,1] ] ];
+        const L = [ [ [1,0,0],[1,1,1],[0,0,0] ], [ [0,1,1],[0,1,0],[0,1,0] ] ];
+        const J = [ [ [0,0,1],[1,1,1],[0,0,0] ], [ [0,1,0],[0,1,0],[0,1,1] ] ];
 
         const PIECES = [ [I,"#58a6ff"], [T,"#3fb950"], [Z,"#f85149"], [S,"#d29922"], [O,"#ffffff"], [L,"#a371f7"], [J,"#ff7b72"] ];
 
@@ -119,7 +130,7 @@ TETRIS_TEMPLATE = """
                     for(let c=0; c<this.activeTetromino[r].length; c++) {
                         if(this.activeTetromino[r][c]) {
                             ctx.fillStyle = color; ctx.fillRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ);
-                            ctx.strokeStyle = "#161b22"; ctx.strokeRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ);
+                            ctx.strokeStyle = "#30363d"; ctx.strokeRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ); // وسم تفكيك المكعبات
                         }
                     }
                 }
@@ -156,11 +167,10 @@ TETRIS_TEMPLATE = """
                     for(let c=0; c<COL; c++) { if(board[r][c] === VACANT) isRowFull = false; }
                     if(isRowFull) {
                         for(let y=r; y>1; y--) { for(let c=0; c<COL; c++) { board[y][c] = board[y-1][c]; } }
-                        for(let c=0; c<COL; c++) { board[0][c] = VACANT; }
+                        for(let c=0; c<COL; c++) { board[c] = VACANT; }
                         score += 100; playSound('clear');
                         document.getElementById('tetrisScore').innerText = "النقاط: " + score;
                         
-                        // تصعيد المراحل الـ 10 كل 200 نقطة
                         if(score % 200 === 0 && currentLevel < 10) {
                             currentLevel++;
                             document.getElementById('tetrisLevel').innerText = "المرحلة: " + currentLevel + " / 10 👑";
@@ -189,7 +199,6 @@ TETRIS_TEMPLATE = """
 
         function runEngineInterval() {
             if(gameInterval) clearInterval(gameInterval);
-            // تقليل زمن الهبوط تدريجياً لزيادة الصعوبة مع زيادة المرحلة الـ 10
             let dropSpeed = 1000 - (currentLevel * 85);
             gameInterval = setInterval(() => { if(!isPaused && !isGameOver) p.moveDown(); }, dropSpeed);
         }
