@@ -50,7 +50,6 @@ TETRIS_TEMPLATE = """
                 <span>TETRIS</span>
             </div>
             <div class="game-area">
-                <!-- ✅ الأبعاد الهندسية القياسية الثابتة للميدان لمنع التشوه البصري -->
                 <canvas id="tetrisCanvas" width="220" height="440"></canvas>
                 <div id="pauseOverlay" class="overlay-txt"><i class="fas fa-pause-circle"></i> اللعبة موقوتة ⏸️</div>
                 
@@ -61,7 +60,6 @@ TETRIS_TEMPLATE = """
                 </div>
             </div>
             
-            <!-- 🕹️ تصحيح اتجاه الأزرار (يسار، تدوير، يمين) متوافق 100% مع الشاشات والمعالج -->
             <div class="control-pad">
                 <button class="ctrl-btn" ontouchstart="handleTetrisTouch(event, 'L')" onmousedown="moveBlock('L')">◀</button>
                 <button class="ctrl-btn" ontouchstart="handleTetrisTouch(event, 'RTV')" onmousedown="rotateBlock()">🔄</button>
@@ -111,10 +109,10 @@ TETRIS_TEMPLATE = """
                 o.start(tp); o.stop(tp + 0.2); tp += 0.2;
             });
         }
-        function startMusic() { stopMusic(); if(!isGameOver) { playMusic(); musicInterval = setInterval(playMusic, musicNotes.length * 200); } }
+        function startMusic() { stopMusic(); if(!isGameOver) { playMusic(); musicInterval = setInterval(playMusic, musicNotes.length * 200); } function stopMusic() { if(musicInterval) clearInterval(musicInterval); } }
         function stopMusic() { if(musicInterval) clearInterval(musicInterval); }
 
-        // ✅ حقن بكسلات مصفوفات الأشكال السبعة القياسية بجميع وضعيات الالتفاف بدقة هندسية مطلقة
+        // ✅ شحن وضبط مصفوفات البكسل النشطة (1) لمنع خطأ التحجيم والانهيار سحابياً لـ Vercel
         const I = [
             [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
             [[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]],
@@ -177,7 +175,6 @@ TETRIS_TEMPLATE = """
             moveRight() { if(!this.collision(1,0,this.activeTetromino)) { this.unuse(); this.x++; this.draw(); playSound('move'); } }
             moveLeft() { if(!this.collision(-1,0,this.activeTetromino)) { this.unuse(); this.x--; this.draw(); playSound('move'); } }
             
-            // ✅ الدوران الاحترافي (Wall-Kick): يمنع التجميد والانهيار عند الالتصاق التام بالحواف الجانبية للكانفاس
             rotate() {
                 let nextN = (this.tetrominoN + 1) % this.tetromino.length;
                 let nextPattern = this.tetromino[nextN];
@@ -215,16 +212,12 @@ TETRIS_TEMPLATE = """
                     if(isRowFull) {
                         rowsClearedThisTurn++;
                         for(let y=r; y>1; y--) { for(let c=0; c<COL; c++) { board[y][c] = board[y-1][c]; } }
-                        for(let c=0; c<COL; c++) { board[0][c] = VACANT; }
+                        for(let c=0; c<COL; c++) { board[c] = VACANT; }
                     }
                 }
                 if(rowsClearedThisTurn > 0) {
-                    score += rowsClearedThisTurn * 100;
-                    linesCleared += rowsClearedThisTurn;
-                    playSound('clear');
+                    score += rowsClearedThisTurn * 100; linesCleared += rowsClearedThisTurn; playSound('clear');
                     document.getElementById('tetrisScore').innerText = "النقاط: " + score;
-                    
-                    // 📈 حساب الجاذبية المتسارعة تلقائياً مع زيادة مسح السطور وتحديث العداد
                     currentSpeed = Math.max(150, 1000 - (linesCleared * 35));
                     let speedFactor = (1000 / currentSpeed).toFixed(1);
                     document.getElementById('tetrisSpeed').innerText = "السرعة: " + speedFactor + "x ⚡";
@@ -242,7 +235,6 @@ TETRIS_TEMPLATE = """
             score = 0; linesCleared = 0; currentSpeed = 1000; isGameOver = false; isPaused = false;
             document.getElementById('tetrisScore').innerText = "النقاط: " + score;
             document.getElementById('tetrisSpeed').innerText = "السرعة: 1.0x ⚡";
-            
             for(let r=0; r<ROW; r++) { board[r] = []; for(let c=0; c<COL; c++) { board[r][c] = VACANT; } }
             drawBoard(); p = randomPiece(); p.draw(); startMusic(); runEngineInterval();
         }
@@ -254,9 +246,9 @@ TETRIS_TEMPLATE = """
         function rotateBlock() { if(isGameOver || isPaused) return; p.rotate(); }
 
         document.addEventListener('keydown', e => {
-            if(e.key === 'ArrowLeft') moveBlock('L'); // تحريك لليسار بالضغط للكمبيوتر
+            if(e.key === 'ArrowLeft') moveBlock('L');
             if(e.key === 'ArrowUp') rotateBlock();
-            if(e.key === 'ArrowRight') moveBlock('R'); // تحريك لليمين
+            if(e.key === 'ArrowRight') moveBlock('R');
             if(e.key === 'ArrowDown') moveBlock('D');
         });
 
