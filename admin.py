@@ -39,7 +39,7 @@ ADMIN_HTML = """
         .loc-tag { color: #3fb950; font-weight: bold; }
         .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,215,0,0.2); }
         
-        .game-tag { inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.02); border: 1px solid #30363d; }
+        .game-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.02); border: 1px solid #30363d; }
         .report-txt { background: #211b1b; border-right: 4px solid #f85149; padding: 12px; margin: 2px 0; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.5; color: #ff7b72; display: flex; justify-content: space-between; align-items: center; }
         .clear-db-btn { background: #d29922; color: #000; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; }
     </style>
@@ -116,11 +116,11 @@ ADMIN_HTML = """
                     inboxHtml = '<p style="color:#8b949e; font-size:13px; text-align:center; margin:10px 0;">الصندوق نظيف كلياً؛ لا توجد أي شكاوى مرفوعة حالياً من زوار الويب. ✨</p>';
                 } else {
                     complDB.forEach(c => {
-                        inboxHtml += `
-                        <div class="report-txt">
-                            <span><i class="fas fa-user" style="color:#8b949e; margin-left:6px;"></i> <strong>\${c.user}</strong>: \${c.details}</span>
-                            <span style="color:#8b949e; font-size:11px; font-family:monospace;"><i class="far fa-clock"></i> \${c.date}</span>
-                        </div>`;
+                        // ✅ تم تصحيح الرموز البرمجية تماماً وفصلها بإلغاء التضارب البصري مع بايثون لتقرأ البيانات فوراً
+                        inboxHtml += '<div class="report-txt">' +
+                            '<span><i class="fas fa-user" style="color:#8b949e; margin-left:6px;"></i> <strong>' + c.user + '</strong>: ' + c.details + '</span>' +
+                            '<span style="color:#8b949e; font-size:11px; font-family:monospace;"><i class="far fa-clock"></i> ' + c.date + '</span>' +
+                        '</div>';
                     });
                 }
                 document.getElementById('globalComplaintsInbox').innerHTML = inboxHtml;
@@ -130,25 +130,28 @@ ADMIN_HTML = """
                     html = '<tr><td colspan="6" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مسجلة حتى الآن.</td></tr>';
                 } else {
                     db.forEach(user => {
-                        let snake = user.snakeTime || 0; let tetris = user.tetrisTime || 0; let xo = user.xoTime || 0; let shooter = user.shooterTime || 0; let clicker = user.clickerTime || 0;
+                        let snake = user.snakeTime || 0; 
+                        let tetris = user.tetrisTime || 0; 
+                        let xo = user.xoTime || 0; 
+                        let shooter = user.shooterTime || 0; 
+                        let clicker = user.clickerTime || 0;
                         let totalGamesSeconds = snake + tetris + xo + shooter + clicker;
                         
-                        let gameDuration = `
-                            <div class="game-tag" style="color:#3fb950;"><i class="fas fa-dragon"></i> ثعبان: \${snake}ث</div>
-                            <div class="game-tag" style="color:#d29922;"><i class="fas fa-cubes"></i> تترس: \${tetris}ث</div>
-                            <div class="game-tag" style="color:#a371f7;"><i class="fas fa-times-circle"></i> X-O: \${xo}ث</div>
-                            <div class="game-tag" style="color:#388bfd;"><i class="fas fa-space-shuttle"></i> فضاء: \${shooter}ث</div>
-                            <div class="game-tag" style="color:#ff7b72;"><i class="fas fa-bolt"></i> نيون: \${clicker}ث</div>
-                        `;
+                        let gameDuration = '<div class="game-tag" style="color:#3fb950;"><i class="fas fa-dragon"></i> ثعبان: ' + snake + 'ث</div>' +
+                            '<div class="game-tag" style="color:#d29922;"><i class="fas fa-cubes"></i> تترس: ' + tetris + 'ث</div>' +
+                            '<div class="game-tag" style="color:#a371f7;"><i class="fas fa-times-circle"></i> X-O: ' + xo + 'ث</div>' +
+                            '<div class="game-tag" style="color:#388bfd;"><i class="fas fa-space-shuttle"></i> فضاء: ' + shooter + 'ث</div>' +
+                            '<div class="game-tag" style="color:#ff7b72;"><i class="fas fa-bolt"></i> نيون: ' + clicker + 'ث</div>';
                         
-                        html += `<tr>
-                            <td style="font-weight:bold; color:#fff;">\${user.username}</td>
-                            <td class="device-tag"><i class="fas fa-mobile-alt"></i> \${user.deviceModel || "غير معروف"}</td>
-                            <td class="loc-tag"><i class="fas fa-map-marker-alt"></i> \${user.location || "جاري التحديد..."}</td>
-                            <td>\${user.loginTime}</td>
-                            <td><span class="total-games-time"><i class="fas fa-hourglass-half"></i> \${totalGamesSeconds} ثانية</span></td>
-                            <td>\${gameDuration}</td>
-                        </tr>`;
+                        // ✅ صياغة السطور البرمجية بشكل مستقل وصريح لتظهر البيانات حقيقية وبدون أي نصوص مشوهة
+                        html += '<tr>' +
+                            '<td style="font-weight:bold; color:#fff;">' + user.username + '</td>' +
+                            '<td class="device-tag"><i class="fas fa-mobile-alt"></i> ' + (user.deviceModel || "غير معروف") + '</td>' +
+                            '<td class="loc-tag"><i class="fas fa-map-marker-alt"></i> ' + (user.location || "جاري التحديد...") + '</td>' +
+                            '<td>' + user.loginTime + '</td>' +
+                            '<td><span class="total-games-time"><i class="fas fa-hourglass-half"></i> ' + totalGamesSeconds + ' ثانية</span></td>' +
+                            '<td>' + gameDuration + '</td>' +
+                        '</tr>';
                     });
                 }
                 document.getElementById('logsTableBody').innerHTML = html;
