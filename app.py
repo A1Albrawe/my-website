@@ -8,14 +8,8 @@ from report import report_blueprint
 from pages import pages_blueprint
 from api import api_blueprint
 
-# استدعاء مكتبة التحليلات السحابية من Vercel
-from vercel_analytics import VercelAnalytics
-
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
-
-# تنشيط وحقن أداة التتبع والتحليلات لربطها بالسيرفر الخلفي
-VercelAnalytics(app)
 
 # تسجيل جميع الحزم البرمجية الخاصة بصفحات وألعاب موقعك
 app.register_blueprint(home_blueprint)
@@ -24,17 +18,18 @@ app.register_blueprint(tetris_blueprint)
 app.register_blueprint(report_blueprint)
 app.register_blueprint(pages_blueprint)
 app.register_blueprint(api_blueprint)
+
 @app.after_request
 def inject_clean_dropdown_fix(response):
     """
     دالة حقن معالجة الاستجابة السحابية.
-    تقوم هذه الدالة بفحص صفحات الـ HTML وتلقائياً بحقن سكريبت التتبع لـ Vercel Analytics 
+    تقوم بفحص صفحات الـ HTML وتلقائياً بحقن سكريبت التتبع لـ Vercel Analytics 
     قبل وسم الإغلاق لضمان احتساب الزيارات والـ Page Views في لوحة التحكم بشكل حي ومستقر.
     """
     if response.content_type.startswith('text/html'):
         text = response.get_data(as_text=True)
         
-        # كود سكريبت التتبع القياسي لـ Vercel المطلوب في لوحة التحكم لديك
+        # كود سكريبت التتبع القياسي لـ Vercel المطلوب في لوحة التحكم لديك لجمع البيانات حياً
         vercel_tracking_script = """
         <!-- Vercel Web Analytics Tracking Code -->
         <script defer src="/_vercel/insights/script.js"></script>
@@ -46,5 +41,6 @@ def inject_clean_dropdown_fix(response):
             
         response.set_data(text)
     return response
+
 if __name__ == '__main__':
     app.run(debug=True)
