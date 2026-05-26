@@ -72,65 +72,69 @@ ADMIN_HTML = """
     </div>
 
     <script>
+        // ✅ تم الحل الهندسي النهائي: السحب من الـ API المركزي المربوط بملف التشغيل لمنع فقدان البيانات من جهازك
         function fetchAndRenderAnalytics() {
-            let db = JSON.parse(localStorage.getItem('albrawe_master_analytics_db')) || [];
-            let complDB = JSON.parse(localStorage.getItem('albrawe_central_db')) || [];
-            
-            document.getElementById('totalViews').innerText = db.length;
-            document.getElementById('totalComplaints').innerText = complDB.length;
-            
-            let totalSeconds = 0;
-            db.forEach(item => { totalSeconds += (item.duration || 0); });
-            document.getElementById('avgTime').innerText = db.length > 0 ? Math.round(totalSeconds / db.length) + " ثانية" : "0 ثانية";
+            fetch('/api/admin_get_all_data')
+            .then(res => res.json())
+            .then(data => {
+                let db = data.analytics || [];
+                let complDB = data.reports || [];
+                
+                document.getElementById('totalViews').innerText = db.length;
+                document.getElementById('totalComplaints').innerText = complDB.length;
+                
+                let totalSeconds = 0;
+                db.forEach(item => { totalSeconds += (item.duration || 0); });
+                document.getElementById('avgTime').innerText = db.length > 0 ? Math.round(totalSeconds / db.length) + " ثانية" : "0 ثانية";
 
-            let html = "";
-            if(db.length === 0) {
-                html = '<tr><td colspan="6" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مسجلة حتى الآن.</td></tr>';
-            } else {
-                db.forEach(user => {
-                    let deviceBadge = '<span class="badge bg-windows">Windows/PC</span>';
-                    let ua = user.userAgent.toLowerCase();
-                    if(ua.includes('android')) deviceBadge = '<span class="badge bg-android">Android 📱</span>';
-                    else if(ua.includes('iphone') || ua.includes('ipad')) deviceBadge = '<span class="badge bg-iphone">iPhone 🍏</span>';
+                let html = "";
+                if(db.length === 0) {
+                    html = '<tr><td colspan="6" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مسجلة حتى الآن.</td></tr>';
+                } else {
+                    db.forEach(user => {
+                        let deviceBadge = '<span class="badge bg-windows">Windows/PC</span>';
+                        let ua = (user.userAgent || "").toLowerCase();
+                        if(ua.includes('android')) deviceBadge = '<span class="badge bg-android">Android 📱</span>';
+                        else if(ua.includes('iphone') || ua.includes('ipad')) deviceBadge = '<span class="badge bg-iphone">iPhone 🍏</span>';
 
-                    // ربط وتصفية الشكاوى بناءً على الاسم الرمزي للزائر تلقائياً
-                    let userComplaints = complDB.filter(c => c.user.toLowerCase() === user.username.toLowerCase());
-                    let complHtml = '<span style="color:#8b949e;">لا يوجد</span>';
-                    if(userComplaints.length > 0) {
-                        complHtml = "";
-                        userComplaints.forEach(c => { complHtml += `<div class="report-txt">⚠️ [${c.date}]: ${c.details}</div>`; });
-                    }
+                        let userComplaints = complDB.filter(c => (c.user || "").toLowerCase() === (user.username || "").toLowerCase());
+                        let complHtml = '<span style="color:#8b949e;">لا يوجد</span>';
+                        if(userComplaints.length > 0) {
+                            complHtml = "";
+                            userComplaints.forEach(c => { complHtml += `<div class="report-txt">⚠️ [${c.date}]: ${c.details}</div>`; });
+                        }
 
-                    let gameDuration = `🐍 ${user.snakeTime || 0}ث | 🧱 ${user.tetrisTime || 0}ث`;
+                        let gameDuration = `🐍 ${user.snakeTime || 0}ث | 🧱 ${user.tetrisTime || 0}ث`;
 
-                    html += `
-                        <tr>
-                            <td style="font-weight:bold; color:#fff;">${user.username}</td>
-                            <td>${deviceBadge}</td>
-                            <td>${user.loginTime}</td>
-                            <td style="color:#58a6ff; font-weight:bold;">${user.duration || 0} ثانية</td>
-                            <td>${gameDuration}</td>
-                            <td>${complHtml}</td>
-                        </tr>
-                    `;
-                });
-            }
-            document.getElementById('logsTableBody').innerHTML = html;
+                        html += `
+                            <tr>
+                                <td style="font-weight:bold; color:#fff;">${user.username}</td>
+                                <td>${deviceBadge}</td>
+                                <td>${user.loginTime}</td>
+                                <td style="color:#58a6ff; font-weight:bold;">${user.duration || 0} ثانية</td>
+                                <td>${gameDuration}</td>
+                                <td>${complHtml}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                document.getElementById('logsTableBody').innerHTML = html;
+            });
         }
 
         function clearLogsDatabase() {
             if(confirm("هل أنت متأكد من تصفير ومسح كافة تحليلات الزوار وقاعدة البيانات بالكامل؟")) {
-                localStorage.removeItem('albrawe_master_analytics_db');
-                fetchAndRenderAnalytics();
+                fetch('/api/admin_clear_data', { method: 'POST' })
+                .then(() => fetchAndRenderAnalytics());
             }
         }
 
         fetchAndRenderAnalytics();
+        setInterval(fetchAndRenderAnalytics, 5000); // تحديث دوري ذكي حيطة وتحسباً لأي زائر جديد
     </script>
 </body>
 </html>
 """
-
 LOGIN_HTML = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -140,9 +144,9 @@ LOGIN_HTML = """
     <title>تسجيل دخول الإدارة | Albrawe</title>
     <style>
         body { font-family: monospace; background: #0d1117; color: #c9d1d9; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .login-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #f85149; padding: 30px; border-radius: 12px; width: 100%; max-width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+        .login-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #f85149; padding: 30px; border-radius: 12px; width: 100%; max-width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); box-sizing: border-box; }
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; text-align: right; }
-        input { padding: 10px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #fff; font-family: inherit; }
+        input { padding: 10px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #fff; font-family: inherit; box-sizing: border-box; width: 100%; }
         input:focus { border-color: #f85149; outline: none; }
         .btn { background: #f85149; color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-family: inherit; margin-top: 10px; }
     </style>
@@ -165,7 +169,6 @@ LOGIN_HTML = """
 </body>
 </html>
 """
-
 @admin_blueprint.route('/albrawe-secure-panel-2026', methods=['GET', 'POST'])
 def admin_page():
     if request.method == 'POST':
