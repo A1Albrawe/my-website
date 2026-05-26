@@ -130,15 +130,15 @@ def generate_sidebar_html():
         </div>
         
         <!-- 📂 بقية الخانات الثابتة والمستقلة والمقروءة مباشرة من ملفات الجذر البرمجي لمستودعك -->
-        <a href="/projects" class="menu-item-clean" style="color: #a371f7;"><i class="fas fa-project-diagram"></i> معرض المشاريع البرمجية</a>
-        <a href="/about" class="menu-item-clean" style="color: #ff7b72;"><i class="fas fa-user-shield"></i> من نحن (About us)</a>
+        <a href="/projects" class="menu-item-clean" style="color: #a371f7;"><i class="fas fa-project-diagram"></i> معرض المشاريع </a>
+        <a href="/about" class="menu-item-clean" style="color: #ff7b72;"><i class="fas fa-user-shield"></i> (About us)</a>
         <a href="/scripts" class="menu-item-clean" style="color: #388bfd;"><i class="fab fa-python"></i> إسكربتات بايثون</a>
         
         <hr style="border: 0; border-top: 1px solid #21262d; margin: 8px 0; width: 100%;">
         
         <!-- روابط الدعم والصيانة ثابتة بموقعها الطبيعي -->
         <a href="/maintenance" class="menu-item-clean" style="color: #f85149; font-size: 13px; opacity: 0.8;"><i class="fas fa-tools"></i> الإبلاغ عن مشكلة (صيانة)</a>
-        <a href="https://t.me" target="_blank" class="menu-item-clean" style="color: #58a6ff; font-size: 13px;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام</a>
+        <a href="https://t.me/I_Albrawe" target="_blank" class="menu-item-clean" style="color: #58a6ff; font-size: 13px;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام</a>
     </div>
     
     <script>
