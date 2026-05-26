@@ -16,7 +16,7 @@ ADMIN_HTML = """
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { font-family: 'Courier New', Courier, monospace; background: #0d1117; color: #c9d1d9; padding: 20px; margin: 0; }
-        .container { max-width: 1250px; margin: 0 auto; }
+        .container { max-width: 1300px; margin: 0 auto; }
         .main-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #58a6ff; padding-bottom: 15px; margin-bottom: 25px; }
         .logout-btn { background: #f85149; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-family: inherit; }
         .analytics-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
@@ -38,10 +38,10 @@ ADMIN_HTML = """
         
         .device-tag { color: #ffd700; font-weight: bold; }
         .loc-tag { color: #3fb950; font-weight: bold; }
+        .total-site-time { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(88,166,255,0.2); }
         .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,215,0,0.2); }
         
         .game-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.02); border: 1px solid #30363d; }
-        .report-txt { background: #211b1b; border-right: 4px solid #f85149; padding: 12px; margin: 2px 0; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.5; color: #ff7b72; display: flex; justify-content: space-between; align-items: center; }
         .clear-db-btn { background: #d29922; color: #000; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; }
     </style>
 </head>
@@ -83,6 +83,8 @@ ADMIN_HTML = """
                             <th>الموديل الدقيق للجهاز 📱</th>
                             <th>الموقع الجغرافي 🌍</th>
                             <th>وقت الدخول</th>
+                            <!-- ✅ إضافة العمودين بوضوح هندسي كامل للفصل التام للرؤية -->
+                            <th>مدة تصفح الموقع الأم 🖥️</th>
                             <th>إجمالي وقت الألعاب ⏳</th>
                             <th>تفصيل عدادات الألعاب الخمسة 🎮</th>
                         </tr>
@@ -101,17 +103,18 @@ ADMIN_HTML = """
                 let complDB = data.reports || [];
                 let historicalCount = data.historicalVisits || 0;
                 
-                // 🔄 محرك المرآة السحابي: استرداد وحماية آخر قيم حقيقية ومنع التصفير الفجائي للـ Serverless للأبد
                 if (db.length === 0 && localStorage.getItem('backup_analytics')) {
                     db = JSON.parse(localStorage.getItem('backup_analytics'));
                 } else if (db.length > 0) {
                     localStorage.setItem('backup_analytics', JSON.stringify(db));
                 }
                 
-                if (historicalCount === 0 && localStorage.getItem('backup_historical')) {
-                    historicalCount = parseInt(localStorage.getItem('backup_historical'));
-                } else if (historicalCount > 0) {
+                // ✅ ترقية وتعديل الخوارزمية: جعل العداد التاريخي تراكمي تصاعدي للأبد ولا ينقص نهائياً عند خروج أي زائر
+                let lastSavedHistorical = parseInt(localStorage.getItem('backup_historical') || "0");
+                if (historicalCount > lastSavedHistorical) {
                     localStorage.setItem('backup_historical', historicalCount);
+                } else {
+                    historicalCount = lastSavedHistorical;
                 }
 
                 if (complDB.length === 0 && localStorage.getItem('backup_complaints')) {
@@ -146,7 +149,7 @@ ADMIN_HTML = """
                 
                 let html = "";
                 if(db.length === 0) {
-                    html = '<tr><td colspan="6" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مسجلة حتى الآن.</td></tr>';
+                    html = '<tr><td colspan="7" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مسجلة حتى الآن.</td></tr>';
                 } else {
                     db.forEach(user => {
                         let snake = user.snakeTime || 0; 
@@ -156,7 +159,6 @@ ADMIN_HTML = """
                         let clicker = user.clickerTime || 0;
                         let totalGamesSeconds = snake + tetris + xo + shooter + clicker;
                         
-                        // 🌍 محرك الإنعاش الجغرافي: استخراج الموقع الدقيق للمستخدمين ومنع تجميد الجلب
                         let currentLoc = user.location;
                         if (!currentLoc || currentLoc.includes("جاري")) currentLoc = "القاهرة - مصر 🇪🇬";
                         
@@ -169,11 +171,13 @@ ADMIN_HTML = """
                             '<div class="game-tag" style="color:#388bfd;"><i class="fas fa-space-shuttle"></i> فضاء: ' + shooter + 'ث</div>' +
                             '<div class="game-tag" style="color:#ff7b72;"><i class="fas fa-bolt"></i> نيون: ' + clicker + 'ث</div>';
                         
+                        // ✅ إضافة وتجسيد خانة مدة تصفح الموقع الأم المنفصلة (user.duration) لإنهاء الإبهام
                         html += '<tr>' +
                             '<td style="font-weight:bold; color:#fff;">' + user.username + '</td>' +
                             '<td class="device-tag"><i class="fas fa-mobile-alt"></i> ' + currentDevice + '</td>' +
                             '<td class="loc-tag"><i class="fas fa-map-marker-alt"></i> ' + currentLoc + '</td>' +
                             '<td>' + user.loginTime + '</td>' +
+                            '<td><span class="total-site-time"><i class="fas fa-window-maximize"></i> ' + (user.duration || 0) + ' ثانية</span></td>' +
                             '<td><span class="total-games-time"><i class="fas fa-hourglass-half"></i> ' + totalGamesSeconds + ' ثانية</span></td>' +
                             '<td>' + gameDuration + '</td>' +
                         '</tr>';
@@ -185,6 +189,7 @@ ADMIN_HTML = """
         function clearLogsDatabase() {
             if(confirm("هل أنت متأكد من تصفير ومسح سجل الحركة الفردي الحالي من السيرفر؟")) {
                 localStorage.removeItem('backup_analytics');
+                localStorage.removeItem('backup_historical');
                 localStorage.removeItem('backup_complaints');
                 fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics());
             }
