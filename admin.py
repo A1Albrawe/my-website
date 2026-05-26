@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify, render_template_string, session, 
 
 admin_blueprint = Blueprint('admin', __name__)
 
-# 🔒 بيانات اعتماد لوحة الإدارة المحصنة (يمكنك تعديلها من هنا بأي وقت)
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
 
@@ -16,10 +15,14 @@ ADMIN_HTML = """
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { font-family: 'Courier New', Courier, monospace; background: #0d1117; color: #c9d1d9; padding: 20px; margin: 0; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1250px; margin: 0 auto; }
         .main-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #58a6ff; padding-bottom: 15px; margin-bottom: 25px; }
         .logout-btn { background: #f85149; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-family: inherit; }
         .analytics-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+        
+        .complaints-inbox-card { background: #1c1616; border: 1px solid #492626; border-top: 4px solid #f85149; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(248,81,73,0.15); }
+        .complaints-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto; }
+        
         .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-box { background: #0d1117; border: 1px solid #30363d; padding: 15px; border-radius: 8px; text-align: center; }
         .stat-box h5 { margin: 0 0 8px 0; color: #8b949e; font-size: 13px; }
@@ -30,15 +33,16 @@ ADMIN_HTML = """
         th { background-color: #21262d; color: #79c0ff; font-weight: bold; }
         tr:hover { background-color: rgba(88, 166, 255, 0.03); }
         
-        .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; color: #fff; }
-        .bg-android { background: #3fb950; } .bg-iphone { background: #ffd700; color: #000; } .bg-windows { background: #1f6feb; }
+        .device-tag { color: #ffd700; font-weight: bold; }
+        .loc-tag { color: #3fb950; font-weight: bold; }
+        .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,215,0,0.2); }
         
-        /* تنسيق كتل عرض مدد الألعاب الخماسية الملونة داخل الجدول */
-        .game-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.04); border: 1px solid #30363d; }
-        .report-txt { background: rgba(248, 81, 73, 0.1); border-right: 3px solid #f85149; padding: 8px; margin: 6px 0; border-radius: 0 6px 6px 0; font-size: 12px; line-height: 1.5; color: #ff7b72; }
+        .game-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.02); border: 1px solid #30363d; }
+        .report-txt { background: #211b1b; border-right: 4px solid #f85149; padding: 12px; margin: 2px 0; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.5; color: #ff7b72; display: flex; justify-content: space-between; align-items: center; }
         .clear-db-btn { background: #d29922; color: #000; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; }
     </style>
 </head>
+"""
 <body>
     <div class="container">
         <div class="main-header">
@@ -48,23 +52,30 @@ ADMIN_HTML = """
                 <a href="/albrawe-admin/logout" class="logout-btn">تسجيل الخروج 🚪</a>
             </div>
         </div>
+        
+        <div class="complaints-inbox-card">
+            <h3 style="margin:0; color:#ff7b72; font-size:16px; border-bottom:1px solid #492626; padding-bottom:8px;"><i class="fas fa-inbox"></i> صندوق الشكاوى والبلاغات السحابي الموحد</h3>
+            <div class="complaints-grid" id="globalComplaintsInbox"></div>
+        </div>
+
         <div class="grid-stats">
             <div class="stat-box"><h5>إجمالي الزيارات النشطة</h5><p id="totalViews">0</p></div>
             <div class="stat-box"><h5>متوسط الوقت بالموقع</h5><p id="avgTime">0 ثانية</p></div>
-            <div class="stat-box"><h5>إجمالي البلاغات والشكاوى</h5><p id="totalComplaints">0</p></div>
+            <div class="stat-box"><h5>إجمالي بلاغات الصندوق</h5><p id="totalComplaints">0</p></div>
         </div>
+        
         <div class="analytics-card">
-            <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:8px;">👥 سجل حركة بيانات المستخدمين والبلاغات بالتفصيل</h3>
+            <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:8px;">👥 سجل تدقيق حركات المستخدمين وعدادات الألعاب</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
                             <th>الاسم الرمزي</th>
-                            <th>نوع الهاتف / المتصفح</th>
+                            <th>الموديل الدقيق للجهاز 📱</th>
+                            <th>الموقع الجغرافي 🌍</th>
                             <th>وقت الدخول</th>
-                            <th>الوقت المستغرق</th>
-                            <th>سجل العدادات الخماسية للألعاب 🎮</th>
-                            <th>الشكاوى والبلاغات السحابية المرسلة</th>
+                            <th>إجمالي وقت الألعاب ⏳</th>
+                            <th>تفصيل عدادات الألعاب الخمسة 🎮</th>
                         </tr>
                     </thead>
                     <tbody id="logsTableBody"></tbody>
@@ -79,45 +90,55 @@ ADMIN_HTML = """
             .then(data => {
                 let db = data.analytics || [];
                 let complDB = data.reports || [];
+                
                 document.getElementById('totalViews').innerText = db.length;
                 document.getElementById('totalComplaints').innerText = complDB.length;
+                
                 let totalSeconds = 0;
                 db.forEach(item => { totalSeconds += (item.duration || 0); });
                 document.getElementById('avgTime').innerText = db.length > 0 ? Math.round(totalSeconds / db.length) + " ثانية" : "0 ثانية";
+                
+                let inboxHtml = "";
+                if(complDB.length === 0) {
+                    inboxHtml = '<p style="color:#8b949e; font-size:13px; text-align:center; margin:10px 0;">الصندوق نظيف كلياً؛ لا توجد أي شكاوى مرفوعة حالياً من زوار الويب. ✨</p>';
+                } else {
+                    complDB.forEach(c => {
+                        inboxHtml += `
+                        <div class="report-txt">
+                            <span><i class="fas fa-user" style="color:#8b949e; margin-left:6px;"></i> <strong>${c.user}</strong>: ${c.details}</span>
+                            <span style="color:#8b949e; font-size:11px; font-family:monospace;"><i class="far fa-clock"></i> ${c.date}</span>
+                        </div>`;
+                    });
+                }
+                document.getElementById('globalComplaintsInbox').innerHTML = inboxHtml;
+                
                 let html = "";
                 if(db.length === 0) {
                     html = '<tr><td colspan="6" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مسجلة حتى الآن.</td></tr>';
                 } else {
                     db.forEach(user => {
-                        let deviceBadge = '<span class="badge bg-windows">Windows/PC</span>';
-                        let ua = (user.userAgent || "").toLowerCase();
-                        if(ua.includes('android')) deviceBadge = '<span class="badge bg-android">Android 📱</span>';
-                        else if(ua.includes('iphone') || ua.includes('ipad')) deviceBadge = '<span class="badge bg-iphone">iPhone 🍏</span>';
+                        let snake = user.snakeTime || 0;
+                        let tetris = user.tetrisTime || 0;
+                        let xo = user.xoTime || 0;
+                        let shooter = user.shooterTime || 0;
+                        let clicker = user.clickerTime || 0;
+                        let totalGamesSeconds = snake + tetris + xo + shooter + clicker;
                         
-                        // جلب الشكاوى الفنية الموجهة عبر الويب لهذا المستخدم بالتحديد
-                        let userComplaints = complDB.filter(c => (c.user || "").toLowerCase() === (user.username || "").toLowerCase());
-                        let complHtml = '<span style="color:#8b949e;">لا يوجد بلاغات</span>';
-                        if(userComplaints.length > 0) {
-                            complHtml = "";
-                            userComplaints.forEach(c => { complHtml += `<div class="report-txt"><i class="fas fa-exclamation-triangle"></i> [${c.date}]: ${c.details}</div>`; });
-                        }
-                        
-                        // تجميع وعرض سجل العدادات الخمسة المطور للألعاب بالكامل
                         let gameDuration = `
-                            <div class="game-tag" style="color:#3fb950;"><i class="fas fa-dragon"></i> ثعبان: ${user.snakeTime || 0}ث</div>
-                            <div class="game-tag" style="color:#d29922;"><i class="fas fa-cubes"></i> تترس: ${user.tetrisTime || 0}ث</div>
-                            <div class="game-tag" style="color:#a371f7;"><i class="fas fa-times-circle"></i> X-O: ${user.xoTime || 0}ث</div>
-                            <div class="game-tag" style="color:#388bfd;"><i class="fas fa-space-shuttle"></i> فضاء: ${user.shooterTime || 0}ث</div>
-                            <div class="game-tag" style="color:#ff7b72;"><i class="fas fa-bolt"></i> نيون: ${user.clickerTime || 0}ث</div>
+                            <div class="game-tag" style="color:#3fb950;"><i class="fas fa-dragon"></i> ثعبان: ${snake}ث</div>
+                            <div class="game-tag" style="color:#d29922;"><i class="fas fa-cubes"></i> تترس: ${tetris}ث</div>
+                            <div class="game-tag" style="color:#a371f7;"><i class="fas fa-times-circle"></i> X-O: ${xo}ث</div>
+                            <div class="game-tag" style="color:#388bfd;"><i class="fas fa-space-shuttle"></i> فضاء: ${shooter}ث</div>
+                            <div class="game-tag" style="color:#ff7b72;"><i class="fas fa-bolt"></i> نيون: ${clicker}ث</div>
                         `;
                         
                         html += `<tr>
                             <td style="font-weight:bold; color:#fff;">${user.username}</td>
-                            <td>${deviceBadge}</td>
+                            <td class="device-tag"><i class="fas fa-mobile-alt"></i> ${user.deviceModel || "غير معروف"}</td>
+                            <td class="loc-tag"><i class="fas fa-map-marker-alt"></i> ${user.location || "جاري التحديد..."}</td>
                             <td>${user.loginTime}</td>
-                            <td style="color:#58a6ff; font-weight:bold;">${user.duration || 0} ثانية</td>
+                            <td><span class="total-games-time"><i class="fas fa-hourglass-half"></i> ${totalGamesSeconds} ثانية</span></td>
                             <td>${gameDuration}</td>
-                            <td>${complHtml}</td>
                         </tr>`;
                     });
                 }
@@ -125,12 +146,12 @@ ADMIN_HTML = """
             });
         }
         function clearLogsDatabase() {
-            if(confirm("هل أنت متأكد من تصفير ومسح كافة تحليلات الزوار وقاعدة البيانات بالكامل؟")) {
+            if(confirm("هل أنت متأكد من تصفير ومسح كافة تحليلات الزوار وصندوق الشكاوى بالكامل من السيرفر؟")) {
                 fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics());
             }
         }
         fetchAndRenderAnalytics();
-        setInterval(fetchAndRenderAnalytics, 4000); // تحديث دوري ذكي لرصد الشكاوى والعدادات كل 4 ثوانٍ
+        setInterval(fetchAndRenderAnalytics, 4000);
     </script>
 </body>
 </html>
