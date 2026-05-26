@@ -15,16 +15,12 @@ XO_TEMPLATE = """
         .header-nav { background-color: #161b22; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #a371f7; }
         .back-btn { background: #21262d; border: 1px solid #30363d; color: #a371f7; padding: 6px 15px; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 14px; }
         .brand-center-link { text-decoration: none; font-family: 'Courier New', Courier, monospace; font-size: 20px; font-weight: bold; color: #fff; text-shadow: 0 0 5px #a371f7, 0 0 10px #a371f7; }
-        
         .main-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
         .xo-phone-box { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #a371f7; border-radius: 20px; width: 100%; max-width: 340px; padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); box-sizing: border-box; }
-        
         .status-txt { font-size: 14px; font-weight: bold; color: #a371f7; margin-bottom: 15px; }
-        
         .xo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .xo-cell { aspect-ratio: 1; background: #0d1117; border: 1px solid #30363d; border-radius: 10px; font-size: 32px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; transition: 0.15s ease; }
         .xo-cell:hover { border-color: #a371f7; background: rgba(163,113,247,0.03); }
-        
         .reset-xo-btn { background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 8px 20px; font-size: 13px; font-weight: bold; cursor: pointer; border-radius: 6px; font-family: inherit; width: 100%; }
     </style>
 </head>
@@ -57,7 +53,7 @@ XO_TEMPLATE = """
         let turn = "X", gameActive = true, boardState = ["", "", "", "", "", "", "", "", ""];
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
-        // ✅ تم الإصلاح الجذري الشامل: كتابة أنماط الفوز رقمياً وصراحة 100% لإنهاء انهيار خوادم Vercel للأبد
+        // ✅ تم قفل وتثبيت الأرقام صراحة دون أي فواصل فارغة مسببة للأخطاء السحابية
         const winPatterns = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],
             [0, 3, 6], [1, 4, 7], [2, 5, 8],
@@ -77,7 +73,6 @@ XO_TEMPLATE = """
             cell.innerText = turn;
             cell.style.color = (turn === "X") ? "#f85149" : "#388bfd";
             playSound((turn === "X") ? 450 : 600);
-            
             checkResult();
         }
 
