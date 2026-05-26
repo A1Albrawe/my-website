@@ -34,7 +34,6 @@ ADMIN_HTML = """
         .stat-box p { margin: 0; font-size: 24px; font-weight: bold; color: #58a6ff; font-family: monospace; }
         .sub-stat-label { display: block; font-size: 11px; font-weight: bold; color: #8b949e; margin-top: 5px; border-top: 1px dashed #21262d; padding-top: 4px; }
         .section-title { color: #79c0ff; margin: 20px 0 10px 0; font-size: 16px; border-bottom: 1px solid #30363d; padding-bottom: 6px; text-align: right; }
-        
         .cards-mesh { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 15px; margin-top: 15px; }
         
         .user-panel-card { background: #0d1117; border: 1px solid #30363d; border-right: 4px solid #a371f7; border-radius: 10px; padding: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 10px; text-align: right; transition: 0.2s; }
@@ -95,7 +94,6 @@ ADMIN_HTML = """
                 let liveDB = data.analytics || [];
                 let complDB = data.reports || [];
                 let historicalCount = data.historicalVisits || 0;
-                
                 let archiveDB = JSON.parse(localStorage.getItem('permanent_archive_db') || "[]");
                 
                 liveDB.forEach(liveUser => {
@@ -119,19 +117,10 @@ ADMIN_HTML = """
                         archiveDB.push(liveUser);
                     }
                 });
-                
                 localStorage.setItem('permanent_archive_db', JSON.stringify(archiveDB));
-
                 let lastSavedHistorical = parseInt(localStorage.getItem('backup_historical') || "0");
-                if (historicalCount > lastSavedHistorical) {
-                    localStorage.setItem('backup_historical', historicalCount);
-                } else {
-                    historicalCount = lastSavedHistorical;
-                }
-                if (historicalCount < archiveDB.length) {
-                    historicalCount = archiveDB.length;
-                    localStorage.setItem('backup_historical', historicalCount);
-                }
+                if (historicalCount > lastSavedHistorical) { localStorage.setItem('backup_historical', historicalCount); } else { historicalCount = lastSavedHistorical; }
+                if (historicalCount < archiveDB.length) { historicalCount = archiveDB.length; localStorage.setItem('backup_historical', historicalCount); }
                 
                 document.getElementById('totalViews').innerText = liveDB.length;
                 document.getElementById('historicalViews').innerText = historicalCount;
@@ -140,56 +129,42 @@ ADMIN_HTML = """
                 let totalSeconds = 0;
                 archiveDB.forEach(item => { totalSeconds += (item.duration || 0); });
                 document.getElementById('totalGlobalUsageTime').innerText = totalSeconds + " ثانية";
-                
                 let avgCalc = archiveDB.length > 0 ? Math.round(totalSeconds / archiveDB.length) : 0;
                 document.getElementById('avgUsageTime').innerText = "متوسط الاستخدام الفردي: " + avgCalc + " ثانية ⏱️";
                 
                 let inboxHtml = "";
-                if(complDB.length === 0) {
-                    inboxHtml = '<p style="color:#8b949e; font-size:12px; text-align:center; margin:10px 0;">الصندوق نظيف كلياً من الشكاوى المرفوعة حالياً.</p>';
-                } else {
+                if(complDB.length === 0) { inboxHtml = '<p style="color:#8b949e; font-size:12px; text-align:center; margin:10px 0;">الصندوق نظيف كلياً.</p>'; } else {
                     complDB.forEach(c => {
-                        inboxHtml += '<div class="report-txt">' +
-                            '<span><i class="fas fa-user" style="color:#8b949e; margin-left:5px;"></i> <strong>' + c.user + '</strong>: ' + c.details + '</span>' +
-                            '<span style="color:#8b949e; font-size:11px;"><i class="far fa-clock"></i> ' + c.date + '</span>' +
-                        '</div>';
+                        inboxHtml += '<div class="report-txt"><span><i class="fas fa-user"></i> <strong>' + c.user + '</strong>: ' + c.details + '</span><span>' + c.date + '</span></div>';
                     });
                 }
                 document.getElementById('globalComplaintsInbox').innerHTML = inboxHtml;
                 
                 let cardsHtml = "";
-                if(archiveDB.length === 0) {
-                    cardsHtml = '<p style="grid-column: 1/-1; text-align:center; color:#8b949e; padding:20px;">لا توجد بيانات مستخدمين مؤرشفة حتى الآن.</p>';
-                } else {
+                if(archiveDB.length === 0) { cardsHtml = '<p style="grid-column: 1/-1; text-align:center; color:#8b949e; padding:20px;">لا توجد سجلات مستخدمين مؤرشفة حتى الآن.</p>'; } else {
                     archiveDB.slice().reverse().forEach(user => {
                         let snake = user.snakeTime || 0; let tetris = user.tetrisTime || 0; let xo = user.xoTime || 0; let shooter = user.shooterTime || 0; let clicker = user.clickerTime || 0;
                         let totalGamesSeconds = snake + tetris + xo + shooter + clicker;
-                        
                         let currentLoc = user.location || "القاهرة - مصر";
                         let countryCode = "eg"; 
                         let locLower = currentLoc.toLowerCase();
                         if (locLower.includes("saudi") || locLower.includes("السعودية") || locLower.includes("رياض") || locLower.includes("مكة")) countryCode = "sa";
-                        else if (locLower.includes("emirates") || locLower.includes("دبي") || locLower.includes("الإمارات")) countryCode = "ae";
+                        else if (locLower.includes("emirates") || locLower.includes("دبي") || locLower.includes("إمارات")) countryCode = "ae";
                         else if (locLower.includes("kuwait") || locLower.includes("الكويت")) countryCode = "kw";
                         else if (locLower.includes("iraq") || locLower.includes("العراق")) countryCode = "iq";
                         else if (locLower.includes("jordan") || locLower.includes("الأردن")) countryCode = "jo";
                         
-                        // استخدام نظام الدمج الصافي المصلّح للأعلام حياً لمنع الـ Cache من إخفائها
                         let flagImgHtml = '<img class="flag-img" src="https://flagcdn.com' + countryCode + '.png" alt="Flag">';
                         let currentDevice = user.deviceModel || "Android Device 📱";
                         let stepsList = user.browsingHistory || ["الرئيسية 🏠"];
                         
                         cardsHtml += '<div class="user-panel-card">' +
-                            '<div class="card-top-info">' +
-                                '<span class="card-username"><i class="fas fa-user-circle"></i> ' + user.username + '</span>' +
-                                '<span class="card-device"><i class="fas fa-mobile-alt"></i> ' + currentDevice + '</span>' +
-                            '</div>' +
+                            '<div class="card-top-info"><span class="card-username"><i class="fas fa-user-circle"></i> ' + user.username + '</span><span class="card-device">' + currentDevice + '</span></div>' +
                             '<div class="card-meta-line"><i class="fas fa-map-marker-alt"></i> ' + flagImgHtml + ' <span class="loc-tag">' + currentLoc + '</span></div>' +
                             '<div class="card-meta-line"><i class="fas fa-clock"></i> <span>الدخول: ' + user.loginTime + '</span></div>' +
                             '<div class="card-meta-line"><i class="fas fa-browser"></i> <span>الموقع الأم: <span class="time-badge">' + (user.duration || 0) + 'ث</span></span></div>' +
                             '<div class="card-meta-line"><i class="fas fa-hourglass-half"></i> <span>إجمالي الألعاب: <span class="games-total-badge">' + totalGamesSeconds + 'ث</span></span></div>' +
-                            '<div class="route-path-box"><i class="fas fa-map-signs" style="color:#8b949e; margin-left:4px;"></i> ' + stepsList.join(' ➔ ') + '</div>' +
-                            
+                            '<div class="route-path-box">' + stepsList.join(' ➔ ') + '</div>' +
                             '<div class="games-dashboard">' +
                                 '<div class="mini-game-tag" style="color:#3fb950;"><span>🐍 ثعبان</span><span>' + snake + 'ث</span></div>' +
                                 '<div class="mini-game-tag" style="color:#d29922;"><span>🧱 تترس</span><span>' + tetris + 'ث</span></div>' +
@@ -203,16 +178,13 @@ ADMIN_HTML = """
                 document.getElementById('logsCardsContainer').innerHTML = cardsHtml;
             });
         }
-        function clearLogsDatabase() {
-            if(confirm("هل أنت متأكد من مسح الأرشيف التراكمي وتصفير السجلات بالكامل؟")) {
-                localStorage.removeItem('permanent_archive_db');
-                localStorage.removeItem('backup_historical');
-                fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics());
-            }
-        }
-        fetchAndRenderAnalytics();
-        setInterval(fetchAndRenderAnalytics, 4000);
+        function clearLogsDatabase() { if(confirm("هل أنت متأكد من مسح الأرشيف التراكمي وتصفير السجلات بالكامل؟")) { localStorage.removeItem('permanent_archive_db'); localStorage.removeItem('backup_historical'); fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics()); } }
+        fetchAndRenderAnalytics(); setInterval(fetchAndRenderAnalytics, 4000);
     </script>
+</body>
+</html>
+"""
+
 LOGIN_HTML = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -248,6 +220,7 @@ LOGIN_HTML = """
 </html>
 """
 
+@admin_blueprint.route('/', methods=['GET', 'POST'])
 @admin_blueprint.route('/albrawe-admin-panel-2026', methods=['GET', 'POST'])
 def admin_page():
     gate_key = request.args.get('key', '')
