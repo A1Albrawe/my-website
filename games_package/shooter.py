@@ -26,19 +26,16 @@ SHOOTER_TEMPLATE = """
         .game-area { position: relative; width: 100%; display: flex; justify-content: center; }
         canvas { background-color: #020305; display: block; border: 2px solid #21262d; border-radius: 12px; max-width: 100%; height: auto; }
         
-        /* 🚨 واجهة الإنذار والتحذير عند ظهور الزعيم الأكبر */
         .boss-alert { display: none; position: absolute; top: 15%; width: 100%; color: #f85149; font-size: 18px; font-weight: bold; text-shadow: 0 0 10px #f85149; animation: blinker 0.8s linear infinite; z-index: 4; }
         @keyframes blinker { 50% { opacity: 0; } }
         
-        .overlay-txt { display: none; position: absolute; font-size: 20px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(13, 17, 23, 0.98); border: 2px solid #388bfd; padding: 25px; border-radius: 14px; text-align: center; width: 88%; box-shadow: 0 0 30px rgba(56, 139, 253, 0.4); box-sizing: border-box; z-index: 5; }
+        .overlay-txt { display: none; position: absolute; font-size: 20px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(13, 17, 23, 0.98); border: 2px solid #388bfd; padding: 25px; border-radius: 14px; text-align: center; width: 88%; box-shadow: 0 0 30px #388bfd; box-sizing: border-box; z-index: 5; }
         
-        /* 🕹️ أزرار القيادة الكلاسيكية الكبيرة مع تباعد هندسي ممتاز ومريح للمس */
         .control-pad { margin-top: 15px; display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 12px; width: 100%; }
-        .ctrl-btn { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 15px; font-size: 22px; color: #388bfd; cursor: pointer; transition: 0.1s; display: flex; align-items: center; justify-content: center; touch-action: none; box-shadow: 0 4px #05070b; }
+        .ctrl-btn { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 15px; font-size: 22px; color: #388bfd; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: none; box-shadow: 0 4px #05070b; }
         .ctrl-btn:active { transform: translateY(2px); box-shadow: 0 2px #05070b; }
         
         .fire-btn { background: #2d1e1f; border: 2px solid #f85149; color: #f85149; text-shadow: 0 0 5px #f85149; font-size: 24px; box-shadow: 0 4px #05070b; }
-        .fire-btn:active { background: #f85149; color: #fff; }
         
         .pause-action-btn { grid-column: span 3; background: #161b22; border: 1px solid #8b949e; color: #8b949e; font-size: 13px; font-weight: bold; border-radius: 10px; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; font-family: inherit; touch-action: none; }
     </style>
@@ -58,7 +55,6 @@ SHOOTER_TEMPLATE = """
             </div>
             
             <div class="game-area">
-                <!-- 🚨 نص الإنذار الكلاسيكي عند قدوم الزعيم -->
                 <div id="bossAlertText" class="boss-alert">⚠️ تحذير: اقتراب سفينة الزعيم الأكبر! ⚠️</div>
                 
                 <canvas id="gameCanvas" width="360" height="460"></canvas>
@@ -71,7 +67,6 @@ SHOOTER_TEMPLATE = """
                 </div>
             </div>
             
-            <!-- 🕹️ تم تصحيح الاتجاهات المعكوسة بالملّي: اليسار (◀) ينقل يساراً، واليمين (▶) ينقل يميناً بشكل طبيعي ومجرب -->
             <div class="control-pad">
                 <button class="ctrl-btn" 
                         ontouchstart="event.preventDefault(); handleButtonPress('L', true)" 
@@ -106,8 +101,8 @@ SHOOTER_TEMPLATE = """
 
         function handleButtonPress(btn, isPressed) {
             if(isPressed && audioCtx.state === 'suspended') audioCtx.resume();
-            if (btn === 'L') controls.left = isPressed; // زر اليسار المصلح
-            if (btn === 'R') controls.right = isPressed; // زر اليمين المصلح
+            if (btn === 'L') controls.left = isPressed; 
+            if (btn === 'R') controls.right = isPressed; 
             if (btn === 'F') controls.fire = isPressed;
         }
 
@@ -124,7 +119,7 @@ SHOOTER_TEMPLATE = """
             if(isGameOver || isPaused) return;
             const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = 'triangle';
             let freq = bkgNotes[Math.floor(Math.random() * bkgNotes.length)] + (currentStage * 12);
-            if(boss) freq -= 30; // موسيقى داكنة ومرعبة أثناء مواجهة الزعيم
+            if(boss) freq -= 30; 
             o.frequency.setValueAtTime(freq, audioCtx.currentTime); g.gain.setValueAtTime(0.01, audioCtx.currentTime);
             g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.22); o.connect(g); g.connect(audioCtx.destination);
             o.start(); o.stop(audioCtx.currentTime + 0.25);
@@ -165,26 +160,21 @@ SHOOTER_TEMPLATE = """
         function togglePause() { if(isGameOver) return; isPaused = !isPaused; document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none'; }
 
         function drawClassicPlayer(x, y, w, h) {
-            // رسم السفينة الكلاسيكية الفخمة بأجنحة نيون متوهجة ومحركات بكسلية
             ctx.fillStyle = '#388bfd'; ctx.beginPath();
             ctx.moveTo(x + w/2, y); ctx.lineTo(x, y + h); ctx.lineTo(x + w/2, y + h - 6); ctx.lineTo(x + w, y + h); ctx.closePath(); ctx.fill();
             ctx.fillStyle = '#58a6ff'; ctx.fillRect(x + w/2 - 2, y + 4, 4, 12);
-            ctx.fillStyle = '#ff7b72'; ctx.fillRect(x + w/2 - 3, y + h - 2, 6, Math.random()*5+3); // لهب المحرك الخلفي المتحرك حياً
+            ctx.fillStyle = '#ff7b72'; ctx.fillRect(x + w/2 - 3, y + h - 2, 6, Math.random()*5+3); 
         }
 
         function drawClassicEnemy(x, y, w, h) {
-            // رسم سفن الأعداء الكلاسيكية بأعين نيون وامضة
             ctx.fillStyle = '#f85149'; ctx.fillRect(x + 4, y, w - 8, h - 6);
             ctx.fillStyle = '#ea605a'; ctx.fillRect(x, y + 6, w, 6);
-            ctx.fillStyle = '#ffd700'; ctx.fillRect(x + 5, y + 4, 3, 3); ctx.fillRect(x + w - 8, y + 4, 3, 3); // الأعين
+            ctx.fillStyle = '#ffd700'; ctx.fillRect(x + 5, y + 4, 3, 3); ctx.fillRect(x + w - 8, y + 4, 3, 3); 
         }
 
         function drawClassicBoss(b) {
-            // رسم سفينة الزعيم الفخمة والضخمة في عريض الشاشة
             ctx.fillStyle = '#a371f7'; ctx.fillRect(b.x, b.y + 6, b.w, b.h - 6);
             ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.moveTo(b.x + b.w/2, b.y + b.h); ctx.lineTo(b.x + b.w/2 - 20, b.y + 10); ctx.lineTo(b.x + b.w/2 + 20, b.y + 10); ctx.closePath(); ctx.fill();
-            
-            // شريط طاقة الزعيم النيون بالأعلى
             ctx.fillStyle = '#21262d'; ctx.fillRect(b.x, b.y - 12, b.w, 5);
             ctx.fillStyle = '#f85149'; ctx.fillRect(b.x, b.y - 12, b.w * (b.hp / b.maxHp), 5);
         }
@@ -193,20 +183,16 @@ SHOOTER_TEMPLATE = """
             if (isPaused || isGameOver) return;
             ctx.fillStyle = '#020406'; ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // تحريك وتجسيد فضاء النجوم السينمائي
             ctx.fillStyle = 'rgba(255,255,255,0.4)';
             stars.forEach(s => { s.y += s.speed; if(s.y > canvas.height) s.y = 0; ctx.fillRect(s.x, s.y, s.size, s.size); });
             
-            // تحريك الشهب الصخرية الكلاسيكية بالخلفية للعمق البصري
             ctx.fillStyle = '#21262d';
             meteors.forEach(m => { m.y += m.speed; if(m.y > canvas.height) { m.y = -50; m.x = Math.random()*canvas.width; } ctx.beginPath(); ctx.arc(m.x, m.y, m.size, 0, Math.PI*2); ctx.fill(); });
 
-            // حركة اللاعب المصلحة والمنسقة هندسياً يميناً ويساراً
             if(controls.left) player.x = Math.max(0, player.x - player.speed);
             if(controls.right) player.x = Math.min(canvas.width - player.w, player.x + player.speed);
             drawClassicPlayer(player.x, player.y, player.w, player.h);
 
-            // الإطلاق المتزن المقيد لليزر المزدوج عند الضغط المطول
             if(controls.fire) {
                 let now = Date.now();
                 if(now - lastShotTime > shotDelay) {
@@ -216,42 +202,35 @@ SHOOTER_TEMPLATE = """
                 }
             }
 
-            // تحديث مقذوفات ليزر اللاعب
             lasers.forEach((l, li) => { l.y -= 8; ctx.fillStyle = '#ffd700'; ctx.fillRect(l.x, l.y, l.w, l.h); if(l.y < 0) lasers.splice(li, 1); });
             
-            // تحديث مقذوفات ليزر الزعيم والأعداء
             enemyLasers.forEach((el, eli) => { el.y += 5.5; ctx.fillStyle = '#ff7b72'; ctx.fillRect(el.x, el.y, el.w, el.h); if(el.y > canvas.height) enemyLasers.splice(eli, 1); if(el.y + el.h > player.y && el.x < player.x + player.w && el.x + el.w > player.x) { endGame(); } });
 
-            // 👑 نظام معركة الزعماء (Boss Fight Trigger) عند بلوغ مضاعفات الـ 100 نقطة في المرحلة
             if (score > 0 && score % 100 === 0 && !boss) {
                 document.getElementById('bossAlertText').style.display = 'block';
                 playSound('bossAlert');
                 boss = { x: canvas.width / 2 - 45, y: -60, w: 90, h: 35, speed: 1.5 + (currentStage * 0.3), direction: 1, hp: 4 + (currentStage * 3), maxHp: 4 + (currentStage * 3) };
-                enemies = []; // تصفية الأعداء الصغار لتفريغ الساحة للزعيم
+                enemies = []; 
             }
 
             if (boss) {
-                // تحريك سفينة الزعيم السينمائية العريضة
                 if(boss.y < 45) boss.y += 1;
                 boss.x += boss.speed * boss.direction;
                 if(boss.x < 0 || boss.x + boss.w > canvas.width) boss.direction *= -1;
                 drawClassicBoss(boss);
 
-                // معدل إطلاق الزعيم لليزر الحربي المدمر عشوائياً حسب صعوبة المرحلة
                 if(Math.random() < 0.02 + (currentStage * 0.005)) {
                     enemyLasers.push({ x: boss.x + boss.w/2 - 2, y: boss.y + boss.h, w: 4, h: 14 });
                     enemyLasers.push({ x: boss.x + 15, y: boss.y + boss.h, w: 4, h: 14 });
                     enemyLasers.push({ x: boss.x + boss.w - 19, y: boss.y + boss.h, w: 4, h: 14 });
                 }
 
-                // تصادم مقذوفات اللاعب مع جسم الزعيم
                 lasers.forEach((l, li) => {
                     if(l.x < boss.x + boss.w && l.x + l.w > boss.x && l.y < boss.y + boss.h && l.y + l.h > boss.y) {
                         boss.hp--; lasers.splice(li, 1); playSound('hit');
                         createExplosion(l.x, l.y, '#ffd700');
                         
                         if(boss.hp <= 0) {
-                            // هزيمة وعزل الزعيم والانتقال الفوري للمرحلة التالية بنجاح كلاسيكي
                             createExplosion(boss.x + boss.w/2, boss.y + boss.h/2, '#a371f7');
                             score += 50; boss = null; currentStage++;
                             document.getElementById('bossAlertText').style.display = 'none';
@@ -262,7 +241,6 @@ SHOOTER_TEMPLATE = """
                     }
                 });
             } else {
-                // في غياب الزعيم، تولد سفن الأعداء الصغار العادية تدريجياً وبدون تداخل
                 if(Math.random() < 0.016 * (1 + currentStage*0.2) && enemies.length < 5) {
                     let spawnX = Math.random() * (canvas.width - 26);
                     let overlapping = enemies.some(e => Math.abs(e.x - spawnX) < 32 && e.y < 40);
@@ -270,7 +248,6 @@ SHOOTER_TEMPLATE = """
                 }
             }
 
-            // حركة وتصادمات الأعداء الصغار
             enemies.forEach((e, ei) => {
                 e.y += e.speed; drawClassicEnemy(e.x, e.y, e.w, e.h);
                 if(e.y + e.h > player.y && e.x < player.x + player.w && e.x + e.w > player.x) { endGame(); return; }
@@ -285,9 +262,15 @@ SHOOTER_TEMPLATE = """
                 });
             });
 
-            // تحديث جزيئات الانفجارات البكسلية التكتيكية
             particles.forEach((p, pi) => { p.x += p.vx; p.y += p.vy; p.alpha -= 0.025; ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fillRect(p.x, p.y, 2, 2); ctx.globalAlpha = 1.0; if(p.alpha <= 0) particles.splice(pi, 1); });
         }
 
         function endGame() { isGameOver = true; clearInterval(gameInterval); clearInterval(musicInterval); playSound('lose'); document.getElementById('bossAlertText').style.display = 'none'; document.getElementById('goTitle').innerText = "تحطمت المركبة! 💀"; document.getElementById('finalScoreText').innerText = "أحرزت: " + score + " نقطة ووصلت للمرحلة " + currentStage; document.getElementById('gameOverScreen').style.display = 'block'; }
     </script>
+</body>
+</html>
+"""
+
+@shooter_blueprint.route('/shooter')
+def shooter_page():
+    return render_template_string(SHOOTER_TEMPLATE)
