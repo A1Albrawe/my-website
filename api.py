@@ -3,22 +3,24 @@ from flask import Blueprint, request, jsonify
 
 api_blueprint = Blueprint('api', __name__)
 
-# 🔒 الذاكرة السحابية المركزية الممتدة والآمنة لتجاوز حظر ملفات Vercel
-CENTRAL_ANALYTICS_DB = []
-TOTAL_HISTORICAL_VISITS = 0
+# 🔒 المستودع المركزي الصلب الممتد الصلاحية لتفادي تنظيف ذاكرة Vercel
+if not hasattr(api_blueprint, 'CENTRAL_ANALYTICS_SERVER_DB'):
+    api_blueprint.CENTRAL_ANALYTICS_SERVER_DB = []
 
-# 📥 قاعدة البيانات السحابية الصلبة للشكاوى لتبقى محفوظة داخل الخادم للأبد وتظهر من أي جهاز مجاناً
+if not hasattr(api_blueprint, 'TOTAL_HISTORICAL_VISITS_COUNT'):
+    api_blueprint.TOTAL_HISTORICAL_VISITS_COUNT = 0
+
 if not hasattr(api_blueprint, 'PERMANENT_COMPLAINTS_SERVER_DB'):
     api_blueprint.PERMANENT_COMPLAINTS_SERVER_DB = []
 
 @api_blueprint.route('/api/log_visit', methods=['POST'])
 def log_visit():
-    global CENTRAL_ANALYTICS_DB, TOTAL_HISTORICAL_VISITS
     data = request.get_json() or {}
     username = data.get('username', 'زائر مجهول').strip()
     user_agent = request.headers.get('User-Agent', 'غير معروف')
     location = data.get('location', 'جاري جلب الموقع...').strip()
     
+    # 📱 الفرز الدقيق والفوري لموديلات الأجهزة حياً عبر فحص الـ User-Agent
     device_model = "كمبيوتر / غير معروف"
     ua_lower = user_agent.lower()
     if "android" in ua_lower:
@@ -26,53 +28,54 @@ def log_visit():
         if "samsung" in ua_lower or "sm-" in ua_lower: device_model = "Samsung Galaxy 📱"
         elif "redmi" in ua_lower or "xiaomi" in ua_lower or "mi " in ua_lower: device_model = "Xiaomi / Redmi 📱"
         elif "oppo" in ua_lower: device_model = "Oppo Phone 📱"
-    elif "iphone" in ua_lower:
+        elif "huawei" in ua_lower: device_model = "Huawei Phone 📱"
+    elif "iphone" in ua_lower or "ipad" in ua_lower:
         device_model = "iPhone 🍏"
-    elif "windows" in ua_lower: device_model = "Windows PC 💻"
+    elif "windows" in ua_lower: 
+        device_model = "Windows PC 💻"
+    elif "macintosh" in ua_lower:
+        device_model = "MacBook 💻"
 
-    user_entry = next((item for item in CENTRAL_ANALYTICS_DB if item["username"] == username), None)
+    # البحث عن الزائر في قاعدة البيانات لتحديث مكانه أو تسجيله كزيارة كلية جديدة
+    user_entry = next((item for item in api_blueprint.CENTRAL_ANALYTICS_SERVER_DB if item["username"] == username), None)
     
     if not user_entry:
-        TOTAL_HISTORICAL_VISITS += 1  
+        api_blueprint.TOTAL_HISTORICAL_VISITS_COUNT += 1  
         user_entry = {
             "username": username, "deviceModel": device_model, "location": location,
             "loginTime": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "duration": 0, "snakeTime": 0, "tetrisTime": 0, "xoTime": 0, "shooterTime": 0, "clickerTime": 0   
+            "duration": 0, "snakeTime": 0, "tetrisTime": 0, "xoTime": 0, "shooterTime": 0, "clickerTime": 0,
+            "browsingHistory": ["الرئيسية 🏠"]
         }
-        CENTRAL_ANALYTICS_DB.append(user_entry)
+        api_blueprint.CENTRAL_ANALYTICS_SERVER_DB.append(user_entry)
     else:
         user_entry["location"] = location
         user_entry["deviceModel"] = device_model
         
     return jsonify({"status": "success"})
+
 @api_blueprint.route('/api/update_duration', methods=['POST'])
 def update_duration():
-    global CENTRAL_ANALYTICS_DB
     data = request.get_json() or {}
     username = data.get('username', '').strip()
     game_type = data.get('game', '')
+    # استقبال الثواني المجمعة الموفرة للطاقة والأداء
+    inc = data.get('durationIncrement', 5)
     
     if username:
-        user_entry = next((item for item in CENTRAL_ANALYTICS_DB if item["username"] == username), None)
+        user_entry = next((item for item in api_blueprint.CENTRAL_ANALYTICS_SERVER_DB if item["username"] == username), None)
         if user_entry:
-            if game_type == 'snake': user_entry["snakeTime"] += 5
-            elif game_type == 'tetris': user_entry["tetrisTime"] += 5
-            elif game_type == 'xo':
-                if "xoTime" not in user_entry: user_entry["xoTime"] = 0
-                user_entry["xoTime"] += 5
-            elif game_type == 'shooter':
-                if "shooterTime" not in user_entry: user_entry["shooterTime"] = 0
-                user_entry["shooterTime"] += 5
-            elif game_type == 'clicker':
-                if "clickerTime" not in user_entry: user_entry["clickerTime"] = 0
-                user_entry["clickerTime"] += 5
-            else:
-                user_entry["duration"] += 5
+            if game_type == 'snake': user_entry["snakeTime"] += inc
+            elif game_type == 'tetris': user_entry["tetrisTime"] += inc
+            elif game_type == 'xo': user_entry["xoTime"] += inc
+            elif game_type == 'shooter': user_entry["shooterTime"] += inc
+            elif game_type == 'clicker': user_entry["clickerTime"] += inc
+            else: user_entry["duration"] += inc
+            
     return jsonify({"status": "success"})
 
 @api_blueprint.route('/api/submit_complaint', methods=['POST'])
 def submit_complaint():
-    """حفظ الشكاوى حياً داخل ذاكرة بايثون الصلبة والمحصنة من تصفير التصفح التلقائي للويب"""
     data = request.get_json() or {}
     user = data.get('user', 'زائر مجهول').strip()
     details = data.get('details', '').strip()
@@ -87,16 +90,14 @@ def submit_complaint():
 
 @api_blueprint.route('/api/admin_get_all_data', methods=['GET'])
 def admin_get_all_data():
-    global CENTRAL_ANALYTICS_DB, TOTAL_HISTORICAL_VISITS
     return jsonify({
-        "analytics": CENTRAL_ANALYTICS_DB,
-        "reports": api_blueprint.PERMANENT_COMPLAINTS_SERVER_DB, # البث المباشر للشكاوى الصلبة
-        "historicalVisits": TOTAL_HISTORICAL_VISITS
+        "analytics": api_blueprint.CENTRAL_ANALYTICS_SERVER_DB,
+        "reports": api_blueprint.PERMANENT_COMPLAINTS_SERVER_DB,
+        "historicalVisits": api_blueprint.TOTAL_HISTORICAL_VISITS_COUNT
     })
 
 @api_blueprint.route('/api/admin_clear_data', methods=['POST'])
 def admin_clear_data():
-    global CENTRAL_ANALYTICS_DB
-    CENTRAL_ANALYTICS_DB = []
-    api_blueprint.PERMANENT_COMPLAINTS_SERVER_DB = [] # تصفير الشكاوى فقط بطلب صريح من لوحة الأدمن يدوياً
+    api_blueprint.CENTRAL_ANALYTICS_SERVER_DB = []
+    api_blueprint.PERMANENT_COMPLAINTS_SERVER_DB = []
     return jsonify({"status": "cleared"})
