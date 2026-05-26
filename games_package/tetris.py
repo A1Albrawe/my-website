@@ -2,89 +2,227 @@ from flask import Blueprint, render_template_string
 
 tetris_blueprint = Blueprint('tetris', __name__)
 
-TETRIS_HTML = """
+TETRIS_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Albrawe - Tetris Pro</title>
+    <title>Tetris Game - Albrawe</title>
+    <link rel="stylesheet" href="https://cloudflare.com">
     <style>
-        body { font-family: 'Courier New', Courier, monospace; text-align: center; background: #0d1117; color: #c9d1d9; padding: 0; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        .header-nav { background-color: #161b22; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #d29922; position: relative; }
+        body { font-family: 'Courier New', Courier, monospace; text-align: center; background: #0d1117; color: #c9d1d9; padding: 0; margin: 0; display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
+        .header-nav { background-color: #161b22; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #d29922; }
         .back-btn { background: #21262d; border: 1px solid #30363d; color: #d29922; padding: 6px 15px; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 14px; }
         
-        .header-brand-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-decoration: none; }
-        .neon-text-style { font-size: 20px; font-weight: bold; color: #fff; text-shadow: 0 0 5px #d29922, 0 0 10px #d29922; }
+        /* ✨ تأثير النيون لاسم المهندس البراوي في المنتصف للتوجيه للرئيسية */
+        .brand-center-link { text-decoration: none; font-family: 'Courier New', Courier, monospace; font-size: 20px; font-weight: bold; color: #fff; text-shadow: 0 0 5px #d29922, 0 0 10px #d29922; transition: 0.2s; }
+        .brand-center-link:hover { text-shadow: 0 0 10px #fff, 0 0 20px #d29922; }
         
         .main-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
-        .game-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #d29922; border-radius: 20px; width: 100%; max-width: 320px; padding: 15px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); box-sizing: border-box; }
-        canvas { background-color: #0d1117; display: block; width: 100%; height: auto; border: 2px solid #30363d; border-radius: 6px; }
-        .ctrl-pad { margin-top: 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-        .btn { background: #21262d; border: 1px solid #30363d; color: #d29922; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .tetris-phone { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #d29922; border-radius: 20px; width: 100%; max-width: 360px; padding: 20px 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); box-sizing: border-box; position: relative; }
+        .score-container { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; border-bottom: 1px solid #30363d; padding-bottom: 6px; margin-bottom: 10px; color: #d29922; align-items: center; }
+        .level-badge { color: #ffd700; font-weight: bold; }
+        
+        .game-area { position: relative; width: 100%; display: flex; justify-content: center; }
+        canvas { background-color: #0d1117; display: block; border: 2px solid #30363d; border-radius: 6px; }
+        .overlay-txt { display: none; position: absolute; font-size: 18px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(22, 27, 34, 0.95); border: 2px solid #d29922; padding: 12px; border-radius: 8px; text-align: center; width: 85%; box-sizing: border-box; z-index: 5; }
+        
+        .control-pad { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 220px; margin-left: auto; margin-right: auto; }
+        .ctrl-btn { background: #21262d; border: 1px solid #30363d; border-radius: 12px; padding: 12px; font-size: 18px; color: #d29922; cursor: pointer; user-select: none; font-weight: bold; box-shadow: 0 3px #0d1117; }
+        .ctrl-btn:active { transform: translateY(2px); box-shadow: 0 1px #0d1117; }
     </style>
 </head>
 <body>
     <div class="header-nav">
-        <a href="/" class="back-btn">◀ العودة</a>
-        <a href="/" class="header-brand-center"><span class="neon-text-style">Albrawe</span></a>
+        <a href="/" class="back-btn">◀ الرئيسة</a>
+        <!-- حقن رابط المطور المركزي في منتصف شريط التنقل -->
+        <a href="/" class="brand-center-link">Albrawe</a>
+        <span style="font-weight:bold; color:#d29922;">🧱 لعبة التترس</span>
     </div>
+
     <div class="main-container">
-        <div class="game-card">
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:bold; font-size:12px; color:#d29922;">
-                <span id="score">النقاط: 0</span>
-                <span id="lvl">المرحلة: 1 / 10 👑</span>
+        <div class="tetris-phone">
+            <div class="score-container">
+                <span id="tetrisScore">النقاط: 0</span>
+                <span id="tetrisLevel" class="level-badge">المرحلة: 1 / 10 👑</span>
+                <span>TETRIS</span>
             </div>
-            <canvas id="tetris" width="200" height="400"></canvas>
-            <div class="ctrl-pad">
-                <button class="btn" onclick="mv(-1)">◀</button>
-                <button class="btn" onclick="rot()">🔄</button>
-                <button class="btn" onclick="mv(1)">▶</button>
-                <div></div><button class="btn" onclick="drop()">▼</button><div></div>
+            <div class="game-area">
+                <canvas id="tetrisCanvas" width="200" height="400"></canvas>
+                <div id="pauseOverlay" class="overlay-txt">مؤقت ⏸️</div>
+                
+                <div id="gameOverScreen" class="overlay-txt" style="display:block;">
+                    <h4 id="goTitle" style="margin:0 0 5px 0; color:#d29922;">مرحباً بك في التترس</h4>
+                    <p id="finalScoreText" style="margin:0 0 8px 0; font-size:12px; font-weight:bold;"></p>
+                    <button style="background:#238636; color:#fff; border:1px solid #2ea44f; padding:6px 15px; font-size:12px; font-weight:bold; cursor:pointer; border-radius:6px;" onclick="initGame()">بدء اللعب الفوري 🎮</button>
+                </div>
+            </div>
+            <div class="control-pad">
+                <button class="ctrl-btn" onclick="moveBlock('L')">◀</button>
+                <button class="ctrl-btn" onclick="rotateBlock()">🔄</button>
+                <button class="ctrl-btn" onclick="moveBlock('R')">▶</button>
+                <div></div>
+                <button class="ctrl-btn" onclick="moveBlock('D')">▼</button>
+                <button class="ctrl-btn" onclick="togglePause()"><i class="fas fa-pause"></i></button>
             </div>
         </div>
     </div>
     <script>
-        const canvas = document.getElementById('tetris'), ctx = canvas.getContext('2d');
-        const ROW=20, COL=10, SQ=20, VACANT="#0d1117"; let board=[], score=0, level=1, timer=null;
-        
+        const canvas = document.getElementById('tetrisCanvas'), ctx = canvas.getContext('2d');
+        const ROW = 20, COL = 10, SQ = 20, VACANT = "#0d1117";
+        let board = [], score = 0, currentLevel = 1, gameInterval = null, musicInterval = null;
+        let isGameOver = true, isPaused = false;
+
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function snd(f) { const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value=f; g.gain.setValueAtTime(0.02, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.05); }
+        const musicNotes = [523.25, 587.33, 659.25, 523.25, 659.25, 587.33, 392.00, 440.00];
 
-        for(r=0; r<ROW; r++){ board[r]=[]; for(c=0; c<COL; c++){ board[r][c]=VACANT; } }
-        function drawBoard(){ for(r=0; r<ROW; r++){ for(c=0; c<COL; c++){ fSq(c, r, board[r]); } } }
-        function fSq(x, y, color){ ctx.fillStyle=color; ctx.fillRect(x*SQ, y*SQ, SQ, SQ); ctx.strokeStyle="#161b22"; ctx.strokeRect(x*SQ, y*SQ, SQ, SQ); }
-        
-        const PIECES=[ [[1,1,1,1]], [[1,1,1],[0,1,0]], [[1,1,0],[0,1,1]], [[1,1],[1,1]] ];
-        const COLORS=["#388bfd", "#a371f7", "#d29922", "#3fb950"];
-        let pLayout, pColor, pX=3, pY=-1;
+        function playSound(t) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type = 'square';
+            if (t === 'move') { o.frequency.setValueAtTime(300, audioCtx.currentTime); g.gain.setValueAtTime(0.02, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime + 0.03); }
+            else if (t === 'clear') { o.frequency.setValueAtTime(600, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1); g.gain.setValueAtTime(0.06, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime + 0.1); }
+            else if (t === 'levelUp') { o.frequency.setValueAtTime(783.99, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1567.98, audioCtx.currentTime + 0.2); g.gain.setValueAtTime(0.08, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime + 0.2); }
+            else if (t === 'lose') { o.frequency.setValueAtTime(200, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 0.4); g.gain.setValueAtTime(0.15, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime + 0.4); }
+        }
 
-        function newP() { let r=Math.floor(Math.random()*PIECES.length); pLayout=PIECES[r]; pColor=COLORS[r]; pX=3; pY=-pLayout.length; }
-        function drawP(color){ for(r=0; r<pLayout.length; r++){ for(c=0; c<pLayout[r].length; c++){ if(pLayout[r][c] && pY+r>=0){ fSq(pX+c, pY+r, color); } } } }
-        
-        function drop() {
-            if(!coll(0,1,pLayout)){ drawP(VACANT); pY++; drawP(pColor); }
-            else { lock(); }
+        function playMusic() {
+            if (isGameOver || isPaused) return;
+            let tp = audioCtx.currentTime;
+            musicNotes.forEach(f => {
+                const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = 'triangle';
+                o.frequency.setValueAtTime(f + (currentLevel * 10), tp); g.gain.setValueAtTime(0.015, tp);
+                g.gain.linearRampToValueAtTime(0, tp + 0.18); o.connect(g); g.connect(audioCtx.destination);
+                o.start(tp); o.stop(tp + 0.2); tp += 0.2;
+            });
         }
-        function coll(x,y,l) {
-            for(r=0; r<l.length; r++){ for(c=0; c<l[r].length; c++){ if(!l[r][c])continue; let nX=pX+c+x, nY=pY+r+y; if(nX<0||nX>=COL||nY>=ROW)return true; if(nY<0)continue; if(board[nY][nX]!==VACANT)return true; } }
-            return false;
+        function startMusic() { stopMusic(); if(!isGameOver) { playMusic(); musicInterval = setInterval(playMusic, musicNotes.length * 200); } }
+        function stopMusic() { if(musicInterval) clearInterval(musicInterval); }
+
+        // مصفوفات تدوير الأشكال السبعة القياسية كاملة لمنع تشوه المكعبات
+        const I = [ [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], [[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]], [[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]], [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]] ];
+        const T = [ [[0,1,0],[1,1,1],[0,0,0]], [[0,1,0],[0,1,1],[0,1,0]], [[0,0,0],[1,1,1],[0,1,0]], [[0,1,0],[1,1,0],[0,1,0]] ];
+        const Z = [ [[1,1,0],[0,1,1],[0,0,0]], [[0,0,1],[0,1,1],[0,1,0]], [[0,0,0],[1,1,0],[0,1,1]], [[0,1,0],[1,1,0],[1,0,0]] ];
+        const S = [ [[0,1,1],[1,1,0],[0,0,0]], [[0,1,0],[0,1,1],[0,0,1]], [[0,0,0],[0,1,1],[1,1,0]], [[1,0,0],[1,1,0],[0,1,0]] ];
+        const O = [ [[0,1,1,0],[0,1,1,0],[0,0,0,0],[0,0,0,0]] ];
+        const L = [ [[1,0,0],[1,1,1],[0,0,0]], [[0,1,1],[0,1,0],[0,1,0]], [[0,0,0],[1,1,1],[0,0,1]], [[0,1,0],[0,1,0],[1,1,0]] ];
+        const J = [ [[0,0,1],[1,1,1],[0,0,0]], [[0,1,0],[0,1,0],[0,1,1]], [[0,0,0],[1,1,1],[1,0,0]], [[1,1,0],[0,1,0],[0,1,0]] ];
+
+        const PIECES = [ [I,"#58a6ff"], [T,"#3fb950"], [Z,"#f85149"], [S,"#d29922"], [O,"#ffffff"], [L,"#a371f7"], [J,"#ff7b72"] ];
+
+        class Piece {
+            constructor(tetromino, color) { this.tetromino = tetromino; this.color = color; this.tetrominoN = 0; this.activeTetromino = this.tetromino[this.tetrominoN]; this.x = 3; this.y = -2; }
+            draw() { this.fill(this.color); }
+            unuse() { this.fill(VACANT); }
+            fill(color) {
+                for(let r=0; r<this.activeTetromino.length; r++) {
+                    for(let c=0; c<this.activeTetromino[r].length; c++) {
+                        if(this.activeTetromino[r][c]) {
+                            ctx.fillStyle = color; ctx.fillRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ);
+                            ctx.strokeStyle = "#161b22"; ctx.strokeRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ);
+                        }
+                    }
+                }
+            }
+            moveDown() { if(!this.collision(0,1,this.activeTetromino)) { this.unuse(); this.y++; this.draw(); } else { this.lock(); p = randomPiece(); } }
+            moveRight() { if(!this.collision(1,0,this.activeTetromino)) { this.unuse(); this.x++; this.draw(); playSound('move'); } }
+            moveLeft() { if(!this.collision(-1,0,this.activeTetromino)) { this.unuse(); this.x--; this.draw(); playSound('move'); } }
+            rotate() {
+                let nextPattern = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
+                if(!this.collision(0,0,nextPattern)) { this.unuse(); this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length; this.activeTetromino = nextPattern; this.draw(); playSound('move'); }
+            }
+            collision(x, y, piece) {
+                for(let r=0; r<piece.length; r++) {
+                    for(let c=0; c<piece[r].length; c++) {
+                        if(!piece[r][c]) continue;
+                        let newX = this.x + c + x, newY = this.y + r + y;
+                        if(newX < 0 || newX >= COL || newY >= ROW) return true;
+                        if(newY < 0) continue;
+                        if(board[newY][newX] !== VACANT) return true;
+                    }
+                }
+                return false;
+            }
+            lock() {
+                for(let r=0; r<this.activeTetromino.length; r++) {
+                    for(let c=0; c<this.activeTetromino[r].length; c++) {
+                        if(!this.activeTetromino[r][c]) continue;
+                        if(this.y + r < 0) { endGame(); return; }
+                        board[this.y+r][this.x+c] = this.color;
+                    }
+                }
+                for(let r=0; r<ROW; r++) {
+                    let isRowFull = true;
+                    for(let c=0; c<COL; c++) { if(board[r][c] === VACANT) isRowFull = false; }
+                    if(isRowFull) {
+                        for(let y=r; y>1; y--) { for(let c=0; c<COL; c++) { board[y][c] = board[y-1][c]; } }
+                        for(let c=0; c<COL; c++) { board[0][c] = VACANT; }
+                        score += 100; playSound('clear');
+                        document.getElementById('tetrisScore').innerText = "النقاط: " + score;
+                        
+                        // تصعيد المراحل الـ 10 كل 200 نقطة
+                        if(score % 200 === 0 && currentLevel < 10) {
+                            currentLevel++;
+                            document.getElementById('tetrisLevel').innerText = "المرحلة: " + currentLevel + " / 10 👑";
+                            playSound('levelUp');
+                            runEngineInterval();
+                        }
+                    }
+                }
+                drawBoard();
+            }
         }
-        function mv(d){ if(!coll(d,0,pLayout)){ drawP(VACANT); pX+=d; drawP(pColor); snd(300); } }
-        function rot(){ let nL=pLayout[0].map((_,i)=>pLayout.map(row=>row[i]).reverse()); if(!coll(0,0,nL)){ drawP(VACANT); pLayout=nL; drawP(pColor); snd(400); } }
-        
-        function lock() {
-            for(r=0; r<pLayout.length; r++){ for(c=0; c<pLayout[r].length; c++){ if(!pLayout[r][c])continue; if(pY+r<0){ alert('انتهت اللعبة! 💀'); score=0; level=1; window.location.reload(); return; } board[pY+r][pX+c]=pColor; } }
-            for(r=0; r<ROW; r++){ let f=true; for(c=0; c<COL; c++){ if(board[r][c]===VACANT)f=false; } if(f){ board.splice(r,1); board.unshift(new Array(COL).fill(VACANT)); score+=100; snd(800); } }
-            drawBoard(); document.getElementById('score').innerText="النقاط: "+score;
-            if(score>=500 && level<10){ level++; alert(`تقدمت للمرحلة ${level} 🚀`); score=0; clearInterval(timer); timer=setInterval(drop, Math.max(100, 600 - (level*50))); }
-            document.getElementById('lvl').innerText=`المرحلة: ${level} / 10 👑`; newP();
+
+        let p = null;
+        function randomPiece() { let r = Math.floor(Math.random() * PIECES.length); return new Piece(PIECES[r][0], PIECES[r][1]); }
+
+        function initGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            score = 0; currentLevel = 1; isGameOver = false; isPaused = false;
+            document.getElementById('tetrisScore').innerText = "النقاط: " + score;
+            document.getElementById('tetrisLevel').innerText = "المرحلة: " + currentLevel + " / 10 👑";
+            
+            for(let r=0; r<ROW; r++) { board[r] = []; for(let c=0; c<COL; c++) { board[r][c] = VACANT; } }
+            drawBoard(); p = randomPiece(); p.draw(); startMusic();
+            runEngineInterval();
         }
-        newP(); drawBoard(); timer=setInterval(drop, 600);
+
+        function runEngineInterval() {
+            if(gameInterval) clearInterval(gameInterval);
+            // تقليل زمن الهبوط تدريجياً لزيادة الصعوبة مع زيادة المرحلة الـ 10
+            let dropSpeed = 1000 - (currentLevel * 85);
+            gameInterval = setInterval(() => { if(!isPaused && !isGameOver) p.moveDown(); }, dropSpeed);
+        }
+
+        function drawBoard() { for(let r=0; r<ROW; r++) { for(let c=0; c<COL; c++) { ctx.fillStyle = board[r][c]; ctx.fillRect(c*SQ, r*SQ, SQ, SQ); ctx.strokeStyle = "#161b22"; ctx.strokeRect(c*SQ, r*SQ, SQ, SQ); } } }
+
+        function moveBlock(dir) { if(isGameOver || isPaused) return; if(dir==='L') p.moveLeft(); if(dir==='R') p.moveRight(); if(dir==='D') p.moveDown(); }
+        function rotateBlock() { if(isGameOver || isPaused) return; p.rotate(); }
+
+        document.addEventListener('keydown', e => {
+            if(e.key === 'ArrowLeft') moveBlock('L');
+            if(e.key === 'ArrowUp') rotateBlock();
+            if(e.key === 'ArrowRight') moveBlock('R');
+            if(e.key === 'ArrowDown') moveBlock('D');
+        });
+
+        function togglePause() {
+            if(isGameOver) return;
+            isPaused = !isPaused;
+            document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none';
+        }
+
+        function endGame() {
+            isGameOver = true; clearInterval(gameInterval); stopMusic(); playSound('lose');
+            document.getElementById('goTitle').innerText = "انتهت اللعبة! 💀";
+            document.getElementById('finalScoreText').innerText = "أحرزت: " + score + " نقطة في المرحلة " + currentLevel;
+            document.getElementById('gameOverScreen').style.display = 'block';
+        }
     </script>
 </body>
 </html>
 """
 
 @tetris_blueprint.route('/tetris')
-def tetris_page(): return render_template_string(TETRIS_HTML)
+def tetris_page():
+    return render_template_string(TETRIS_TEMPLATE)
