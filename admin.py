@@ -12,50 +12,59 @@ ADMIN_HTML = """
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>لوحة الرقابة والتحليلات السيبرانية | Albrawe</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
-        body { font-family: 'Courier New', Courier, monospace; background: #080c10; color: #c9d1d9; padding: 25px; margin: 0; }
-        .container { max-width: 1400px; margin: 0 auto; }
+        body { font-family: 'Courier New', Courier, monospace; background: #080c10; color: #c9d1d9; padding: 15px; margin: 0; box-sizing: border-box; }
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; }
         
-        .main-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #a371f7; padding-bottom: 18px; margin-bottom: 30px; }
-        .logout-btn { background: #f85149; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; text-decoration: none; font-family: inherit; transition: 0.2s; box-shadow: 0 0 10px rgba(248,81,73,0.3); }
+        /* 📱 تصميم هيدر مرن يتجاوب تلقائياً مع الهواتف والكمبيوتر */
+        .main-header { display: flex; flex-direction: row; justify-content: space-between; align-items: center; border-bottom: 2px solid #a371f7; padding-bottom: 15px; margin-bottom: 25px; gap: 10px; }
+        @media (max-width: 600px) { .main-header { flex-direction: column; text-align: center; } .main-header h2 { font-size: 18px; } }
+        
+        .logout-btn { background: #f85149; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; text-decoration: none; font-family: inherit; transition: 0.2s; box-shadow: 0 0 10px rgba(248,81,73,0.3); font-size: 13px; white-space: nowrap; }
         .logout-btn:hover { background: #da3633; box-shadow: 0 0 15px #f85149; }
         
-        .complaints-inbox-card { background: #161212; border: 1px solid #492222; border-top: 4px solid #f85149; border-radius: 14px; padding: 22px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(248,81,73,0.12); }
-        .complaints-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; max-height: 250px; overflow-y: auto; padding-left: 5px; }
+        .complaints-inbox-card { background: #161212; border: 1px solid #492222; border-top: 4px solid #f85149; border-radius: 14px; padding: 20px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(248,81,73,0.12); text-align: right; }
+        .complaints-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; max-height: 200px; overflow-y: auto; }
         
-        /* 📊 شبكة كروت البيانات المحدثة خماسية الأبعاد للتوزيع البصري */
-        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-box { background: #10151b; border: 1px solid #21262d; padding: 22px 18px; border-radius: 12px; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.4); position: relative; overflow: hidden; transition: 0.3s ease; }
-        .stat-box:hover { transform: translateY(-3px); border-color: #30363d; }
-        .stat-box h5 { margin: 0 0 10px 0; color: #8b949e; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; }
-        .stat-box p { margin: 0; font-size: 28px; font-weight: bold; color: #58a6ff; font-family: monospace; text-shadow: 0 0 10px rgba(88,166,255,0.2); }
-        .sub-stat-label { display: block; font-size: 11.5px; font-weight: bold; color: #8b949e; margin-top: 8px; border-top: 1px dashed #21262d; padding-top: 6px; }
+        /* 📊 شبكة كروت ذكية تتكيف تلقائياً (من 1 إلى 4 أعمدة) حسب حجم الشاشة المعروضة */
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-box { background: #10151b; border: 1px solid #21262d; padding: 20px 15px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: 0.3s ease; }
+        .stat-box:hover { transform: translateY(-2px); border-color: #30363d; }
+        .stat-box h5 { margin: 0 0 8px 0; color: #8b949e; font-size: 13px; font-weight: bold; }
+        .stat-box p { margin: 0; font-size: 24px; font-weight: bold; color: #58a6ff; font-family: monospace; }
+        .sub-stat-label { display: block; font-size: 11px; font-weight: bold; color: #8b949e; margin-top: 6px; border-top: 1px dashed #21262d; padding-top: 5px; }
+        .analytics-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #a371f7; border-radius: 14px; padding: 20px; margin-bottom: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: right; }
         
-        .analytics-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #a371f7; border-radius: 14px; padding: 25px; margin-bottom: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #0d1117; border-radius: 10px; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.6); }
-        th, td { padding: 16px 14px; text-align: right; border-bottom: 1px solid #21262d; font-size: 13px; }
-        th { background-color: #1f242c; color: #79c0ff; font-weight: bold; position: sticky; top: 0; border-bottom: 2px solid #30363d; letter-spacing: 0.3px; }
-        tr:hover { background-color: rgba(163, 113, 247, 0.03); }
+        /* 🛠️ حاوي ذكي لمنع خروج الجدول عن حدود الشاشة في الموبايل وتفعيل التمرير الأفقي الصامت */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; background: #0d1117; min-width: 950px; }
+        th, td { padding: 14px 12px; text-align: right; border-bottom: 1px solid #21262d; font-size: 12.5px; white-space: nowrap; }
+        th { background-color: #1f242c; color: #79c0ff; font-weight: bold; border-bottom: 2px solid #30363d; }
+        tr:hover { background-color: rgba(163, 113, 247, 0.02); }
         
         .device-tag { color: #ffd700; font-weight: bold; }
-        .loc-tag { color: #3fb950; font-weight: bold; }
-        .total-site-time { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.06); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(88,166,255,0.2); font-family: monospace; }
-        .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.06); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.2); font-family: monospace; }
         
-        .route-path-box { font-size: 11.5px; color: #a371f7; font-weight: bold; background: rgba(163,113,247,0.05); padding: 6px 10px; border-radius: 8px; border: 1px dashed rgba(163,113,247,0.25); line-height: 1.5; word-break: break-all; max-width: 280px; }
-        .game-tag { display: inline-block; padding: 3px 7px; border-radius: 5px; font-size: 11px; font-weight: bold; margin: 2px 1px; background: rgba(255,255,255,0.02); border: 1px solid #21262d; font-family: monospace; }
+        /* 🚩 تنسيق كرت الموقع الجغرافي مع مساحة مخصصة لعلم الدولة المتوهج */
+        .loc-tag { color: #3fb950; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; }
+        .flag-img { width: 18px; height: 13px; border-radius: 2px; object-fit: cover; display: inline-block; vertical-align: middle; box-shadow: 0 0 4px rgba(255,255,255,0.2); }
+        
+        .total-site-time { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.06); padding: 3px 6px; border-radius: 5px; border: 1px solid rgba(88,166,255,0.2); font-family: monospace; }
+        .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.06); padding: 3px 6px; border-radius: 5px; border: 1px solid rgba(255,215,0,0.2); font-family: monospace; }
+        
+        .route-path-box { font-size: 11.5px; color: #a371f7; font-weight: bold; background: rgba(163,113,247,0.05); padding: 6px 10px; border-radius: 8px; border: 1px dashed rgba(163,113,247,0.25); line-height: 1.5; white-space: normal; max-width: 250px; word-break: break-word; }
+        .game-tag { display: inline-block; padding: 2px 5px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.02); border: 1px solid #21262d; font-family: monospace; }
         .report-txt { background: #1c1818; border-right: 4px solid #f85149; padding: 12px; margin: 4px 0; border-radius: 0 6px 6px 0; font-size: 13px; color: #ff7b72; display: flex; justify-content: space-between; align-items: center; }
-        .clear-db-btn { background: #21262d; border: 1px solid #d29922; color: #d29922; padding: 7px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; transition: 0.2s; }
+        .clear-db-btn { background: #21262d; border: 1px solid #d29922; color: #d29922; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; transition: 0.2s; white-space: nowrap; }
         .clear-db-btn:hover { background: #d29922; color: #000; box-shadow: 0 0 10px rgba(210,153,34,0.4); }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="main-header">
-            <h2><i class="fas fa-terminal" style="color:#a371f7; margin-left:8px;"></i> رادار الرقابة وتحليلات الزوار المركزي</h2>
+            <h2><i class="fas fa-terminal" style="color:#a371f7; margin-left:6px;"></i> رادار الرقابة وتحليلات الزوار</h2>
             <div style="display:flex; gap:10px; align-items:center;">
                 <button class="clear-db-btn" onclick="clearLogsDatabase()"><i class="fas fa-trash-alt"></i> تصفير السجلات</button>
                 <a href="/albrawe-admin/logout" class="logout-btn">تسجيل الخروج 🚪</a>
@@ -63,33 +72,29 @@ ADMIN_HTML = """
         </div>
         
         <div class="complaints-inbox-card">
-            <h3 style="margin:0; color:#ff7b72; font-size:16px; border-bottom:1px solid #492626; padding-bottom:8px;"><i class="fas fa-envelope-open-text"></i> صندوق الشكاوى والبلاغات السحابي الموحد</h3>
+            <h3 style="margin:0; color:#ff7b72; font-size:15px; border-bottom:1px solid #492626; padding-bottom:8px;"><i class="fas fa-envelope-open-text"></i> صندوق الشكاوى والبلاغات السحابي الموحد</h3>
             <div class="complaints-grid" id="globalComplaintsInbox"></div>
         </div>
 
         <div class="grid-stats">
             <div class="stat-box" style="border-top: 3px solid #58a6ff;"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
             <div class="stat-box" style="border-top: 3px solid #d29922;"><h5>إجمالي زيارات الموقع الكلية</h5><p id="historicalViews" style="color: #d29922;">0</p></div>
-            
-            <!-- ⚡ خانة مجموع أوقات جميع الزوار مجتمعين عبر الإنترنت حياً ومزامناً للأبد -->
             <div class="stat-box" style="border-top: 3px solid #3fb950;">
                 <h5 style="color: #3fb950;">مجموع وقت استخدام جميع الزوار</h5>
                 <p id="totalGlobalUsageTime" style="color: #3fb950;">0 ثانية</p>
                 <span class="sub-stat-label" id="avgUsageTime">متوسط الاستخدام الفردي: 0 ثانية ⏱️</span>
             </div>
-            
             <div class="stat-box" style="border-top: 3px solid #f85149;"><h5>إجمالي بلاغات الصندوق</h5><p id="totalComplaints" style="color: #f85149;">0</p></div>
         </div>
-        
         <div class="analytics-card">
             <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:10px;"><i class="fas fa-users-cog"></i> الأرشيف التاريخي الشامل ومستودع بيانات الزوار</h3>
-            <div style="overflow-x: auto;">
+            <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
                             <th>الاسم الرمزي</th>
                             <th>الموديل الدقيق 📱</th>
-                            <th>الموقع الجغرافي 🌍</th>
+                            <th>الموقع الجغرافي (الدولة / المحافظة / المدينة) 🌍</th>
                             <th>تاريخ ووقت الدخول 📅</th>
                             <th>الموقع الأم 🖥️</th>
                             <th>مسار التنقل والصفحات 🗺️</th>
@@ -147,12 +152,11 @@ ADMIN_HTML = """
                     historicalCount = archiveDB.length;
                     localStorage.setItem('backup_historical', historicalCount);
                 }
-
+                
                 document.getElementById('totalViews').innerText = liveDB.length;
                 document.getElementById('historicalViews').innerText = historicalCount;
                 document.getElementById('totalComplaints').innerText = complDB.length;
                 
-                // ⏱️ حساب دقيق تراكمي لثواني ودقائق استخدام جميع المتصفحين حياً للأبد
                 let totalSeconds = 0;
                 archiveDB.forEach(item => { totalSeconds += (item.duration || 0); });
                 document.getElementById('totalGlobalUsageTime').innerText = totalSeconds + " ثانية";
@@ -160,7 +164,6 @@ ADMIN_HTML = """
                 let avgCalc = archiveDB.length > 0 ? Math.round(totalSeconds / archiveDB.length) : 0;
                 document.getElementById('avgUsageTime').innerText = "متوسط الاستخدام الفردي: " + avgCalc + " ثانية ⏱️";
                 
-                // 📥 معالجة الدمج والطباعة الصريحة للشكاوى حياً من السيرفر مباشرة دون تداخل
                 let inboxHtml = "";
                 if(complDB.length === 0) {
                     inboxHtml = '<p style="color:#8b949e; font-size:13px; text-align:center; margin:10px 0;">الصندوق نظيف كلياً؛ لا توجد أي شكاوى مرفوعة حالياً من زوار الويب. ✨</p>';
@@ -182,8 +185,21 @@ ADMIN_HTML = """
                         let snake = user.snakeTime || 0; let tetris = user.tetrisTime || 0; let xo = user.xoTime || 0; let shooter = user.shooterTime || 0; let clicker = user.clickerTime || 0;
                         let totalGamesSeconds = snake + tetris + xo + shooter + clicker;
                         
-                        let currentLoc = user.location;
-                        if (!currentLoc || currentLoc.includes("جاري")) currentLoc = "القاهرة - مصر 🇪🇬";
+                        // 🌍 محرك الفرز الجغرافي الثلاثي المتقدم واستخراج كود الأعلام تلقائياً
+                        let fullLocation = user.location || "القاهرة - مصر";
+                        let countryCode = "eg"; // افتراضي مصر لحماية البناء من الانهيار
+                        
+                        // استنتاج رمز الدولة لطلب علم الـ CDN المطابق حياً
+                        let locLower = fullLocation.toLowerCase();
+                        if (locLower.includes("saudi") || locLower.includes("السعودية") || locLower.includes("رياض")) countryCode = "sa";
+                        else if (locLower.includes("emirates") || locLower.includes("دبي") || locLower.includes("الإمارات")) countryCode = "ae";
+                        else if (locLower.includes("kuwait") || locLower.includes("الكويت")) countryCode = "kw";
+                        else if (locLower.includes("iraq") || locLower.includes("العراق")) countryCode = "iq";
+                        else if (locLower.includes("jordan") || locLower.includes("الأردن")) countryCode = "jo";
+                        
+                        // حقن دالة العلم وصندوق الجغرافيا الثلاثي بدقة كاملة وعريضة
+                        let flagHtml = `<img class="flag-img" src="https://flagcdn.com{countryCode}.png" alt="Flag">`;
+                        
                         let currentDevice = user.deviceModel;
                         if (!currentDevice || currentDevice.includes("عالي الحماية")) currentDevice = "Android Device 📱";
                         
@@ -199,7 +215,7 @@ ADMIN_HTML = """
                         html += '<tr>' +
                             '<td style="font-weight:bold; color:#fff;">' + user.username + '</td>' +
                             '<td class="device-tag"><i class="fas fa-mobile-alt"></i> ' + currentDevice + '</td>' +
-                            '<td class="loc-tag"><i class="fas fa-map-marker-alt"></i> ' + currentLoc + '</td>' +
+                            '<td class="loc-tag">' + flagHtml + ' <span>' + fullLocation + '</span></td>' +
                             '<td>' + user.loginTime + '</td>' +
                             '<td><span class="total-site-time"><i class="fas fa-window-maximize"></i> ' + (user.duration || 0) + 'ث</span></td>' +
                             '<td>' + stepsHtml + '</td>' +
@@ -221,9 +237,6 @@ ADMIN_HTML = """
         fetchAndRenderAnalytics();
         setInterval(fetchAndRenderAnalytics, 4000);
     </script>
-</body>
-</html>
-"""
 LOGIN_HTML = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -259,7 +272,6 @@ LOGIN_HTML = """
 </html>
 """
 
-# ✅ نظام العزل الصارم: إطلاق الرابط القديم متبوعاً بمفتاح التحقق الناري لحظر المتسللين وإحيائه للأبد
 @admin_blueprint.route('/albrawe-secure-panel-2026', methods=['GET', 'POST'])
 def admin_page():
     gate_key = request.args.get('key', '')
@@ -277,8 +289,6 @@ def admin_page():
     if gate_key == SECRET_GATE_KEY:
         session['gate_key_authenticated'] = True
         return render_template_string(LOGIN_HTML)
-    
-    # 🎯 الطرد التمويهي الصارم: إعطاء خطأ 404 صامت لكل من يكتب الرابط بدون المفتاح السري الموثق
     abort(404)
 
 @admin_blueprint.route('/albrawe-admin/logout')
