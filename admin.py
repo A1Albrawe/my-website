@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, render_template_string, session, 
 
 admin_blueprint = Blueprint('admin', __name__)
 
+# 🔒 بيانات اعتماد لوحة الإدارة الحصينة لعام 2026
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
 SECRET_GATE_KEY = "open_gate_key_final_2026"
@@ -25,11 +26,11 @@ ADMIN_HTML = """
         .complaints-inbox-card { background: #161212; border: 1px solid #492222; border-top: 4px solid #f85149; border-radius: 14px; padding: 22px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(248,81,73,0.12); }
         .complaints-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; max-height: 250px; overflow-y: auto; padding-left: 5px; }
         
-        /* 📊 شبكة الكروت المطورة والمعززة بالخانات الخمسة */
+        /* 📊 شبكة كروت البيانات المحدثة خماسية الأبعاد للتوزيع البصري */
         .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-box { background: #10151b; border: 1px solid #21262d; padding: 22px 18px; border-radius: 12px; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.4); position: relative; overflow: hidden; transition: 0.3s ease; }
         .stat-box:hover { transform: translateY(-3px); border-color: #30363d; }
-        .stat-box h5 { margin: 0 0 10px 0; color: #8b949e; font-size: 13.5px; font-weight: bold; letter-spacing: 0.5px; }
+        .stat-box h5 { margin: 0 0 10px 0; color: #8b949e; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; }
         .stat-box p { margin: 0; font-size: 28px; font-weight: bold; color: #58a6ff; font-family: monospace; text-shadow: 0 0 10px rgba(88,166,255,0.2); }
         .sub-stat-label { display: block; font-size: 11.5px; font-weight: bold; color: #8b949e; margin-top: 8px; border-top: 1px dashed #21262d; padding-top: 6px; }
         
@@ -39,7 +40,7 @@ ADMIN_HTML = """
         th { background-color: #1f242c; color: #79c0ff; font-weight: bold; position: sticky; top: 0; border-bottom: 2px solid #30363d; letter-spacing: 0.3px; }
         tr:hover { background-color: rgba(163, 113, 247, 0.03); }
         
-        .device-tag { color: #ffd700; font-weight: bold; font-family: inherit; }
+        .device-tag { color: #ffd700; font-weight: bold; }
         .loc-tag { color: #3fb950; font-weight: bold; }
         .total-site-time { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.06); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(88,166,255,0.2); font-family: monospace; }
         .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.06); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.2); font-family: monospace; }
@@ -70,7 +71,7 @@ ADMIN_HTML = """
             <div class="stat-box" style="border-top: 3px solid #58a6ff;"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
             <div class="stat-box" style="border-top: 3px solid #d29922;"><h5>إجمالي زيارات الموقع الكلية</h5><p id="historicalViews" style="color: #d29922;">0</p></div>
             
-            <!-- ⚡ خانة مجموع الوقت المستغرق من جميع الزوار مجتمعين عبر الإنترنت للأبد -->
+            <!-- ⚡ خانة مجموع أوقات جميع الزوار مجتمعين عبر الإنترنت حياً ومزامناً للأبد -->
             <div class="stat-box" style="border-top: 3px solid #3fb950;">
                 <h5 style="color: #3fb950;">مجموع وقت استخدام جميع الزوار</h5>
                 <p id="totalGlobalUsageTime" style="color: #3fb950;">0 ثانية</p>
@@ -147,17 +148,11 @@ ADMIN_HTML = """
                     localStorage.setItem('backup_historical', historicalCount);
                 }
 
-                if (complDB.length === 0 && localStorage.getItem('backup_complaints')) {
-                    complDB = JSON.parse(localStorage.getItem('backup_complaints'));
-                } else if (complDB.length > 0) {
-                    localStorage.setItem('backup_complaints', JSON.stringify(complDB));
-                }
-                
                 document.getElementById('totalViews').innerText = liveDB.length;
                 document.getElementById('historicalViews').innerText = historicalCount;
                 document.getElementById('totalComplaints').innerText = complDB.length;
                 
-                // ⏱️ حساب مجموع وقت الاستخدام التراكمي لجميع الزوار من مصفوفة الأرشيف للأبد
+                // ⏱️ حساب دقيق تراكمي لثواني ودقائق استخدام جميع المتصفحين حياً للأبد
                 let totalSeconds = 0;
                 archiveDB.forEach(item => { totalSeconds += (item.duration || 0); });
                 document.getElementById('totalGlobalUsageTime').innerText = totalSeconds + " ثانية";
@@ -165,6 +160,7 @@ ADMIN_HTML = """
                 let avgCalc = archiveDB.length > 0 ? Math.round(totalSeconds / archiveDB.length) : 0;
                 document.getElementById('avgUsageTime').innerText = "متوسط الاستخدام الفردي: " + avgCalc + " ثانية ⏱️";
                 
+                // 📥 معالجة الدمج والطباعة الصريحة للشكاوى حياً من السيرفر مباشرة دون تداخل
                 let inboxHtml = "";
                 if(complDB.length === 0) {
                     inboxHtml = '<p style="color:#8b949e; font-size:13px; text-align:center; margin:10px 0;">الصندوق نظيف كلياً؛ لا توجد أي شكاوى مرفوعة حالياً من زوار الويب. ✨</p>';
@@ -219,7 +215,6 @@ ADMIN_HTML = """
             if(confirm("هل أنت متأكد من مسح السجل التراكمي وتصفير الأرشيف التاريخي بالكامل من لوحتك؟")) {
                 localStorage.removeItem('permanent_archive_db');
                 localStorage.removeItem('backup_historical');
-                localStorage.removeItem('backup_complaints');
                 fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics());
             }
         }
@@ -264,6 +259,7 @@ LOGIN_HTML = """
 </html>
 """
 
+# ✅ نظام العزل الصارم: إطلاق الرابط القديم متبوعاً بمفتاح التحقق الناري لحظر المتسللين وإحيائه للأبد
 @admin_blueprint.route('/albrawe-secure-panel-2026', methods=['GET', 'POST'])
 def admin_page():
     gate_key = request.args.get('key', '')
@@ -281,6 +277,8 @@ def admin_page():
     if gate_key == SECRET_GATE_KEY:
         session['gate_key_authenticated'] = True
         return render_template_string(LOGIN_HTML)
+    
+    # 🎯 الطرد التمويهي الصارم: إعطاء خطأ 404 صامت لكل من يكتب الرابط بدون المفتاح السري الموثق
     abort(404)
 
 @admin_blueprint.route('/albrawe-admin/logout')
