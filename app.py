@@ -14,13 +14,17 @@ from games_package.clicker import clicker_blueprint
 from projects import projects_blueprint
 from about import about_blueprint
 from scripts import scripts_blueprint
+
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
 # تسجيل جميع حزم الـ Blueprints لصفحات وأدوات خادم الخادم المركزي للموقع
 app.register_blueprint(home_blueprint)
 app.register_blueprint(report_blueprint)
-app.register_blueprint(admin_blueprint)
+
+# ✅ الربط التكتيكي الحاسم: إجبار السيرفر على توجيه حزمة المسؤول إلى نطاقك الجديد بالملّي ومنع الـ 404
+app.register_blueprint(admin_blueprint, url_prefix='/albrawe-admin-panel-2026')
+
 app.register_blueprint(api_blueprint)
 
 # تسجيل ألعاب مجلد باقة الألعاب المحدثة (games_package)
@@ -34,6 +38,7 @@ app.register_blueprint(clicker_blueprint)
 app.register_blueprint(projects_blueprint)
 app.register_blueprint(about_blueprint)
 app.register_blueprint(scripts_blueprint)
+
 @app.after_request
 def inject_global_analytics_tracker(response):
     """
@@ -52,14 +57,12 @@ def inject_global_analytics_tracker(response):
         <!-- Global Albrawe Persistent Tracking System -->
         <script>
             document.addEventListener("DOMContentLoaded", () => {
-                // تثبيت هوية الزائر للأبد: المحافظة على الاسم والبيانات حتى لو خرج وعاد بعد شهر
                 let storedUser = localStorage.getItem('albrawe_tracker_username');
                 if(!storedUser) {
                     storedUser = 'لاعب_مستمر_' + Math.floor(100 + Math.random() * 900);
                     localStorage.setItem('albrawe_tracker_username', storedUser);
                 }
                 
-                // هندسة جلب الجغرافيا الدقيقة الثلاثية (البلد والمدينة والمحافظة) عبر الإنترنت حياً بدون تجميد
                 let userLocation = "القاهرة - مصر 🇪🇬";
                 fetch('https://ipapi.co')
                 .then(res => res.json())
@@ -81,7 +84,6 @@ def inject_global_analytics_tracker(response):
                     });
                 }
                 
-                // رصد اسم الصفحة أو اللعبة المفتوحة حالياً وتتبعها بدقة
                 let currentPath = window.location.pathname.replace('/', '') || 'site';
                 
                 setInterval(() => {
@@ -96,8 +98,6 @@ def inject_global_analytics_tracker(response):
                 }, 5000);
             });
         </script>
-        
-        <!-- Vercel Insights Connection -->
         <script defer src='/_vercel/insights/script.js'></script>
         """
         if "</body>" in text:
