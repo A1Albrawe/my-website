@@ -8,6 +8,7 @@ from api import api_blueprint
 from games_package.snake import snake_blueprint
 from games_package.tetris import tetris_blueprint
 from games_package.xo import xo_blueprint
+from games_package.card_game import card_game_blueprint
 from games_package.shooter import shooter_blueprint
 from games_package.clicker import clicker_blueprint
 
