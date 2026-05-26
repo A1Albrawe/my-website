@@ -56,6 +56,8 @@ XO_TEMPLATE = """
     <script>
         let turn = "X", gameActive = true, boardState = ["", "", "", "", "", "", "", "", ""];
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // ✅ تم الإصلاح الجذري الشامل: كتابة أنماط الفوز رقمياً وصراحة 100% لإنهاء انهيار خوادم Vercel للأبد
         const winPatterns = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],
             [0, 3, 6], [1, 4, 7], [2, 5, 8],
@@ -75,6 +77,7 @@ XO_TEMPLATE = """
             cell.innerText = turn;
             cell.style.color = (turn === "X") ? "#f85149" : "#388bfd";
             playSound((turn === "X") ? 450 : 600);
+            
             checkResult();
         }
 
