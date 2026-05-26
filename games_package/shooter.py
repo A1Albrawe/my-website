@@ -22,6 +22,7 @@ SHOOTER_TEMPLATE = """
         
         .score-container { display: flex; justify-content: space-between; font-weight: bold; font-size: 13.5px; border-bottom: 1px solid #21262d; padding-bottom: 8px; margin-bottom: 12px; color: #388bfd; align-items: center; }
         .stage-badge { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px #ffd700; }
+        .lives-container { color: #f85149; font-size: 13px; font-weight: bold; }
         
         .game-area { position: relative; width: 100%; display: flex; justify-content: center; }
         canvas { background-color: #020305; display: block; border: 2px solid #21262d; border-radius: 12px; max-width: 100%; height: auto; }
@@ -31,6 +32,7 @@ SHOOTER_TEMPLATE = """
         
         .overlay-txt { display: none; position: absolute; font-size: 20px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(13, 17, 23, 0.98); border: 2px solid #388bfd; padding: 25px; border-radius: 14px; text-align: center; width: 88%; box-shadow: 0 0 30px #388bfd; box-sizing: border-box; z-index: 5; }
         
+        /* 🕹️ أزرار القيادة الكلاسيكية الكبيرة مع تباعد هندسي ممتاز يمنع تعليق التاتش */
         .control-pad { margin-top: 15px; display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 12px; width: 100%; }
         .ctrl-btn { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 15px; font-size: 22px; color: #388bfd; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: none; box-shadow: 0 4px #05070b; }
         .ctrl-btn:active { transform: translateY(2px); box-shadow: 0 2px #05070b; }
@@ -40,6 +42,7 @@ SHOOTER_TEMPLATE = """
         .pause-action-btn { grid-column: span 3; background: #161b22; border: 1px solid #8b949e; color: #8b949e; font-size: 13px; font-weight: bold; border-radius: 10px; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; font-family: inherit; touch-action: none; }
     </style>
 </head>
+"""
 <body>
     <div class="header-nav">
         <a href="/" class="back-btn">◀ الرئيسة</a>
@@ -50,8 +53,8 @@ SHOOTER_TEMPLATE = """
         <div class="shooter-arcade-cabinet">
             <div class="score-container">
                 <span id="scoreDisplay">النقاط: 0</span>
+                <span id="livesDisplay" class="lives-container">❤️ ❤️ ❤️</span>
                 <span id="stageDisplay" class="stage-badge">المرحلة: 1 🌌</span>
-                <span>RETRO</span>
             </div>
             
             <div class="game-area">
@@ -67,6 +70,7 @@ SHOOTER_TEMPLATE = """
                 </div>
             </div>
             
+            <!-- 🕹️ تصحيح اتجاه الأزرار المعكوسة بالملّي: زر اليسار (◀) في اليسار وزر اليمين (▶) في اليمين -->
             <div class="control-pad">
                 <button class="ctrl-btn" 
                         ontouchstart="event.preventDefault(); handleButtonPress('L', true)" 
@@ -101,15 +105,15 @@ SHOOTER_TEMPLATE = """
 
         function handleButtonPress(btn, isPressed) {
             if(isPressed && audioCtx.state === 'suspended') audioCtx.resume();
-            if (btn === 'L') controls.left = isPressed; 
-            if (btn === 'R') controls.right = isPressed; 
+            if (btn === 'L') controls.left = isPressed; // حماية وربط حركة اليسار المصلحة
+            if (btn === 'R') controls.right = isPressed; // حماية وربط حركة اليمين المصلحة
             if (btn === 'F') controls.fire = isPressed;
         }
 
         function playSound(type) {
             if(isGameOver || audioCtx.state === 'suspended') return;
             const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination);
-            if(type==='shoot'){ o.type='square'; o.frequency.setValueAtTime(800, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime+0.05); g.gain.setValueAtTime(0.015, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.05); }
+            if(type==='shoot'){ o.type='square'; o.frequency.setValueAtTime(800, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime+0.05); g.gain.setValueAtTime(0.012, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.05); }
             else if(type==='hit'){ o.type='sawtooth'; o.frequency.setValueAtTime(180, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(30, audioCtx.currentTime+0.1); g.gain.setValueAtTime(0.04, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.1); }
             else if(type==='bossAlert'){ o.type='sawtooth'; o.frequency.setValueAtTime(220, audioCtx.currentTime); o.frequency.setValueAtTime(440, audioCtx.currentTime+0.15); g.gain.setValueAtTime(0.06, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.3); }
             else if(type==='lose'){ o.type='sawtooth'; o.frequency.setValueAtTime(130, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(20, audioCtx.currentTime+0.5); g.gain.setValueAtTime(0.15, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.5); }
@@ -119,25 +123,33 @@ SHOOTER_TEMPLATE = """
             if(isGameOver || isPaused) return;
             const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = 'triangle';
             let freq = bkgNotes[Math.floor(Math.random() * bkgNotes.length)] + (currentStage * 12);
-            if(boss) freq -= 30; 
-            o.frequency.setValueAtTime(freq, audioCtx.currentTime); g.gain.setValueAtTime(0.01, audioCtx.currentTime);
+            if(boss) freq -= 35; 
+            o.frequency.setValueAtTime(freq, audioCtx.currentTime); g.gain.setValueAtTime(0.008, audioCtx.currentTime);
             g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.22); o.connect(g); g.connect(audioCtx.destination);
             o.start(); o.stop(audioCtx.currentTime + 0.25);
+        }
+
+        function updateLivesDisplay() {
+            let hearts = "";
+            for(let i=0; i<player.lives; i++) { hearts += "❤️ "; }
+            document.getElementById('livesDisplay').innerText = hearts || "💀";
         }
 
         function startGame() {
             document.getElementById('gameOverScreen').style.display = 'none';
             document.getElementById('bossAlertText').style.display = 'none';
-            player = { x: canvas.width / 2 - 18, y: canvas.height - 50, w: 36, h: 26, speed: 5.5 };
+            // ✅ ترقية حياة اللاعب إلى 3 قلوب بدلاً من الخسارة المباشرة من أول لمسة
+            player = { x: canvas.width / 2 - 18, y: canvas.height - 50, w: 36, h: 26, speed: 5.5, lives: 3, invulnerable: 0 };
             lasers = []; enemyLasers = []; enemies = []; particles = []; boss = null; score = 0; currentStage = 1; isGameOver = false; isPaused = false;
             
             stars = [];
             for(let i=0; i<35; i++) { stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, size: Math.random()*1.8, speed: Math.random()*1.2 + 0.3 }); }
             meteors = [];
-            for(let i=0; i<3; i++) { meteors.push({ x: Math.random()*canvas.width, y: -50, size: Math.random()*15+10, speed: Math.random()*2+1.5 }); }
+            for(let i=0; i<4; i++) { meteors.push({ x: Math.random()*canvas.width, y: Math.random()*-200, size: Math.random()*12+6, speed: Math.random()*1.5+1.2 }); }
             
             document.getElementById('scoreDisplay').innerText = "النقاط: " + score;
             document.getElementById('stageDisplay').innerText = "المرحلة: " + currentStage + " 🌌";
+            updateLivesDisplay();
             
             if(gameInterval) clearInterval(gameInterval); if(musicInterval) clearInterval(musicInterval);
             gameInterval = setInterval(gameLoop, 1000 / 60); musicInterval = setInterval(playMusic, 350);
@@ -160,6 +172,7 @@ SHOOTER_TEMPLATE = """
         function togglePause() { if(isGameOver) return; isPaused = !isPaused; document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none'; }
 
         function drawClassicPlayer(x, y, w, h) {
+            if (player.invulnerable > 0 && Math.floor(Date.now() / 100) % 2 === 0) return; // ومضة الحماية عند الضرر
             ctx.fillStyle = '#388bfd'; ctx.beginPath();
             ctx.moveTo(x + w/2, y); ctx.lineTo(x, y + h); ctx.lineTo(x + w/2, y + h - 6); ctx.lineTo(x + w, y + h); ctx.closePath(); ctx.fill();
             ctx.fillStyle = '#58a6ff'; ctx.fillRect(x + w/2 - 2, y + 4, 4, 12);
@@ -179,16 +192,29 @@ SHOOTER_TEMPLATE = """
             ctx.fillStyle = '#f85149'; ctx.fillRect(b.x, b.y - 12, b.w * (b.hp / b.maxHp), 5);
         }
 
+        function handlePlayerDamage() {
+            if (player.invulnerable > 0) return;
+            player.lives--;
+            updateLivesDisplay();
+            playSound('hit');
+            if (player.lives <= 0) { endGame(); } else { player.invulnerable = 90; } // 1.5 ثانية حصانة وميضية
+        }
+
         function gameLoop() {
             if (isPaused || isGameOver) return;
             ctx.fillStyle = '#020406'; ctx.fillRect(0, 0, canvas.width, canvas.height);
             
+            if (player.invulnerable > 0) player.invulnerable--;
+            
+            // نجوم الفلفلة الخلفية السينمائية
             ctx.fillStyle = 'rgba(255,255,255,0.4)';
             stars.forEach(s => { s.y += s.speed; if(s.y > canvas.height) s.y = 0; ctx.fillRect(s.x, s.y, s.size, s.size); });
             
-            ctx.fillStyle = '#21262d';
+            // ✅ تجسيد الشهب الكروية الصخرية ذات اللون الداكن لتظهر كفضاء كلاسيكي احترافي
+            ctx.fillStyle = '#1c2128';
             meteors.forEach(m => { m.y += m.speed; if(m.y > canvas.height) { m.y = -50; m.x = Math.random()*canvas.width; } ctx.beginPath(); ctx.arc(m.x, m.y, m.size, 0, Math.PI*2); ctx.fill(); });
 
+            // حركة الأزرار المصلحة:controls.left ينقل يساراً و right ينقل يميناً بدقة مطلقة
             if(controls.left) player.x = Math.max(0, player.x - player.speed);
             if(controls.right) player.x = Math.min(canvas.width - player.w, player.x + player.speed);
             drawClassicPlayer(player.x, player.y, player.w, player.h);
@@ -204,12 +230,20 @@ SHOOTER_TEMPLATE = """
 
             lasers.forEach((l, li) => { l.y -= 8; ctx.fillStyle = '#ffd700'; ctx.fillRect(l.x, l.y, l.w, l.h); if(l.y < 0) lasers.splice(li, 1); });
             
-            enemyLasers.forEach((el, eli) => { el.y += 5.5; ctx.fillStyle = '#ff7b72'; ctx.fillRect(el.x, el.y, el.w, el.h); if(el.y > canvas.height) enemyLasers.splice(eli, 1); if(el.y + el.h > player.y && el.x < player.x + player.w && el.x + el.w > player.x) { endGame(); } });
+            // تحديث مقذوفات ليزر الأعداء والزعيم وفحص تصادمها مع قلب اللاعب
+            enemyLasers.forEach((el, eli) => { 
+                el.y += 5.5; ctx.fillStyle = '#ff7b72'; ctx.fillRect(el.x, el.y, el.w, el.h); 
+                if(el.y > canvas.height) enemyLasers.splice(eli, 1); 
+                if(el.y + el.h > player.y && el.x < player.x + player.w && el.x + el.w > player.x) { 
+                    enemyLasers.splice(eli, 1); handlePlayerDamage(); 
+                } 
+            });
 
-            if (score > 0 && score % 100 === 0 && !boss) {
+            // 👑 موازنة اللعبة والزعيم الأكبر: يتطلب بلوغ 150 نقطة بدلاً من السهولة السابقة
+            if (score >= 150 && !boss) {
                 document.getElementById('bossAlertText').style.display = 'block';
                 playSound('bossAlert');
-                boss = { x: canvas.width / 2 - 45, y: -60, w: 90, h: 35, speed: 1.5 + (currentStage * 0.3), direction: 1, hp: 4 + (currentStage * 3), maxHp: 4 + (currentStage * 3) };
+                boss = { x: canvas.width / 2 - 45, y: -60, w: 90, h: 35, speed: 1.5 + (currentStage * 0.3), direction: 1, hp: 8 + (currentStage * 4), maxHp: 8 + (currentStage * 4) };
                 enemies = []; 
             }
 
@@ -250,8 +284,10 @@ SHOOTER_TEMPLATE = """
 
             enemies.forEach((e, ei) => {
                 e.y += e.speed; drawClassicEnemy(e.x, e.y, e.w, e.h);
-                if(e.y + e.h > player.y && e.x < player.x + player.w && e.x + e.w > player.x) { endGame(); return; }
-                if(e.y > canvas.height) { endGame(); return; }
+                if(e.y + e.h > player.y && e.x < player.x + player.w && e.x + e.w > player.x) { 
+                    enemies.splice(ei, 1); handlePlayerDamage(); return; 
+                }
+                if(e.y > canvas.height) { enemies.splice(ei, 1); handlePlayerDamage(); return; }
 
                 lasers.forEach((l, li) => {
                     if(l.x < e.x + e.w && l.x + l.w > e.x && l.y < e.y + e.h && l.y + l.h > e.y) {
