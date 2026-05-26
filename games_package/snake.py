@@ -15,7 +15,6 @@ SNAKE_TEMPLATE = """
         .header-nav { background-color: #161b22; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #58a6ff; }
         .back-btn { background: #21262d; border: 1px solid #30363d; color: #58a6ff; padding: 6px 15px; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 14px; }
         
-        /* ✨ تأثير النيون لاسم المهندس البراوي في المنتصف للتوجيه للرئيسية */
         .brand-center-link { text-decoration: none; font-family: 'Courier New', Courier, monospace; font-size: 20px; font-weight: bold; color: #fff; text-shadow: 0 0 5px #58a6ff, 0 0 10px #58a6ff; transition: 0.2s; }
         .brand-center-link:hover { text-shadow: 0 0 10px #fff, 0 0 20px #58a6ff; }
         
@@ -40,7 +39,6 @@ SNAKE_TEMPLATE = """
 <body>
     <div class="header-nav">
         <a href="/" class="back-btn">◀ الرئيسة</a>
-        <!-- حقن رابط المطور المركزي في منتصف شريط التنقل -->
         <a href="/" class="brand-center-link">Albrawe</a>
         <span style="font-weight:bold; color:#58a6ff;">🐍 لعبة الثعبان</span>
     </div>
@@ -94,17 +92,17 @@ SNAKE_TEMPLATE = """
         let isPaused = false;
         let gameActive = false;
         let currentLevel = 1;
-        let baseSpeed = 120; // السرعة الابتدائية للعبة للمرحلة الأولى
+        let baseSpeed = 120; 
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const baseNotes = [130.81, 146.83, 164.81, 196.00]; // نغمات الخلفية الميكانيكية للثعبان
+        const baseNotes = [130.81, 146.83, 164.81, 196.00]; 
 
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
             
-            if(type === 'eat') { otype='sine'; osc.frequency.setValueAtTime(523.25 + (score * 5), audioCtx.currentTime); gain.gain.setValueAtTime(0.04, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.05); }
+            if(type === 'eat') { osc.type='sine'; osc.frequency.setValueAtTime(523.25 + (score * 5), audioCtx.currentTime); gain.gain.setValueAtTime(0.04, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.05); }
             else if(type === 'levelUp') { osc.type='square'; osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.25); gain.gain.setValueAtTime(0.06, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.25); }
             else if(type === 'lose') { osc.type='sawtooth'; osc.frequency.setValueAtTime(180, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 0.4); gain.gain.setValueAtTime(0.12, audioCtx.currentTime); osc.start(); osc.stop(audioCtx.currentTime + 0.4); }
         }
@@ -137,7 +135,6 @@ SNAKE_TEMPLATE = """
 
         function runEngineLoop() {
             if(gameLoopInterval) clearInterval(gameLoopInterval);
-            // تصعيد السرعة الميكانيكية للسيرفر بناءً على مستوى المرحلة الـ 10 المعرفة
             let currentSpeed = baseSpeed - (currentLevel * 9);
             gameLoopInterval = setInterval(draw, currentSpeed);
         }
@@ -147,7 +144,6 @@ SNAKE_TEMPLATE = """
                 x: Math.floor(Math.random() * (canvas.width / box)) * box,
                 y: Math.floor(Math.random() * (canvas.height / box)) * box
             };
-            // التأكد من عدم توليد الطعام فوق جسم الثعبان
             for (let cell of snake) {
                 if (cell.x === food.x && cell.y === food.y) generateFood();
             }
@@ -183,15 +179,14 @@ SNAKE_TEMPLATE = """
         }
 
         function draw() {
-            if(isPaused) return;
+            if(isPaused || !gameActive) return;
             
-            // نغمات متزامنة مع حركة خطوات الثعبان
             if (Math.random() < 0.2) playStepMusic();
 
             ctx.fillStyle = '#161b22';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // رسم الثعبان مع تدرج ألوان رأسه تبعاً للمرحلة
+            // رسم الثعبان
             for(let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = (i === 0) ? '#58a6ff' : `hsl(${120 + (currentLevel * 10)}, 70%, 45%)`;
                 ctx.strokeStyle = '#0d1117';
@@ -199,10 +194,10 @@ SNAKE_TEMPLATE = """
                 ctx.strokeRect(snake[i].x, snake[i].y, box, box);
             }
 
-            // رسم طعام النيون الملون
             ctx.fillStyle = '#f85149';
             ctx.fillRect(food.x, food.y, box, box);
 
+            // ✅ التعديل الهندسي الحاسم: سحب الإحداثيات من الخانة صفر للرأس مباشرة بدلاً من استدعاء المصفوفة ككل
             let snakeX = snake[0].x;
             let snakeY = snake[0].y;
 
@@ -211,14 +206,12 @@ SNAKE_TEMPLATE = """
             if(d === 'RIGHT') snakeX += box;
             if(d === 'DOWN') snakeY += box;
 
-            // إذا التهم الثعبان الهدف السحابي
             if(snakeX === food.x && snakeY === food.y) {
                 score += 10;
                 document.getElementById('snakeScore').innerText = 'النقاط: ' + score;
                 playSound('eat');
                 generateFood();
                 
-                // الانتقال التلقائي بين المراحل الـ 10 كل 50 نقطة
                 if(score % 50 === 0 && currentLevel < 10) {
                     currentLevel++;
                     document.getElementById('snakeLevel').innerText = 'المرحلة: ' + currentLevel + ' / 10 👑';
@@ -231,7 +224,6 @@ SNAKE_TEMPLATE = """
 
             let newHead = { x: snakeX, y: snakeY };
 
-            // قوانين الخسارة والارتطام الفني بالجسم أو الحدود البرمجية للشاشة
             if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || checkCollision(newHead, snake)) {
                 gameActive = false;
                 clearInterval(gameLoopInterval);
