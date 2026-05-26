@@ -80,8 +80,8 @@ def generate_sidebar_html():
                 <i class="fas fa-chevron-down" id="dropdownArrow" style="transition: 0.3s; font-size: 11px; color: #58a6ff;"></i>
             </button>
             <div class="dropdown-sub-menu-clean" id="gamesSubMenu">
-                <a href="/snake" class="menu-item-clean" style="color: #3fb950; font-size: 13.5px;"><i class="fas fa-dragon"></i> لعبة الثعبان الكلاسيكية</a>
-                <a href="/tetris" class="menu-item-clean" style="color: #d29922; font-size: 13.5px;"><i class="fas fa-cubes"></i> لعبة التترس البكسلية</a>
+                <a href="/snake" class="menu-item-clean" style="color: #3fb950; font-size: 13.5px;"><i class="fas fa-dragon"></i> لعبة الثعبان </a>
+                <a href="/tetris" class="menu-item-clean" style="color: #d29922; font-size: 13.5px;"><i class="fas fa-cubes"></i> لعبة التترس </a>
             </div>
         </div>
         
