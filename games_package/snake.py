@@ -29,11 +29,12 @@ SNAKE_TEMPLATE = """
         canvas { background-color: #161b22; display: block; max-width: 100%; height: auto; border: 1px solid #30363d; border-radius: 4px; }
         .overlay-txt { display: none; position: absolute; font-size: 18px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(22, 27, 34, 0.95); border: 2px solid #58a6ff; padding: 12px; border-radius: 8px; text-align: center; width: 85%; box-sizing: border-box; z-index: 5; }
         
+        /* 🕹️ لوحة أزرار نوكيا المطورة للتاتش السريع بدون تعليق */
         .nokia-dpad { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 160px; height: 160px; margin-left: auto; margin-right: auto; }
-        .arrow-btn { background: #21262d; border: 1px solid #30363d; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #58a6ff; cursor: pointer; box-shadow: 0 4px #0d1117; user-select: none; -webkit-user-select: none; }
+        .arrow-btn { background: #21262d; border: 1px solid #30363d; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #58a6ff; cursor: pointer; box-shadow: 0 4px #0d1117; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
         .arrow-btn:active { transform: translateY(2px); box-shadow: 0 1px #0d1117; }
         .dpad-empty { pointer-events: none; visibility: hidden; }
-        .dpad-center-btn { background: #30363d; border: 1px solid #58a6ff; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 14px; color: #fff; }
+        .dpad-center-btn { background: #30363d; border: 1px solid #58a6ff; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 14px; color: #fff; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
     </style>
 </head>
 <body>
@@ -64,17 +65,18 @@ SNAKE_TEMPLATE = """
                 </div>
             </div>
 
+            <!-- 🕹️ لوحة أزرار نوكيا المحدثة لتدعم اللمس والضغط بالماوس معاً لكافة الشاشات -->
             <div class="nokia-dpad">
                 <div class="dpad-empty"></div>
-                <div class="arrow-btn" onclick="changeDirection('UP')">▲</div>
+                <div class="arrow-btn" ontouchstart="handleTouchControl(event, 'UP')" mousedown="changeDirection('UP')">▲</div>
                 <div class="dpad-empty"></div>
                 
-                <div class="arrow-btn" onclick="changeDirection('LEFT')">◀</div>
-                <div class="dpad-center-btn" onclick="togglePause()"><i class="fas fa-pause"></i></div>
-                <div class="arrow-btn" onclick="changeDirection('RIGHT')">▶</div>
+                <div class="arrow-btn" ontouchstart="handleTouchControl(event, 'LEFT')" mousedown="changeDirection('LEFT')">◀</div>
+                <div class="dpad-center-btn" ontouchstart="handleTouchControl(event, 'PAUSE')" mousedown="togglePause()"><i class="fas fa-pause"></i></div>
+                <div class="arrow-btn" ontouchstart="handleTouchControl(event, 'RIGHT')" mousedown="changeDirection('RIGHT')">▶</div>
                 
                 <div class="dpad-empty"></div>
-                <div class="arrow-btn" onclick="changeDirection('DOWN')">▼</div>
+                <div class="arrow-btn" ontouchstart="handleTouchControl(event, 'DOWN')" mousedown="changeDirection('DOWN')">▼</div>
                 <div class="dpad-empty"></div>
             </div>
         </div>
@@ -96,6 +98,13 @@ SNAKE_TEMPLATE = """
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const baseNotes = [130.81, 146.83, 164.81, 196.00]; 
+
+        // معالج اللمس الفوري للهواتف لمنع التكبير التلقائي للمتصفحات عند النقر السريع
+        function handleTouchControl(e, direction) {
+            e.preventDefault(); 
+            if(direction === 'PAUSE') togglePause();
+            else changeDirection(direction);
+        }
 
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -122,32 +131,14 @@ SNAKE_TEMPLATE = """
         function initGame() {
             document.getElementById('gameOverScreen').style.display = 'none';
             snake = [{x: 12 * box, y: 8 * box}];
-            generateFood();
-            score = 0;
-            currentLevel = 1;
-            d = 'RIGHT';
-            isPaused = false;
-            gameActive = true;
+            generateFood(); score = 0; currentLevel = 1; d = 'RIGHT'; isPaused = false; gameActive = true;
             document.getElementById('snakeScore').innerText = 'النقاط: ' + score;
             document.getElementById('snakeLevel').innerText = 'المرحلة: ' + currentLevel + ' / 10 👑';
             runEngineLoop();
         }
 
-        function runEngineLoop() {
-            if(gameLoopInterval) clearInterval(gameLoopInterval);
-            let currentSpeed = baseSpeed - (currentLevel * 9);
-            gameLoopInterval = setInterval(draw, currentSpeed);
-        }
-
-        function generateFood() {
-            food = {
-                x: Math.floor(Math.random() * (canvas.width / box)) * box,
-                y: Math.floor(Math.random() * (canvas.height / box)) * box
-            };
-            for (let cell of snake) {
-                if (cell.x === food.x && cell.y === food.y) generateFood();
-            }
-        }
+        function runEngineLoop() { if(gameLoopInterval) clearInterval(gameLoopInterval); let currentSpeed = baseSpeed - (currentLevel * 9); gameLoopInterval = setInterval(draw, currentSpeed); }
+        function generateFood() { food = { x: Math.floor(Math.random() * (canvas.width / box)) * box, y: Math.floor(Math.random() * (canvas.height / box)) * box }; for (let cell of snake) { if (cell.x === food.x && cell.y === food.y) generateFood(); } }
 
         function changeDirection(dir) {
             if(!gameActive || isPaused) return;
@@ -165,81 +156,37 @@ SNAKE_TEMPLATE = """
             if(e.code === 'Space') togglePause();
         });
 
-        function togglePause() {
-            if(!gameActive) return;
-            isPaused = !isPaused;
-            document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none';
-        }
-
-        function checkCollision(head, array) {
-            for(let i = 0; i < array.length; i++) {
-                if(head.x === array[i].x && head.y === array[i].y) return true;
-            }
-            return false;
-        }
+        function togglePause() { if(!gameActive) return; isPaused = !isPaused; document.getElementById('pauseOverlay').style.display = isPaused ? 'block' : 'none'; }
+        function checkCollision(head, array) { for(let i = 0; i < array.length; i++) { if(head.x === array[i].x && head.y === array[i].y) return true; } return false; }
 
         function draw() {
             if(isPaused || !gameActive) return;
-            
             if (Math.random() < 0.2) playStepMusic();
+            ctx.fillStyle = '#161b22'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = '#161b22';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // رسم الثعبان
             for(let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = (i === 0) ? '#58a6ff' : `hsl(${120 + (currentLevel * 10)}, 70%, 45%)`;
-                ctx.strokeStyle = '#0d1117';
-                ctx.fillRect(snake[i].x, snake[i].y, box, box);
-                ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+                ctx.strokeStyle = '#0d1117'; ctx.fillRect(snake[i].x, snake[i].y, box, box); ctx.strokeRect(snake[i].x, snake[i].y, box, box);
             }
 
-            ctx.fillStyle = '#f85149';
-            ctx.fillRect(food.x, food.y, box, box);
+            ctx.fillStyle = '#f85149'; ctx.fillRect(food.x, food.y, box, box);
+            let snakeX = snake[0].x; let snakeY = snake[0].y; // جلب احداثيات الرأس الفردي
 
-            // ✅ التعديل الهندسي الحاسم: سحب الإحداثيات من الخانة صفر للرأس مباشرة بدلاً من استدعاء المصفوفة ككل
-            let snakeX = snake[0].x;
-            let snakeY = snake[0].y;
-
-            if(d === 'LEFT') snakeX -= box;
-            if(d === 'UP') snakeY -= box;
-            if(d === 'RIGHT') snakeX += box;
-            if(d === 'DOWN') snakeY += box;
+            if(d === 'LEFT') snakeX -= box; if(d === 'UP') snakeY -= box; if(d === 'RIGHT') snakeX += box; if(d === 'DOWN') snakeY += box;
 
             if(snakeX === food.x && snakeY === food.y) {
-                score += 10;
-                document.getElementById('snakeScore').innerText = 'النقاط: ' + score;
-                playSound('eat');
-                generateFood();
-                
-                if(score % 50 === 0 && currentLevel < 10) {
-                    currentLevel++;
-                    document.getElementById('snakeLevel').innerText = 'المرحلة: ' + currentLevel + ' / 10 👑';
-                    playSound('levelUp');
-                    runEngineLoop();
-                }
-            } else {
-                snake.pop();
-            }
+                score += 10; document.getElementById('snakeScore').innerText = 'النقاط: ' + score; playSound('eat'); generateFood();
+                if(score % 50 === 0 && currentLevel < 10) { currentLevel++; document.getElementById('snakeLevel').innerText = 'المرحلة: ' + currentLevel + ' / 10 👑'; playSound('levelUp'); runEngineLoop(); }
+            } else { snake.pop(); }
 
             let newHead = { x: snakeX, y: snakeY };
-
             if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || checkCollision(newHead, snake)) {
-                gameActive = false;
-                clearInterval(gameLoopInterval);
-                playSound('lose');
-                handleGameOver();
-                return;
+                gameActive = false; clearInterval(gameLoopInterval); playSound('lose'); handleGameOver(); return;
             }
-
             snake.unshift(newHead);
         }
 
-        function handleGameOver() {
-            document.getElementById('goTitle').innerText = 'انتهت اللعبة! 💀';
-            document.getElementById('finalScoreText').innerText = `أحرزت: ${score} نقطة في المرحلة ${currentLevel}`;
-            document.getElementById('gameOverScreen').style.display = 'block';
-        }
+        function handleGameOver() { document.getElementById('goTitle').innerText = 'انتهت اللعبة! 💀'; document.getElementById('finalScoreText').innerText = `أحرزت: ${score} نقطة في المرحلة ${currentLevel}`; document.getElementById('gameOverScreen').style.display = 'block'; }
     </script>
 </body>
 </html>
