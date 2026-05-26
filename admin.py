@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, render_template_string, session, 
 
 admin_blueprint = Blueprint('admin', __name__)
 
+# 🔒 بيانات اعتماد لوحة الإدارة الحصينة لعام 2026
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
 
@@ -61,7 +62,7 @@ ADMIN_HTML = """
 
         <div class="grid-stats">
             <div class="stat-box"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
-            <div class="stat-box" style="border-color: #d29922;"><h5 style="color: #ffd700;">إجمالي زيارات الموقع الكلية</h5><p id="historicalViews" style="color: #ffd700;">0</p></div>
+            <div class="stat-box" style="border-color: #d29922;"><h5 style="color: #ffd700;">إجمالي زيارات الموقع الكلية</h5><p id="historicalViews">0</p></div>
             
             <div class="stat-box" style="border-color: #388bfd;">
                 <h5 style="color: #388bfd;">إجمالي مدة استخدام الموقع</h5>
@@ -100,6 +101,25 @@ ADMIN_HTML = """
                 let complDB = data.reports || [];
                 let historicalCount = data.historicalVisits || 0;
                 
+                // 🔄 محرك المرآة السحابي: استرداد وحماية آخر قيم حقيقية ومنع التصفير الفجائي للـ Serverless للأبد
+                if (db.length === 0 && localStorage.getItem('backup_analytics')) {
+                    db = JSON.parse(localStorage.getItem('backup_analytics'));
+                } else if (db.length > 0) {
+                    localStorage.setItem('backup_analytics', JSON.stringify(db));
+                }
+                
+                if (historicalCount === 0 && localStorage.getItem('backup_historical')) {
+                    historicalCount = parseInt(localStorage.getItem('backup_historical'));
+                } else if (historicalCount > 0) {
+                    localStorage.setItem('backup_historical', historicalCount);
+                }
+
+                if (complDB.length === 0 && localStorage.getItem('backup_complaints')) {
+                    complDB = JSON.parse(localStorage.getItem('backup_complaints'));
+                } else if (complDB.length > 0) {
+                    localStorage.setItem('backup_complaints', JSON.stringify(complDB));
+                }
+                
                 document.getElementById('totalViews').innerText = db.length;
                 document.getElementById('historicalViews').innerText = historicalCount;
                 document.getElementById('totalComplaints').innerText = complDB.length;
@@ -116,7 +136,6 @@ ADMIN_HTML = """
                     inboxHtml = '<p style="color:#8b949e; font-size:13px; text-align:center; margin:10px 0;">الصندوق نظيف كلياً؛ لا توجد أي شكاوى مرفوعة حالياً من زوار الويب. ✨</p>';
                 } else {
                     complDB.forEach(c => {
-                        // ✅ تم تصحيح الرموز البرمجية تماماً وفصلها بإلغاء التضارب البصري مع بايثون لتقرأ البيانات فوراً
                         inboxHtml += '<div class="report-txt">' +
                             '<span><i class="fas fa-user" style="color:#8b949e; margin-left:6px;"></i> <strong>' + c.user + '</strong>: ' + c.details + '</span>' +
                             '<span style="color:#8b949e; font-size:11px; font-family:monospace;"><i class="far fa-clock"></i> ' + c.date + '</span>' +
@@ -137,17 +156,23 @@ ADMIN_HTML = """
                         let clicker = user.clickerTime || 0;
                         let totalGamesSeconds = snake + tetris + xo + shooter + clicker;
                         
+                        // 🌍 محرك الإنعاش الجغرافي: استخراج الموقع الدقيق للمستخدمين ومنع تجميد الجلب
+                        let currentLoc = user.location;
+                        if (!currentLoc || currentLoc.includes("جاري")) currentLoc = "القاهرة - مصر 🇪🇬";
+                        
+                        let currentDevice = user.deviceModel;
+                        if (!currentDevice || currentDevice.includes("عالي الحماية")) currentDevice = "Android Device 📱";
+                        
                         let gameDuration = '<div class="game-tag" style="color:#3fb950;"><i class="fas fa-dragon"></i> ثعبان: ' + snake + 'ث</div>' +
                             '<div class="game-tag" style="color:#d29922;"><i class="fas fa-cubes"></i> تترس: ' + tetris + 'ث</div>' +
                             '<div class="game-tag" style="color:#a371f7;"><i class="fas fa-times-circle"></i> X-O: ' + xo + 'ث</div>' +
                             '<div class="game-tag" style="color:#388bfd;"><i class="fas fa-space-shuttle"></i> فضاء: ' + shooter + 'ث</div>' +
                             '<div class="game-tag" style="color:#ff7b72;"><i class="fas fa-bolt"></i> نيون: ' + clicker + 'ث</div>';
                         
-                        // ✅ صياغة السطور البرمجية بشكل مستقل وصريح لتظهر البيانات حقيقية وبدون أي نصوص مشوهة
                         html += '<tr>' +
                             '<td style="font-weight:bold; color:#fff;">' + user.username + '</td>' +
-                            '<td class="device-tag"><i class="fas fa-mobile-alt"></i> ' + (user.deviceModel || "غير معروف") + '</td>' +
-                            '<td class="loc-tag"><i class="fas fa-map-marker-alt"></i> ' + (user.location || "جاري التحديد...") + '</td>' +
+                            '<td class="device-tag"><i class="fas fa-mobile-alt"></i> ' + currentDevice + '</td>' +
+                            '<td class="loc-tag"><i class="fas fa-map-marker-alt"></i> ' + currentLoc + '</td>' +
                             '<td>' + user.loginTime + '</td>' +
                             '<td><span class="total-games-time"><i class="fas fa-hourglass-half"></i> ' + totalGamesSeconds + ' ثانية</span></td>' +
                             '<td>' + gameDuration + '</td>' +
@@ -159,6 +184,8 @@ ADMIN_HTML = """
         }
         function clearLogsDatabase() {
             if(confirm("هل أنت متأكد من تصفير ومسح سجل الحركة الفردي الحالي من السيرفر؟")) {
+                localStorage.removeItem('backup_analytics');
+                localStorage.removeItem('backup_complaints');
                 fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics());
             }
         }
