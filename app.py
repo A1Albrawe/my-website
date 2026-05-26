@@ -4,13 +4,13 @@ from report import report_blueprint
 from admin import admin_blueprint
 from api import api_blueprint
 
-# استدعاء باقة الألعاب الخمسة المحدثة والمطورة كلياً من مجلداتها القياسية
+# استدعاء باقة الألعاب الستة المحدثة والمطورة كلياً من مجلداتها القياسية
 from games_package.snake import snake_blueprint
 from games_package.tetris import tetris_blueprint
 from games_package.xo import xo_blueprint
-from games_package.card_game import card_game_blueprint
 from games_package.shooter import shooter_blueprint
 from games_package.clicker import clicker_blueprint
+from games_package.card_game import card_game_blueprint
 
 from projects import projects_blueprint
 from about import about_blueprint
@@ -41,10 +41,7 @@ try:
 except Exception:
     pass
 
-# استدعاء باقة الألعاب الخمسة المحدثة بشكل محمي معزول تماماً
-try: app.register_blueprint(card_game_blueprint)
-except Exception: pass
-    
+# استدعاء باقة الألعاب الستة كاملة بشكل محمي معزول تماماً
 try: app.register_blueprint(snake_blueprint)
 except Exception: pass
 
@@ -58,6 +55,9 @@ try: app.register_blueprint(shooter_blueprint)
 except Exception: pass
 
 try: app.register_blueprint(clicker_blueprint)
+except Exception: pass
+
+try: app.register_blueprint(card_game_blueprint)
 except Exception: pass
 
 # استدعاء المسارات التكميلية المستقلة
