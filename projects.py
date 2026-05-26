@@ -1,5 +1,5 @@
 # 📝 عدل العنوان من هنا مباشرة في السطر الثاني دون البحث في الأكواد!
-PROJECTS_MAIN_TITLE = "مستودع ومشاريع المهندس البراوي"
+PROJECTS_MAIN_TITLE = "مستودع المشاريع "
 
 import os
 from flask import Blueprint, render_template_string
