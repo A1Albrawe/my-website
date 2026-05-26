@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify
 
 api_blueprint = Blueprint('api', __name__)
 
-# 🔒 المستودع المركزي الصلب الممتد الصلاحية لتفادي تنظيف ذاكرة Vercel
+# 🔒 الذاكرة المركزية الصلبة المستقرة لتفادي تنظيف ذاكرة Vercel وتصفير الأجهزة
 if not hasattr(api_blueprint, 'CENTRAL_ANALYTICS_SERVER_DB'):
     api_blueprint.CENTRAL_ANALYTICS_SERVER_DB = []
 
@@ -20,7 +20,7 @@ def log_visit():
     user_agent = request.headers.get('User-Agent', 'غير معروف')
     location = data.get('location', 'جاري جلب الموقع...').strip()
     
-    # 📱 الفرز الدقيق والفوري لموديلات الأجهزة حياً عبر فحص الـ User-Agent
+    # 📱 الرصد والفرز الدقيق لموديلات الهواتف والكمبيوتر حياً
     device_model = "كمبيوتر / غير معروف"
     ua_lower = user_agent.lower()
     if "android" in ua_lower:
@@ -36,7 +36,6 @@ def log_visit():
     elif "macintosh" in ua_lower:
         device_model = "MacBook 💻"
 
-    # البحث عن الزائر في قاعدة البيانات لتحديث مكانه أو تسجيله كزيارة كلية جديدة
     user_entry = next((item for item in api_blueprint.CENTRAL_ANALYTICS_SERVER_DB if item["username"] == username), None)
     
     if not user_entry:
@@ -44,7 +43,7 @@ def log_visit():
         user_entry = {
             "username": username, "deviceModel": device_model, "location": location,
             "loginTime": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "duration": 0, "snakeTime": 0, "tetrisTime": 0, "xoTime": 0, "shooterTime": 0, "clickerTime": 0,
+            "duration": 0, "snakeTime": 0, "tetrisTime": 0, "xoTime": 0, "shooterTime": 0, "clickerTime": 0, "cardTime": 0,
             "browsingHistory": ["الرئيسية 🏠"]
         }
         api_blueprint.CENTRAL_ANALYTICS_SERVER_DB.append(user_entry)
@@ -59,17 +58,18 @@ def update_duration():
     data = request.get_json() or {}
     username = data.get('username', '').strip()
     game_type = data.get('game', '')
-    # استقبال الثواني المجمعة الموفرة للطاقة والأداء
     inc = data.get('durationIncrement', 5)
     
     if username:
         user_entry = next((item for item in api_blueprint.CENTRAL_ANALYTICS_SERVER_DB if item["username"] == username), None)
         if user_entry:
+            # 🎮 ربط وفرز مدد أوقات باقة الألعاب الستة كاملة التجميع
             if game_type == 'snake': user_entry["snakeTime"] += inc
             elif game_type == 'tetris': user_entry["tetrisTime"] += inc
             elif game_type == 'xo': user_entry["xoTime"] += inc
             elif game_type == 'shooter': user_entry["shooterTime"] += inc
             elif game_type == 'clicker': user_entry["clickerTime"] += inc
+            elif game_type == 'card_game': user_entry["cardTime"] += inc
             else: user_entry["duration"] += inc
             
     return jsonify({"status": "success"})
