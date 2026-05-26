@@ -1,9 +1,13 @@
-from flask import Blueprint, request, jsonify, render_template_string, session, redirect
+from flask import Blueprint, request, jsonify, render_template_string, session, redirect, abort
 
 admin_blueprint = Blueprint('admin', __name__)
 
+# 🔒 بيانات اعتماد لوحة الإدارة الحصينة الخاصة بك
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
+
+# 🔑 مفتاح العبور السري الفوري لتنشيط الرابط ومنع المتطفلين من رؤية الشاشة
+SECRET_GATE_KEY = "open_gate_key_final_2026"
 
 ADMIN_HTML = """
 <!DOCTYPE html>
@@ -39,9 +43,7 @@ ADMIN_HTML = """
         .total-site-time { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.06); padding: 3px 6px; border-radius: 5px; border: 1px solid rgba(88,166,255,0.2); }
         .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.06); padding: 3px 6px; border-radius: 5px; border: 1px solid rgba(255,215,0,0.2); }
         
-        /* ✨ تنسيق نيون مميز لخرائط المسارات والتحركات */
         .route-path-box { font-size: 11.5px; color: #a371f7; font-weight: bold; background: rgba(163,113,247,0.06); padding: 4px 8px; border-radius: 6px; border: 1px dashed rgba(163,113,247,0.3); line-height: 1.4; word-break: break-all; }
-        
         .game-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.03); border: 1px solid #30363d; }
         .report-txt { background: #211b1b; border-right: 4px solid #f85149; padding: 12px; margin: 4px 0; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.5; color: #ff7b72; display: flex; justify-content: space-between; align-items: center; }
         .clear-db-btn { background: #d29922; color: #000; border: none; padding: 6px 14px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; }
@@ -64,7 +66,7 @@ ADMIN_HTML = """
 
         <div class="grid-stats">
             <div class="stat-box"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
-            <div class="stat-box" style="border-color: #d29922;"><h5 style="color: #ffd700;">إجمالي زيارات الموقع الكلية</h5><p id="historicalViews">0</p></div>
+            <div class="stat-box" style="border-color: #d29922;"><h4 style="margin:0 0 8px 0; color:#ffd700; font-size:13px;">إجمالي زيارات الموقع الكلية</h4><p id="historicalViews">0</p></div>
             <div class="stat-box" style="border-color: #388bfd;">
                 <h5 style="color: #388bfd;">إجمالي مدة استخدام الموقع</h5>
                 <p id="totalUsageTime" style="color: #388bfd;">0 ثانية</p>
@@ -84,7 +86,6 @@ ADMIN_HTML = """
                             <th>الموقع الجغرافي 🌍</th>
                             <th>تاريخ ووقت الدخول 📅</th>
                             <th>الموقع الأم 🖥️</th>
-                            <!-- ✅ إضافة رأس عمود خريطة سجل التصفح الفعلي للزوار حياً -->
                             <th>مسار التنقل والصفحات 🗺️</th>
                             <th>وقت الألعاب ⏳</th>
                             <th>تفصيل العدادات الخمسة 🎮</th>
@@ -109,7 +110,6 @@ ADMIN_HTML = """
                 liveDB.forEach(liveUser => {
                     let existingIndex = archiveDB.findIndex(archiveUser => archiveUser.username === liveUser.username);
                     if (existingIndex !== -1) {
-                        // ✅ ذكاء اصطناعي تفاعلي: رصد الصفحة الحالية وبنائها كخريطة مسار تراكمية ومستمرة للزائر
                         let currentStep = window.location.pathname.replace('/', '') || 'الرئيسية';
                         if (liveUser.snakeTime > 0) currentStep = 'لعبة الثعبان 🐍';
                         else if (liveUser.tetrisTime > 0) currentStep = 'لعبة التترس 🧱';
@@ -119,9 +119,8 @@ ADMIN_HTML = """
                         
                         let historyArray = archiveDB[existingIndex].browsingHistory || ["الرئيسية 🏠"];
                         if (historyArray[historyArray.length - 1] !== currentStep) {
-                            historyArray.push(currentStep); // أرشفة الخطوة الجديدة في مساره التصفحي
+                            historyArray.push(currentStep);
                         }
-                        
                         liveUser.browsingHistory = historyArray;
                         archiveDB[existingIndex] = liveUser;
                     } else {
@@ -185,7 +184,6 @@ ADMIN_HTML = """
                         let currentDevice = user.deviceModel;
                         if (!currentDevice || currentDevice.includes("عالي الحماية")) currentDevice = "Android Device 📱";
                         
-                        // صياغة مسار خريطة التنقل التراكمية بشكل جمالي منسق
                         let stepsList = user.browsingHistory || ["الرئيسية 🏠"];
                         let stepsHtml = '<div class="route-path-box">' + stepsList.join(' ➔ ') + '</div>';
                         
@@ -201,7 +199,6 @@ ADMIN_HTML = """
                             '<td class="loc-tag"><i class="fas fa-map-marker-alt"></i> ' + currentLoc + '</td>' +
                             '<td>' + user.loginTime + '</td>' +
                             '<td><span class="total-site-time"><i class="fas fa-window-maximize"></i> ' + (user.duration || 0) + 'ث</span></td>' +
-                            '<!-- ✅ حقن وشرعنة طباعة عمود سجل خريطة التصفح والتحركات الفعلي -->' +
                             '<td>' + stepsHtml + '</td>' +
                             '<td><span class="total-games-time"><i class="fas fa-hourglass-half"></i> ' + totalGamesSeconds + 'ث</span></td>' +
                             '<td>' + gameDuration + '</td>' +
@@ -211,7 +208,6 @@ ADMIN_HTML = """
                 document.getElementById('logsTableBody').innerHTML = html;
             });
         }
-        
         function clearLogsDatabase() {
             if(confirm("هل أنت متأكد من مسح السجل التراكمي وتصفير الأرشيف التاريخي بالكامل من لوحتك؟")) {
                 localStorage.removeItem('permanent_archive_db');
@@ -261,21 +257,35 @@ LOGIN_HTML = """
 </html>
 """
 
+# ✅ الحفاظ الفعلي الكامل على رابط العبور القديم والمألوف لديك كمصدر أساسي وحيد
 @admin_blueprint.route('/albrawe-secure-panel-2026', methods=['GET', 'POST'])
 def admin_page():
+    # 🕵️ فحص مفتاح التنشيط المدمج؛ في حال غيابه يتم تشفير الشاشة وإعطاء خطأ 404 تمويهي فوري وطرد المتطفل
+    gate_key = request.args.get('key', '')
+    
     if request.method == 'POST':
         user = request.form.get('username')
         passwd = request.form.get('password')
         if user == ADMIN_USER and passwd == ADMIN_PASS:
             session['admin_logged_in'] = True
+            session['gate_key_authenticated'] = True
             return render_template_string(ADMIN_HTML)
         else:
             return render_template_string(LOGIN_HTML + "<script>alert('❌ خطأ فادح: بيانات الاعتماد غير صحيحة!');</script>")
-    if session.get('admin_logged_in'):
+            
+    # استرجاع الهوية الموثقة مسبقاً لمنع طلب المفتاح عند عمليات الـ Refresh التلقائية للجدول
+    if session.get('admin_logged_in') and session.get('gate_key_authenticated'):
         return render_template_string(ADMIN_HTML)
-    return render_template_string(LOGIN_HTML)
+        
+    if gate_key == SECRET_GATE_KEY:
+        session['gate_key_authenticated'] = True
+        return render_template_string(LOGIN_HTML)
+        
+    # 🎯 الطرد التكتيكي: حظر أي مستخدم عادي يكتب الرابط القديم بدون المفتاح السري وإيهامه بـ خطأ 404 صفحة غير موجودة!
+    abort(404)
 
 @admin_blueprint.route('/albrawe-admin/logout')
 def admin_logout():
     session.pop('admin_logged_in', None)
-    return redirect('/albrawe-secure-panel-2026')
+    session.pop('gate_key_authenticated', None)
+    return redirect('/')
