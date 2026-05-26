@@ -19,7 +19,6 @@ ADMIN_HTML = """
         body { font-family: 'Courier New', Courier, monospace; background: #080c10; color: #c9d1d9; padding: 15px; margin: 0; box-sizing: border-box; }
         .container { width: 100%; max-width: 1400px; margin: 0 auto; }
         
-        /* 📱 تصميم هيدر مرن يتجاوب تلقائياً مع الهواتف والكمبيوتر */
         .main-header { display: flex; flex-direction: row; justify-content: space-between; align-items: center; border-bottom: 2px solid #a371f7; padding-bottom: 15px; margin-bottom: 25px; gap: 10px; }
         @media (max-width: 600px) { .main-header { flex-direction: column; text-align: center; } .main-header h2 { font-size: 18px; } }
         
@@ -29,7 +28,6 @@ ADMIN_HTML = """
         .complaints-inbox-card { background: #161212; border: 1px solid #492222; border-top: 4px solid #f85149; border-radius: 14px; padding: 20px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(248,81,73,0.12); text-align: right; }
         .complaints-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; max-height: 200px; overflow-y: auto; }
         
-        /* 📊 شبكة كروت ذكية تتكيف تلقائياً (من 1 إلى 4 أعمدة) حسب حجم الشاشة المعروضة */
         .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .stat-box { background: #10151b; border: 1px solid #21262d; padding: 20px 15px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: 0.3s ease; }
         .stat-box:hover { transform: translateY(-2px); border-color: #30363d; }
@@ -38,16 +36,13 @@ ADMIN_HTML = """
         .sub-stat-label { display: block; font-size: 11px; font-weight: bold; color: #8b949e; margin-top: 6px; border-top: 1px dashed #21262d; padding-top: 5px; }
         .analytics-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #a371f7; border-radius: 14px; padding: 20px; margin-bottom: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: right; }
         
-        /* 🛠️ حاوي ذكي لمنع خروج الجدول عن حدود الشاشة في الموبايل وتفعيل التمرير الأفقي الصامت */
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; background: #0d1117; min-width: 950px; }
+        table { width: 100%; border-collapse: collapse; background: #0d1117; min-width: 1050px; }
         th, td { padding: 14px 12px; text-align: right; border-bottom: 1px solid #21262d; font-size: 12.5px; white-space: nowrap; }
         th { background-color: #1f242c; color: #79c0ff; font-weight: bold; border-bottom: 2px solid #30363d; }
         tr:hover { background-color: rgba(163, 113, 247, 0.02); }
         
         .device-tag { color: #ffd700; font-weight: bold; }
-        
-        /* 🚩 تنسيق كرت الموقع الجغرافي مع مساحة مخصصة لعلم الدولة المتوهج */
         .loc-tag { color: #3fb950; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; }
         .flag-img { width: 18px; height: 13px; border-radius: 2px; object-fit: cover; display: inline-block; vertical-align: middle; box-shadow: 0 0 4px rgba(255,255,255,0.2); }
         
@@ -185,20 +180,17 @@ ADMIN_HTML = """
                         let snake = user.snakeTime || 0; let tetris = user.tetrisTime || 0; let xo = user.xoTime || 0; let shooter = user.shooterTime || 0; let clicker = user.clickerTime || 0;
                         let totalGamesSeconds = snake + tetris + xo + shooter + clicker;
                         
-                        // 🌍 محرك الفرز الجغرافي الثلاثي المتقدم واستخراج كود الأعلام تلقائياً
-                        let fullLocation = user.location || "القاهرة - مصر";
-                        let countryCode = "eg"; // افتراضي مصر لحماية البناء من الانهيار
+                        let currentLoc = user.location || "القاهرة - مصر";
+                        let countryCode = "eg"; 
                         
-                        // استنتاج رمز الدولة لطلب علم الـ CDN المطابق حياً
-                        let locLower = fullLocation.toLowerCase();
+                        let locLower = currentLoc.toLowerCase();
                         if (locLower.includes("saudi") || locLower.includes("السعودية") || locLower.includes("رياض")) countryCode = "sa";
                         else if (locLower.includes("emirates") || locLower.includes("دبي") || locLower.includes("الإمارات")) countryCode = "ae";
                         else if (locLower.includes("kuwait") || locLower.includes("الكويت")) countryCode = "kw";
                         else if (locLower.includes("iraq") || locLower.includes("العراق")) countryCode = "iq";
                         else if (locLower.includes("jordan") || locLower.includes("الأردن")) countryCode = "jo";
                         
-                        // حقن دالة العلم وصندوق الجغرافيا الثلاثي بدقة كاملة وعريضة
-                        let flagHtml = `<img class="flag-img" src="https://flagcdn.com{countryCode}.png" alt="Flag">`;
+                        let flagHtml = `<img class="flag-img" src="https://flagcdn.com\${countryCode}.png" alt="Flag">`;
                         
                         let currentDevice = user.deviceModel;
                         if (!currentDevice || currentDevice.includes("عالي الحماية")) currentDevice = "Android Device 📱";
@@ -215,7 +207,7 @@ ADMIN_HTML = """
                         html += '<tr>' +
                             '<td style="font-weight:bold; color:#fff;">' + user.username + '</td>' +
                             '<td class="device-tag"><i class="fas fa-mobile-alt"></i> ' + currentDevice + '</td>' +
-                            '<td class="loc-tag">' + flagHtml + ' <span>' + fullLocation + '</span></td>' +
+                            '<td class="loc-tag">' + flagHtml + ' <span>' + currentLoc + '</span></td>' +
                             '<td>' + user.loginTime + '</td>' +
                             '<td><span class="total-site-time"><i class="fas fa-window-maximize"></i> ' + (user.duration || 0) + 'ث</span></td>' +
                             '<td>' + stepsHtml + '</td>' +
@@ -237,6 +229,9 @@ ADMIN_HTML = """
         fetchAndRenderAnalytics();
         setInterval(fetchAndRenderAnalytics, 4000);
     </script>
+</body>
+</html>
+"""
 LOGIN_HTML = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
