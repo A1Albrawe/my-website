@@ -29,7 +29,7 @@ def about_page():
     <body>
         <div class="header-nav">
             <button class="menu-toggle" onclick="toggleSidebar(true)">☰ القائمة</button>
-            <span style="color:#fff; font-weight:bold;">👤 من نحن (About us)</span>
+            <span style="color:#fff; font-weight:bold;">👤 (About us)</span>
         </div>
         <div class="sidebar-curtain" id="sidebarCurtain">
             <button class="close-btn" onclick="toggleSidebar(false)">❌ إغلاق القائمة</button>
@@ -37,8 +37,8 @@ def about_page():
         </div>
         <div class="main-container">
             <div class="card">
-                <h3 style="color:#f0f6fc; margin-top:0;"><i class="fas fa-user-shield"></i> الهوية البرمجية للمهندس البراوي</h3>
-                <p style="line-height:1.6; font-size:14px; color:#8b949e;">نحن متخصصون في هندسة وتعديل تطبيقات البايثون (Flask Framework)، معالجة البيانات، وتأمين الواجهات السيبرانية من الثغرات البرمجية بأعلى كفاءة.</p>
+                <h3 style="color:#f0f6fc; margin-top:0;"><i class="fas fa-user-shield"></i> ALBRAWE - البراوي</h3>
+                <p style="line-height:1.6; font-size:14px; color:#8b949e;">نحن متخصصون في هندسة وتعديل تطبيقات البايثون (Flask Framework)، معالجة البيانات، وتعديل الواجهات البرمجية بأعلى كفاءة.</p>
             </div>
         </div>
         <script>
