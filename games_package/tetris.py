@@ -15,7 +15,6 @@ TETRIS_TEMPLATE = """
         .header-nav { background-color: #161b22; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #d29922; }
         .back-btn { background: #21262d; border: 1px solid #30363d; color: #d29922; padding: 6px 15px; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 14px; }
         
-        /* ✨ تأثير النيون لاسم المهندس البراوي في المنتصف للتوجيه للرئيسية */
         .brand-center-link { text-decoration: none; font-family: 'Courier New', Courier, monospace; font-size: 20px; font-weight: bold; color: #fff; text-shadow: 0 0 5px #d29922, 0 0 10px #d29922; transition: 0.2s; }
         .brand-center-link:hover { text-shadow: 0 0 10px #fff, 0 0 20px #d29922; }
         
@@ -27,16 +26,14 @@ TETRIS_TEMPLATE = """
         .game-area { position: relative; width: 100%; display: flex; justify-content: center; }
         canvas { background-color: #0d1117; display: block; border: 2px solid #30363d; border-radius: 6px; }
         
-        /* شاشة مؤقت اللعبة المتوهجة بالكامل */
         .overlay-txt { display: none; position: absolute; font-size: 22px; font-weight: bold; color: #fff; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(13, 17, 23, 0.95); border: 2px solid #d29922; padding: 20px; border-radius: 12px; text-align: center; width: 85%; box-shadow: 0 0 25px #d29922; box-sizing: border-box; z-index: 5; }
         
-        /* 🕹️ لوحة التحكم الميكانيكية المكتملة والأنيقة */
+        /* 🕹️ لوحة أزرار ميكانيكية محسنة ومحشوة بالتاتش الفوري */
         .control-pad { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 240px; margin-left: auto; margin-right: auto; }
-        .ctrl-btn { background: #21262d; border: 1px solid #30363d; border-radius: 12px; padding: 15px; font-size: 20px; color: #d29922; cursor: pointer; user-select: none; font-weight: bold; box-shadow: 0 4px #0d1117; transition: 0.1s; }
+        .ctrl-btn { background: #21262d; border: 1px solid #30363d; border-radius: 12px; padding: 15px; font-size: 20px; color: #d29922; cursor: pointer; user-select: none; -webkit-user-select: none; font-weight: bold; box-shadow: 0 4px #0d1117; transition: 0.1s; touch-action: manipulation; }
         .ctrl-btn:active { transform: translateY(2px); box-shadow: 0 1px #0d1117; }
         
-        /* ⏸️ تنسيق مستقل وعريض لزر التوقف المؤقت لمنع الغموض البصري */
-        .pause-action-btn { grid-column: span 3; background: #21262d; border: 1px solid #f85149; color: #f85149; font-size: 14px; font-weight: bold; border-radius: 8px; padding: 10px; cursor: pointer; box-shadow: 0 3px #0d1117; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px; font-family: inherit; }
+        .pause-action-btn { grid-column: span 3; background: #21262d; border: 1px solid #f85149; color: #f85149; font-size: 14px; font-weight: bold; border-radius: 8px; padding: 10px; cursor: pointer; box-shadow: 0 3px #0d1117; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px; font-family: inherit; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
         .pause-action-btn:active { transform: translateY(1px); box-shadow: 0 1px #0d1117; }
     </style>
 </head>
@@ -64,18 +61,18 @@ TETRIS_TEMPLATE = """
                     <button style="background:#238636; color:#fff; border:1px solid #2ea44f; padding:6px 15px; font-size:12px; font-weight:bold; cursor:pointer; border-radius:6px;" onclick="initGame()">بدء اللعب الفوري 🎮</button>
                 </div>
             </div>
+            
+            <!-- 🕹️ تفعيل الأزرار لتعمل بالتاتش المباشر للهواتف والضغط للكمبيوتر منعا لأي غموض برمي -->
             <div class="control-pad">
-                <!-- أزرار التوجيه الميكانيكية البارزة للعين -->
-                <button class="ctrl-btn" onclick="moveBlock('L')">◀</button>
-                <button class="ctrl-btn" onclick="rotateBlock()">🔄</button>
-                <button class="ctrl-btn" onclick="moveBlock('R')">▶</button>
+                <button class="ctrl-btn" ontouchstart="handleTetrisTouch(event, 'L')" mousedown="moveBlock('L')">◀</button>
+                <button class="ctrl-btn" ontouchstart="handleTetrisTouch(event, 'RTV')" mousedown="rotateBlock()">🔄</button>
+                <button class="ctrl-btn" ontouchstart="handleTetrisTouch(event, 'R')" mousedown="moveBlock('R')">▶</button>
                 
                 <div></div>
-                <button class="ctrl-btn" onclick="moveBlock('D')">▼</button>
+                <button class="ctrl-btn" ontouchstart="handleTetrisTouch(event, 'D')" mousedown="moveBlock('D')">▼</button>
                 <div></div>
                 
-                <!-- ✅ عزل وتجسيد زر الإيقاف المؤقت بشكل منفصل وواضح بالأسفل -->
-                <button class="pause-action-btn" onclick="togglePause()"><i class="fas fa-pause"></i> إيقاف مؤقت / استئناف اللعب</button>
+                <button class="pause-action-btn" ontouchstart="handleTetrisTouch(event, 'PAUSE')" mousedown="togglePause()"><i class="fas fa-pause"></i> إيقاف مؤقت / استئناف اللعب</button>
             </div>
         </div>
     </div>
@@ -87,6 +84,16 @@ TETRIS_TEMPLATE = """
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const musicNotes = [523.25, 587.33, 659.25, 523.25, 659.25, 587.33, 392.00, 440.00];
+
+        // ✅ معالج أحداث اللمس الفوري السحابي لمنع زحف أو اهتزاز واجهة الهاتف أثناء اللعب السريع
+        function handleTetrisTouch(e, action) {
+            e.preventDefault(); 
+            if(action === 'L') moveBlock('L');
+            else if(action === 'R') moveBlock('R');
+            else if(action === 'D') moveBlock('D');
+            else if(action === 'RTV') rotateBlock();
+            else if(action === 'PAUSE') togglePause();
+        }
 
         function playSound(t) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -110,19 +117,18 @@ TETRIS_TEMPLATE = """
         function startMusic() { stopMusic(); if(!isGameOver) { playMusic(); musicInterval = setInterval(playMusic, musicNotes.length * 200); } }
         function stopMusic() { if(musicInterval) clearInterval(musicInterval); }
 
-        // ✅ مصفوفات تدوير الأشكال السبعة القياسية كاملة الأرقام لضمان البروز وعدم حدوث الـ Freeze
-        const I = [ [ [0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0] ], [ [0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0] ] ];
-        const T = [ [ [0,1,0],[1,1,1],[0,0,0] ], [ [0,1,0],[0,1,1],[0,1,0] ] ];
-        const Z = [ [ [1,1,0],[0,1,1],[0,0,0] ], [ [0,0,1],[0,1,1],[0,1,0] ] ];
-        const S = [ [ [0,1,1],[1,1,0],[0,0,0] ], [ [0,1,0],[0,1,1],[0,0,1] ] ];
-        const O = [ [ [1,1],[1,1] ] ];
-        const L = [ [ [1,0,0],[1,1,1],[0,0,0] ], [ [0,1,1],[0,1,0],[0,1,0] ] ];
-        const J = [ [ [0,0,1],[1,1,1],[0,0,0] ], [ [0,1,0],[0,1,0],[0,1,1] ] ];
+        const I = [ [1,1,1,1], [0,0,0,0], [0,0,0,0], [0,0,0,0] ];
+        const T = [ [0,1,0], [1,1,1], [0,0,0] ];
+        const Z = [ [1,1,0], [0,1,1], [0,0,0] ];
+        const S = [ [0,1,1], [1,1,0], [0,0,0] ];
+        const O = [ [1,1], [1,1] ];
+        const L = [ [0,0,1], [1,1,1], [0,0,0] ];
+        const J = [ [1,0,0], [1,1,1], [0,0,0] ];
 
         const PIECES = [ [I,"#58a6ff"], [T,"#3fb950"], [Z,"#f85149"], [S,"#d29922"], [O,"#ffffff"], [L,"#a371f7"], [J,"#ff7b72"] ];
 
         class Piece {
-            constructor(tetromino, color) { this.tetromino = tetromino; this.color = color; this.tetrominoN = 0; this.activeTetromino = this.tetromino[this.tetrominoN]; this.x = 3; this.y = -2; }
+            constructor(tetromino, color) { this.tetromino = tetromino; this.color = color; this.activeTetromino = this.tetromino; this.x = 3; this.y = -2; }
             draw() { this.fill(this.color); }
             unuse() { this.fill(VACANT); }
             fill(color) {
@@ -130,7 +136,7 @@ TETRIS_TEMPLATE = """
                     for(let c=0; c<this.activeTetromino[r].length; c++) {
                         if(this.activeTetromino[r][c]) {
                             ctx.fillStyle = color; ctx.fillRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ);
-                            ctx.strokeStyle = "#30363d"; ctx.strokeRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ); // وسم تفكيك المكعبات
+                            ctx.strokeStyle = "#30363d"; ctx.strokeRect((this.x+c)*SQ, (this.y+r)*SQ, SQ, SQ);
                         }
                     }
                 }
@@ -139,8 +145,10 @@ TETRIS_TEMPLATE = """
             moveRight() { if(!this.collision(1,0,this.activeTetromino)) { this.unuse(); this.x++; this.draw(); playSound('move'); } }
             moveLeft() { if(!this.collision(-1,0,this.activeTetromino)) { this.unuse(); this.x--; this.draw(); playSound('move'); } }
             rotate() {
-                let nextPattern = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
-                if(!this.collision(0,0,nextPattern)) { this.unuse(); this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length; this.activeTetromino = nextPattern; this.draw(); playSound('move'); }
+                let nextPattern = [];
+                let n = this.activeTetromino.length;
+                for (let i = 0; i < n; i++) { nextPattern[i] = []; for (let j = 0; j < n; j++) { nextPattern[i][j] = this.activeTetromino[n - 1 - j][i]; } }
+                if(!this.collision(0,0,nextPattern)) { this.unuse(); this.activeTetromino = nextPattern; this.draw(); playSound('move'); }
             }
             collision(x, y, piece) {
                 for(let r=0; r<piece.length; r++) {
@@ -184,7 +192,7 @@ TETRIS_TEMPLATE = """
         }
 
         let p = null;
-        function randomPiece() { let r = Math.floor(Math.random() * PIECES.length); return new Piece(PIECES[r][0], PIECES[r][1]); }
+        function randomPiece() { let r = Math.floor(Math.random() * PIECES.length); return new Piece(PIECES[r], PIECES[r]); }
 
         function initGame() {
             document.getElementById('gameOverScreen').style.display = 'none';
