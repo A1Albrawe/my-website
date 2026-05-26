@@ -87,7 +87,7 @@ def generate_sidebar_html():
         
         <!-- 📂 أقسام القائمة الرئيسية المحدثة بتنسيق ناعم وشديد التناسق -->
         <a href="/projects" class="menu-item-clean" style="color: #a371f7;"><i class="fas fa-project-diagram"></i> معرض المشاريع </a>
-        <a href="/about" class="menu-item-clean" style="color: #ff7b72;"><i class="fas fa-user-shield"></i> من نحن (About us)</a>
+        <a href="/about" class="menu-item-clean" style="color: #ff7b72;"><i class="fas fa-user-shield"></i> (About us)</a>
         <a href="/scripts" class="menu-item-clean" style="color: #388bfd;"><i class="fab fa-python"></i> إسكربتات بايثون</a>
         
         <!-- فاصل جمالي خفيف لفصل الصفحات الأساسية عن روابط التواصل والصيانة -->
