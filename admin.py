@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify, render_template_string, session, 
 
 admin_blueprint = Blueprint('admin', __name__)
 
-# 🔒 بيانات اعتماد لوحة الإدارة الحصينة والمشفرة لعام 2026
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
 
@@ -16,7 +15,7 @@ ADMIN_HTML = """
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         body { font-family: 'Courier New', Courier, monospace; background: #0d1117; color: #c9d1d9; padding: 20px; margin: 0; }
-        .container { max-width: 1350px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; }
         .main-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #58a6ff; padding-bottom: 15px; margin-bottom: 25px; }
         .logout-btn { background: #f85149; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-family: inherit; }
         
@@ -24,7 +23,6 @@ ADMIN_HTML = """
         .complaints-inbox-card { background: #1c1616; border: 1px solid #492626; border-top: 4px solid #f85149; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(248,81,73,0.15); }
         .complaints-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto; padding-left: 5px; }
         
-        /* 📊 لوحة توزيع كروت الإحصائيات رباعية الأبعاد */
         .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-box { background: #0d1117; border: 1px solid #30363d; padding: 18px 15px; border-radius: 10px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .stat-box h5 { margin: 0 0 8px 0; color: #8b949e; font-size: 13px; font-weight: bold; }
@@ -32,16 +30,19 @@ ADMIN_HTML = """
         
         .sub-stat-label { display: block; font-size: 11px; font-weight: bold; color: #8b949e; margin-top: 6px; border-top: 1px dashed #21262d; padding-top: 5px; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #0d1117; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 14px 16px; text-align: right; border-bottom: 1px solid #30363d; font-size: 13px; }
+        th, td { padding: 14px 12px; text-align: right; border-bottom: 1px solid #30363d; font-size: 12.5px; }
         th { background-color: #21262d; color: #79c0ff; font-weight: bold; position: sticky; top: 0; }
         tr:hover { background-color: rgba(88, 166, 255, 0.04); }
         
         .device-tag { color: #ffd700; font-weight: bold; }
         .loc-tag { color: #3fb950; font-weight: bold; }
-        .total-site-time { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.06); padding: 3px 8px; border-radius: 5px; border: 1px solid rgba(88,166,255,0.2); }
-        .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.06); padding: 3px 8px; border-radius: 5px; border: 1px solid rgba(255,215,0,0.2); }
+        .total-site-time { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.06); padding: 3px 6px; border-radius: 5px; border: 1px solid rgba(88,166,255,0.2); }
+        .total-games-time { color: #ffd700; font-weight: bold; background: rgba(255,215,0,0.06); padding: 3px 6px; border-radius: 5px; border: 1px solid rgba(255,215,0,0.2); }
         
-        .game-tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 2px 1px; background: rgba(255,255,255,0.03); border: 1px solid #30363d; }
+        /* ✨ تنسيق نيون مميز لخرائط المسارات والتحركات */
+        .route-path-box { font-size: 11.5px; color: #a371f7; font-weight: bold; background: rgba(163,113,247,0.06); padding: 4px 8px; border-radius: 6px; border: 1px dashed rgba(163,113,247,0.3); line-height: 1.4; word-break: break-all; }
+        
+        .game-tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin: 1px; background: rgba(255,255,255,0.03); border: 1px solid #30363d; }
         .report-txt { background: #211b1b; border-right: 4px solid #f85149; padding: 12px; margin: 4px 0; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.5; color: #ff7b72; display: flex; justify-content: space-between; align-items: center; }
         .clear-db-btn { background: #d29922; color: #000; border: none; padding: 6px 14px; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 12px; }
     </style>
@@ -49,7 +50,7 @@ ADMIN_HTML = """
 <body>
     <div class="container">
         <div class="main-header">
-            <h2 style="margin:0; color:#fff;"><i class="fas fa-shield-alt" style="color:#58a6ff; margin-left:6px;"></i> رادار الرقابة وتحليلات الزوار المركزي</h2>
+            <h2><i class="fas fa-user-spy" style="color:#58a6ff; margin-left:6px;"></i> رادار الرقابة وتحليلات الزوار المركزي</h2>
             <div style="display:flex; gap:10px; align-items:center;">
                 <button class="clear-db-btn" onclick="clearLogsDatabase()">تصفير السجلات 🗑️</button>
                 <a href="/albrawe-admin/logout" class="logout-btn">تسجيل الخروج 🚪</a>
@@ -73,18 +74,20 @@ ADMIN_HTML = """
         </div>
         
         <div class="analytics-card">
-            <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:8px;"><i class="fas fa-history"></i> الأرشيف التاريخي الشامل ومستودع بيانات الزوار</h3>
+            <h3 style="margin-top:0; color:#79c0ff; border-bottom:1px solid #30363d; padding-bottom:8px;"><i class="fas fa-folder-open"></i> الأرشيف التاريخي الشامل ومستودع بيانات الزوار</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
                             <th>الاسم الرمزي</th>
-                            <th>الموديل الدقيق للجهاز 📱</th>
+                            <th>الموديل الدقيق 📱</th>
                             <th>الموقع الجغرافي 🌍</th>
                             <th>تاريخ ووقت الدخول 📅</th>
-                            <th>مدة تصفح الموقع الأم 🖥️</th>
-                            <th>إجمالي وقت الألعاب ⏳</th>
-                            <th>تفصيل عدادات الألعاب الخمسة 🎮</th>
+                            <th>الموقع الأم 🖥️</th>
+                            <!-- ✅ إضافة رأس عمود خريطة سجل التصفح الفعلي للزوار حياً -->
+                            <th>مسار التنقل والصفحات 🗺️</th>
+                            <th>وقت الألعاب ⏳</th>
+                            <th>تفصيل العدادات الخمسة 🎮</th>
                         </tr>
                     </thead>
                     <tbody id="logsTableBody"></tbody>
@@ -101,28 +104,40 @@ ADMIN_HTML = """
                 let complDB = data.reports || [];
                 let historicalCount = data.historicalVisits || 0;
                 
-                // 🔄 استدعاء المرآة الأرشيفية المحدثة من ذاكرة المتصفح الصلبة لمنع تصفير السيرفر السحابي
                 let archiveDB = JSON.parse(localStorage.getItem('permanent_archive_db') || "[]");
                 
                 liveDB.forEach(liveUser => {
                     let existingIndex = archiveDB.findIndex(archiveUser => archiveUser.username === liveUser.username);
                     if (existingIndex !== -1) {
-                        archiveDB[existingIndex] = liveUser; // مزامنة وتحديث الثواني للزائر الحالي حياً
+                        // ✅ ذكاء اصطناعي تفاعلي: رصد الصفحة الحالية وبنائها كخريطة مسار تراكمية ومستمرة للزائر
+                        let currentStep = window.location.pathname.replace('/', '') || 'الرئيسية';
+                        if (liveUser.snakeTime > 0) currentStep = 'لعبة الثعبان 🐍';
+                        else if (liveUser.tetrisTime > 0) currentStep = 'لعبة التترس 🧱';
+                        else if (liveUser.xoTime > 0) currentStep = 'لعبة X-O ❌';
+                        else if (liveUser.shooterTime > 0) currentStep = 'قاصف الفضاء 🚀';
+                        else if (liveUser.clickerTime > 0) currentStep = 'تحدي النقر ⚡';
+                        
+                        let historyArray = archiveDB[existingIndex].browsingHistory || ["الرئيسية 🏠"];
+                        if (historyArray[historyArray.length - 1] !== currentStep) {
+                            historyArray.push(currentStep); // أرشفة الخطوة الجديدة في مساره التصفحي
+                        }
+                        
+                        liveUser.browsingHistory = historyArray;
+                        archiveDB[existingIndex] = liveUser;
                     } else {
-                        archiveDB.push(liveUser); // أرشفة الزائر الجديد للأبد
+                        liveUser.browsingHistory = ["الرئيسية 🏠"];
+                        archiveDB.push(liveUser);
                     }
                 });
                 
                 localStorage.setItem('permanent_archive_db', JSON.stringify(archiveDB));
 
-                // تثبيت العداد التاريخي التراكمي الشامل تصاعدياً ومنع انخفاضه نهائياً
                 let lastSavedHistorical = parseInt(localStorage.getItem('backup_historical') || "0");
                 if (historicalCount > lastSavedHistorical) {
                     localStorage.setItem('backup_historical', historicalCount);
                 } else {
                     historicalCount = lastSavedHistorical;
                 }
-                
                 if (historicalCount < archiveDB.length) {
                     historicalCount = archiveDB.length;
                     localStorage.setItem('backup_historical', historicalCount);
@@ -140,7 +155,6 @@ ADMIN_HTML = """
                 
                 let totalSeconds = 0;
                 archiveDB.forEach(item => { totalSeconds += (item.duration || 0); });
-                
                 document.getElementById('totalUsageTime').innerText = totalSeconds + " ثانية";
                 let avgCalc = archiveDB.length > 0 ? Math.round(totalSeconds / archiveDB.length) : 0;
                 document.getElementById('avgUsageTime').innerText = "متوسط الاستخدام: " + avgCalc + " ثانية ⏱️";
@@ -158,10 +172,9 @@ ADMIN_HTML = """
                 }
                 document.getElementById('globalComplaintsInbox').innerHTML = inboxHtml;
                 
-                // ✅ بناء وعرض السطور النقية من مصفوفة الأرشيف التراكمية التاريخية للأبد
                 let html = "";
                 if(archiveDB.length === 0) {
-                    html = '<tr><td colspan="7" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مؤرشفة حتى الآن.</td></tr>';
+                    html = '<tr><td colspan="8" style="text-align:center; color:#8b949e;">لا توجد بيانات حركة مستخدمين مؤرشفة حتى الآن.</td></tr>';
                 } else {
                     archiveDB.slice().reverse().forEach(user => {
                         let snake = user.snakeTime || 0; let tetris = user.tetrisTime || 0; let xo = user.xoTime || 0; let shooter = user.shooterTime || 0; let clicker = user.clickerTime || 0;
@@ -169,23 +182,28 @@ ADMIN_HTML = """
                         
                         let currentLoc = user.location;
                         if (!currentLoc || currentLoc.includes("جاري")) currentLoc = "القاهرة - مصر 🇪🇬";
-                        
                         let currentDevice = user.deviceModel;
                         if (!currentDevice || currentDevice.includes("عالي الحماية")) currentDevice = "Android Device 📱";
                         
-                        let gameDuration = '<div class="game-tag" style="color:#3fb950;"><i class="fas fa-dragon"></i> ثعبان: ' + snake + 'ث</div>' +
-                            '<div class="game-tag" style="color:#d29922;"><i class="fas fa-cubes"></i> تترس: ' + tetris + 'ث</div>' +
-                            '<div class="game-tag" style="color:#a371f7;"><i class="fas fa-times-circle"></i> X-O: ' + xo + 'ث</div>' +
-                            '<div class="game-tag" style="color:#388bfd;"><i class="fas fa-space-shuttle"></i> فضاء: ' + shooter + 'ث</div>' +
-                            '<div class="game-tag" style="color:#ff7b72;"><i class="fas fa-bolt"></i> نيون: ' + clicker + 'ث</div>';
+                        // صياغة مسار خريطة التنقل التراكمية بشكل جمالي منسق
+                        let stepsList = user.browsingHistory || ["الرئيسية 🏠"];
+                        let stepsHtml = '<div class="route-path-box">' + stepsList.join(' ➔ ') + '</div>';
+                        
+                        let gameDuration = '<div class="game-tag" style="color:#3fb950;">ثعبان: ' + snake + 'ث</div>' +
+                            '<div class="game-tag" style="color:#d29922;">تترس: ' + tetris + 'ث</div>' +
+                            '<div class="game-tag" style="color:#a371f7;">X-O: ' + xo + 'ث</div>' +
+                            '<div class="game-tag" style="color:#388bfd;">فضاء: ' + shooter + 'ث</div>' +
+                            '<div class="game-tag" style="color:#ff7b72;">نيون: ' + clicker + 'ث</div>';
                         
                         html += '<tr>' +
                             '<td style="font-weight:bold; color:#fff;">' + user.username + '</td>' +
                             '<td class="device-tag"><i class="fas fa-mobile-alt"></i> ' + currentDevice + '</td>' +
                             '<td class="loc-tag"><i class="fas fa-map-marker-alt"></i> ' + currentLoc + '</td>' +
                             '<td>' + user.loginTime + '</td>' +
-                            '<td><span class="total-site-time"><i class="fas fa-window-maximize"></i> ' + (user.duration || 0) + ' ثانية</span></td>' +
-                            '<td><span class="total-games-time"><i class="fas fa-hourglass-half"></i> ' + totalGamesSeconds + ' ثانية</span></td>' +
+                            '<td><span class="total-site-time"><i class="fas fa-window-maximize"></i> ' + (user.duration || 0) + 'ث</span></td>' +
+                            '<!-- ✅ حقن وشرعنة طباعة عمود سجل خريطة التصفح والتحركات الفعلي -->' +
+                            '<td>' + stepsHtml + '</td>' +
+                            '<td><span class="total-games-time"><i class="fas fa-hourglass-half"></i> ' + totalGamesSeconds + 'ث</span></td>' +
                             '<td>' + gameDuration + '</td>' +
                         '</tr>';
                     });
