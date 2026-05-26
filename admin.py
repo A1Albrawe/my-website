@@ -2,11 +2,9 @@ from flask import Blueprint, request, jsonify, render_template_string, session, 
 
 admin_blueprint = Blueprint('admin', __name__)
 
-# 🔒 بيانات اعتماد لوحة الإدارة الحصينة الخاصة بك
+# 🔒 بيانات اعتماد لوحة الإدارة الحصينة
 ADMIN_USER = "albrawe"
 ADMIN_PASS = "PASS2026"
-
-# 🔑 مفتاح العبور السري الفوري لتنشيط الرابط ومنع المتطفلين من رؤية الشاشة
 SECRET_GATE_KEY = "open_gate_key_final_2026"
 
 ADMIN_HTML = """
@@ -66,7 +64,7 @@ ADMIN_HTML = """
 
         <div class="grid-stats">
             <div class="stat-box"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
-            <div class="stat-box" style="border-color: #d29922;"><h4 style="margin:0 0 8px 0; color:#ffd700; font-size:13px;">إجمالي زيارات الموقع الكلية</h4><p id="historicalViews">0</p></div>
+            <div class="stat-box" style="border-color: #d29922;"><h5 style="color: #ffd700;">إجمالي زيارات الموقع الكلية</h5><p id="historicalViews">0</p></div>
             <div class="stat-box" style="border-color: #388bfd;">
                 <h5 style="color: #388bfd;">إجمالي مدة استخدام الموقع</h5>
                 <p id="totalUsageTime" style="color: #388bfd;">0 ثانية</p>
@@ -98,6 +96,7 @@ ADMIN_HTML = """
     </div>
     <script>
         function fetchAndRenderAnalytics() {
+            // سحب البيانات من ذاكرة خادم بايثون الحية مباشرة لتعمل الواجهة من أي جهاز آخر كلياً
             fetch('/api/admin_get_all_data')
             .then(res => res.json())
             .then(data => {
@@ -129,7 +128,12 @@ ADMIN_HTML = """
                     }
                 });
                 
-                localStorage.setItem('permanent_archive_db', JSON.stringify(archiveDB));
+                // حفظ نسخة من قاعدة البيانات الرديفة لجهازك الفردي الحالي لضمان التثبيت العالي الحماية
+                if(archiveDB.length > 0) {
+                    localStorage.setItem('permanent_archive_db', JSON.stringify(archiveDB));
+                } else if(localStorage.getItem('permanent_archive_db')) {
+                    archiveDB = JSON.parse(localStorage.getItem('permanent_archive_db'));
+                }
 
                 let lastSavedHistorical = parseInt(localStorage.getItem('backup_historical') || "0");
                 if (historicalCount > lastSavedHistorical) {
@@ -257,10 +261,8 @@ LOGIN_HTML = """
 </html>
 """
 
-# ✅ الحفاظ الفعلي الكامل على رابط العبور القديم والمألوف لديك كمصدر أساسي وحيد
 @admin_blueprint.route('/albrawe-secure-panel-2026', methods=['GET', 'POST'])
 def admin_page():
-    # 🕵️ فحص مفتاح التنشيط المدمج؛ في حال غيابه يتم تشفير الشاشة وإعطاء خطأ 404 تمويهي فوري وطرد المتطفل
     gate_key = request.args.get('key', '')
     
     if request.method == 'POST':
@@ -273,7 +275,6 @@ def admin_page():
         else:
             return render_template_string(LOGIN_HTML + "<script>alert('❌ خطأ فادح: بيانات الاعتماد غير صحيحة!');</script>")
             
-    # استرجاع الهوية الموثقة مسبقاً لمنع طلب المفتاح عند عمليات الـ Refresh التلقائية للجدول
     if session.get('admin_logged_in') and session.get('gate_key_authenticated'):
         return render_template_string(ADMIN_HTML)
         
@@ -281,7 +282,6 @@ def admin_page():
         session['gate_key_authenticated'] = True
         return render_template_string(LOGIN_HTML)
         
-    # 🎯 الطرد التكتيكي: حظر أي مستخدم عادي يكتب الرابط القديم بدون المفتاح السري وإيهامه بـ خطأ 404 صفحة غير موجودة!
     abort(404)
 
 @admin_blueprint.route('/albrawe-admin/logout')
