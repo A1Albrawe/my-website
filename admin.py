@@ -37,7 +37,7 @@ ADMIN_HTML = """
         .analytics-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #a371f7; border-radius: 14px; padding: 20px; margin-bottom: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: right; }
         
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; background: #0d1117; min-width: 1050px; }
+        table { width: 100%; border-collapse: collapse; background: #0d1117; min-width: 1100px; }
         th, td { padding: 14px 12px; text-align: right; border-bottom: 1px solid #21262d; font-size: 12.5px; white-space: nowrap; }
         th { background-color: #1f242c; color: #79c0ff; font-weight: bold; border-bottom: 2px solid #30363d; }
         tr:hover { background-color: rgba(163, 113, 247, 0.02); }
@@ -59,7 +59,7 @@ ADMIN_HTML = """
 <body>
     <div class="container">
         <div class="main-header">
-            <h2><i class="fas fa-terminal" style="color:#a371f7; margin-left:6px;"></i> رادار الرقابة وتحليلات الزوار</h2>
+            <h2><i class="fas fa-terminal" style="color:#a371f7; margin-left:6px;"></i> رادار الرقابة وتحليلات الزوار المركزي</h2>
             <div style="display:flex; gap:10px; align-items:center;">
                 <button class="clear-db-btn" onclick="clearLogsDatabase()"><i class="fas fa-trash-alt"></i> تصفير السجلات</button>
                 <a href="/albrawe-admin/logout" class="logout-btn">تسجيل الخروج 🚪</a>
@@ -184,7 +184,7 @@ ADMIN_HTML = """
                         let countryCode = "eg"; 
                         
                         let locLower = currentLoc.toLowerCase();
-                        if (locLower.includes("saudi") || locLower.includes("السعودية") || locLower.includes("رياض")) countryCode = "sa";
+                        if (locLower.includes("saudi") || locLower.includes("السعودية") || locLower.includes("رياض") || locLower.includes("مكة")) countryCode = "sa";
                         else if (locLower.includes("emirates") || locLower.includes("دبي") || locLower.includes("الإمارات")) countryCode = "ae";
                         else if (locLower.includes("kuwait") || locLower.includes("الكويت")) countryCode = "kw";
                         else if (locLower.includes("iraq") || locLower.includes("العراق")) countryCode = "iq";
