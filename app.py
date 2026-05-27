@@ -3,7 +3,7 @@ from flask import Flask, request, session, redirect, render_template_string
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_CORE_LOCK_2026"
 
-# 🛡️ خوارزمية الاستدعاء المعزول كلياً سيبرانياً لحماية الحاوية المشتركة من الهبوط
+# 🛡️ الاستدعاء المعزول كلياً سيبرانياً وبدون أي لاحقات زائدة تسبب تدمير الروابط
 try:
     from home import home_blueprint
     app.register_blueprint(home_blueprint)
@@ -11,7 +11,7 @@ except Exception: pass
 
 try:
     from menu import menu_blueprint
-    app.register_blueprint(menu_blueprint)
+    app.register_blueprint(menu_blueprint) # تسجيل صافي ومباشر في جذر النواة
 except Exception: pass
 
 try:
@@ -44,7 +44,7 @@ try:
     app.register_blueprint(scripts_blueprint)
 except Exception: pass
 
-# الاستدعاء الحصين لملفات باقة الألعاب الستة المتواجدة بداخل مجلد games_package
+# باقة الألعاب الستة التكميلية بداخل مجلد games_package
 try: from games_package.snake import snake_blueprint
 except Exception: pass
 try: from games_package.tetris import tetris_blueprint
@@ -61,11 +61,6 @@ except Exception: pass
 
 @app.after_request
 def inject_global_analytics_tracker(response):
-    """
-    مُحرك الرصد والمزامنة العالمي!
-    تم تنظيف صياغته النصية وحظر رصد ملفات الصور والـ Favicon واللوحة لمنع ومسح الـ 500 كلياً،
-    مع المحافظة الكاملة على تجميع وتمرير ثواني استخدام باقة الألعاب حياً.
-    """
     if request.path.endswith('.ico') or request.path.endswith('.png') or request.path.endswith('.jpg'):
         return response
 
