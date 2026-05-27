@@ -3,15 +3,15 @@ from flask import Flask, request, session, redirect, render_template_string
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
-# ✅ التوجيه الهندسي القياسي: جعل النواة تفتح هويتك الشخصية الفخمة كصفحة رئيسية فوراً عند الرابط (/)
+# 🛡️ خوارزمية الاستدعاء المعزول كلياً لتفادي انهيار الـ Runtime السحابي لـ Vercel نهائياً
 try:
-    from about import about_blueprint
-    app.register_blueprint(about_blueprint)
+    from home import home_blueprint
+    app.register_blueprint(home_blueprint)
 except Exception: pass
 
 try:
-    from home import home_blueprint
-    app.register_blueprint(home_blueprint, url_prefix='/arcade')
+    from report import report_blueprint
+    app.register_blueprint(report_blueprint)
 except Exception: pass
 
 try:
@@ -25,8 +25,18 @@ try:
 except Exception: pass
 
 try:
-    from report import report_blueprint
-    app.register_blueprint(report_blueprint)
+    from about import about_blueprint
+    app.register_blueprint(about_blueprint)
+except Exception: pass
+
+try:
+    from projects import projects_blueprint
+    app.register_blueprint(projects_blueprint)
+except Exception: pass
+
+try:
+    from scripts import scripts_blueprint
+    app.register_blueprint(scripts_blueprint)
 except Exception: pass
 
 try:
@@ -34,7 +44,7 @@ try:
     app.register_blueprint(menu_blueprint)
 except Exception: pass
 
-# تسجيل مسارات باقة الألعاب الستة التكميلية بشكل محمي ومستقر
+# تسجيل مسارات باقة الألعاب الستة التكميلية بداخل مجلد الألعاب الحركية
 try: from games_package.snake import snake_blueprint
 except Exception: pass
 try: from games_package.tetris import tetris_blueprint
@@ -50,9 +60,9 @@ except Exception: pass
 @app.after_request
 def inject_global_analytics_tracker(response):
     """
-    مُحرك الرصد العالمي المطور سيبرانياً!
-    تم تصحيح وتطهير كافة الفواصل النصية بالملي لحل مشكلة الـ SyntaxError نهائياً،
-    مع حظر تتبع نطاق لوحة المسؤول والأيقونات لضمان الإقلاع الفوري المستقر.
+    مُحرك الرصد العالمي والسيبراني المطور!
+    تم تصفية الصياغة بالكامل وتخطي ملفات الأيقونات والصور الثابتة لمنع التداخل البرمي،
+    مع حظر تتبع لوحة المسؤول والمحافظة التامة على تجميع أوقات زوار باقة ألعابك.
     """
     if request.path.endswith('.ico') or request.path.endswith('.png') or request.path.endswith('.jpg'):
         return response
@@ -89,7 +99,7 @@ def inject_global_analytics_tracker(response):
                     function sendPayloadToServer() {
                         fetch("/api/log_visit", {
                             method: "POST",
-                            headers: {"Type-Content": "application/json"},
+                            headers: {"Content-Type": "application/json"},
                             body: JSON.stringify({ username: storedUser, location: userLocation })
                         });
                     }
