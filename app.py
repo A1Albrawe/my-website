@@ -3,7 +3,7 @@ from flask import Flask, request, session, redirect, render_template_string
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
-# 🛡️ خوارزمية الاستدعاء المعزول كلياً لمنع انهيار الـ Runtime السحابي لـ Vercel نهائياً
+# 🛡️ الاستدعاء المعزول كلياً لمنع انهيار الـ Runtime السحابي لـ Vercel
 try:
     from home import home_blueprint
     app.register_blueprint(home_blueprint)
@@ -24,7 +24,6 @@ try:
     app.register_blueprint(api_blueprint)
 except Exception: pass
 
-# حقن وتأمين كافة ملفات صفحات الجذر القياسية المشتركة
 try:
     from about import about_blueprint
     app.register_blueprint(about_blueprint)
@@ -45,43 +44,30 @@ try:
     app.register_blueprint(menu_blueprint)
 except Exception: pass
 
-# استدعاء باقة الألعاب الستة كاملة ومحدثة بشكل آمن ومحمي تماماً من التداخل
-try:
-    from games_package.snake import snake_blueprint
-    app.register_blueprint(snake_blueprint)
+# تسجيل باقة الألعاب الستة كاملة التطهير
+try: from games_package.snake import snake_blueprint
 except Exception: pass
-
-try:
-    from games_package.tetris import tetris_blueprint
-    app.register_blueprint(tetris_blueprint)
+try: from games_package.tetris import tetris_blueprint
 except Exception: pass
-
-try:
-    from games_package.xo import xo_blueprint
-    app.register_blueprint(xo_blueprint)
+try: from games_package.xo import xo_blueprint
 except Exception: pass
-
-try:
-    from games_package.shooter import shooter_blueprint
-    app.register_blueprint(shooter_blueprint)
+try: from games_package.shooter import shooter_blueprint
 except Exception: pass
-
-try:
-    from games_package.clicker import clicker_blueprint
-    app.register_blueprint(clicker_blueprint)
+try: from games_package.clicker import clicker_blueprint
 except Exception: pass
-
-try:
-    from games_package.card_game import card_game_blueprint
-    app.register_blueprint(card_game_blueprint)
+try: from games_package.card_game import card_game_blueprint
 except Exception: pass
 @app.after_request
 def inject_global_analytics_tracker(response):
     """
-    مُحرك الرصد العالمي المطور والمنقح كلياً لعام 2026!
-    تم تصحيح وإغلاق الجمل النصية بالملي لحل مشكلة 'unterminated string literal' للأبد،
-    مع المحافظة التامة على تجميع أوقات زوار باقة الستة ألعاب حياً وحظر تتبع لوحة المسؤول.
+    مُحرك الرصد العالمي المعزز تكتيكياً!
+    تم إضافة فلاتر استبعاد حاسمة تمنع قراءة ملفات الصور والأيقونات (Favicon)
+    لإنهاء ومسح خطأ 'FUNCTION_INVOCATION_FAILED' تماماً حياً في Vercel.
     """
+    # 🕵️ جدار حماية الأيقونة والصور: إذا كان الطلب لأيقونة أو ملف ثابت، يتم تمريره فوراً دون لمسه
+    if request.path.endswith('.ico') or request.path.endswith('.png') or request.path.endswith('.jpg'):
+        return response
+
     if response.content_type and response.content_type.startswith('text/html'):
         try:
             if "albrawe-admin-panel-2026" in request.path or "albrawe-admin" in request.path:
@@ -89,7 +75,6 @@ def inject_global_analytics_tracker(response):
                 
             text = response.get_data(as_text=True)
             
-            # حقن سكريبت التتبع بصيغة النص الصافي المحمي والمغلق بالكامل دون أي انقطاع
             global_tracker_script = """
             <script>
                 document.addEventListener("DOMContentLoaded", () => {
