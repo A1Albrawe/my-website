@@ -3,7 +3,7 @@ from flask import Blueprint, render_template_string, current_app
 
 menu_blueprint = Blueprint('menu', __name__)
 
-# عزل التنسيقات الفاخرة لمنع تداخل الأقواس وانهيار بايثون سحابياً بـ Vercel
+# عزل التنسيقات في كتل نصية مضغوطة ومحمية 100% لمنع تسريب الأكواد
 MENU_CSS = """
 <style>
     body { font-family: 'Courier New', Courier, monospace; background: #06090d; color: #c9d1d9; text-align: center; padding: 40px 15px; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; min-height: 100vh; justify-content: center; }
@@ -12,15 +12,12 @@ MENU_CSS = """
     .btn { display: block; background: #21262d; border: 1px solid #30363d; color: #58a6ff; padding: 12px; margin: 10px 0; border-radius: 6px; text-decoration: none; font-weight: bold; transition: 0.2s ease; font-size: 14px; text-align: right; }
     .btn:hover { background: #58a6ff; color: #06090d; box-shadow: 0 0 15px #58a6ff; transform: translateY(-2px); }
     
-    /* 📦 زر المنسدل التفاعلي الفاخر لـ باقة الألعاب */
     .dropdown-trigger-btn { background: #161b22; border: 1px solid #30363d; color: #3fb950; font-size: 14.5px; font-weight: bold; width: 100%; padding: 12px; border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: inherit; margin: 10px 0; transition: 0.2s; box-shadow: 0 4px 12px rgba(63,185,80,0.06); }
     .dropdown-trigger-btn:hover { border-color: #3fb950; box-shadow: 0 0 12px rgba(63,185,80,0.2); }
     .dropdown-trigger-btn i.arrow-icon { transition: transform 0.3s ease; font-size: 12px; }
     .dropdown-trigger-btn.open-state i.arrow-icon { transform: rotate(180deg); }
     
-    /* لوحة المنسدل الداخلي المنساب للألعاب المستكشفة */
     .dropdown-content-panel { display: none; background: #090d12; border: 1px solid #21262d; border-radius: 6px; padding: 4px 12px; margin-bottom: 10px; flex-direction: column; }
-    
     .game-link-btn { text-decoration: none; font-size: 14px; font-family: inherit; padding: 9px 0; display: block; transition: 0.15s ease; width: 100%; text-align: right; font-weight: 500; border-bottom: 1px dashed #161b22; }
     .game-link-btn:last-child { border-bottom: none; }
     .game-link-btn:hover { padding-right: 6px; text-shadow: 0 0 10px currentColor; }
@@ -28,32 +25,36 @@ MENU_CSS = """
 """
 @menu_blueprint.route('/menu')
 def menu_page():
-    # 🧠 تفعيل مصفوفة البناء القياسية المبرأة تماماً من الـ n\ لتنظيف المسارات والروابط السيبرانية 100%
     games_list_nodes = []
     try:
         games_dir = os.path.join(current_app.root_path, 'static', 'my_games')
         if os.path.exists(games_dir):
             for filename in sorted(os.listdir(games_dir)):
                 if filename.endswith('.txt'):
-                    game_slug = filename.replace('.txt', '').strip()
+                    # بتر وتطهير اسم الملف الصريح لمنع الـ 404
+                    game_slug = filename.replace('.txt', '').replace('\\n', '').replace('\\r', '').strip()
                     file_path = os.path.join(games_dir, filename)
                     
                     with open(file_path, 'r', encoding='utf-8') as f:
-                        lines = [line.strip() for line in f.readlines() if line.strip()]
+                        # 🛡️ خوارزمية التصفية الشاملة لسطور الملف النصي وسحق الرموز المعلقة قسرياً
+                        raw_lines = f.readlines()
+                        lines = []
+                        for line in raw_lines:
+                            clean_line = line.replace('\\n', '').replace('\\r', '').strip()
+                            if clean_line:
+                                lines.append(clean_line)
                         
-                    game_name = lines if len(lines) > 0 else game_slug
-                    game_icon = lines if len(lines) > 1 else "fas fa-gamepad"
-                    game_color = lines if len(lines) > 2 else "#fff"
+                    game_name = lines[0] if len(lines) > 0 else game_slug
+                    game_icon = lines[1] if len(lines) > 1 else "fas fa-gamepad"
+                    game_color = lines[2] if len(lines) > 2 else "#fff"
                     
-                    # 🔗 تم ربط الأزرار التلقائية بالمسارات الصريحة المحقونة بالنواة لمنع الـ 404 نهائياً
+                    # حقن الروابط الصافية تماماً والمبرأة من التلف
                     node_html = f'<a href="/{game_slug}" class="game-link-btn" style="color: {game_color};"><i class="{game_icon}"></i> {game_name}</a>'
                     games_list_nodes.append(node_html)
     except Exception:
-        games_list_nodes = ['<p style="color:#8b949e; font-size:12px; padding:8px 0;">خطأ في تحميل باقة ألعاب النظام التلقائية.</p>']
+        games_list_nodes = ['<p style="color:#8b949e; font-size:12px; padding:8px 0;">خطأ في مواءمة وحفظ مسارات الألعاب.</p>']
 
-    # دمج كتل الروابط الصافية بفراغ حقيقي ومباشر يطهر السيرفر كلياً
-    dynamic_games_html = "".join(games_list_nodes) if games_list_nodes else '<p style="color:#8b949e; font-size:12px; padding:8px 0;">قائمة ألعاب النظام فارغة حالياً.</p>'
-
+    dynamic_games_html = "".join(games_list_nodes) if games_list_nodes else '<p style="color:#8b949e; font-size:12px; padding:8px 0;">قائمة النظام التلقائية فارغة حالياً.</p>'
     MENU_HTML = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -68,12 +69,10 @@ def menu_page():
 <body>
     <div class="box">
         <h2 style="color:#fff; margin-top:0; text-align:center;"><i class="fas fa-bars" style="color:#58a6ff; margin-left:6px;"></i> دليل المنصة الشامل</h2>
-        <p style="font-size:12px; color:#8b949e; margin-bottom:20px; text-align:center;">اختر وجهتك البرمجية بداخل خادم المهندس البراوي لعام 2026:</p>
+        <p style="font-size:12px; color:#8b949e; margin-bottom:20px; text-align:center;">اختر وجهتك البرمجية بداخل خادم المهندس البراوي:</p>
         
-        <!-- 🔗 المسار القياسي الصافي الموجه لتطبيق النواة الرئيسي والواجهة التعريفية الفخمة -->
         <a href="/" class="btn"><i class="fas fa-user-shield"></i> الواجهة التعريفية المعتمدة</a>
         
-        <!-- 📦 صندوق منسدل ذكي تفاعلي يحتوي على كل ألعابك المستكشفة حياً ومطهر من حروف الـ n\ لتجنب الـ 404 -->
         <button class="dropdown-trigger-btn" id="gamesMenuTrigger" onclick="toggleGamesDropdown()">
             <span><i class="fas fa-gamepad" style="margin-left:5px;"></i> قائمة ألعاب النظام</span>
             <i class="fas fa-chevron-down arrow-icon"></i>
@@ -87,7 +86,6 @@ def menu_page():
     </div>
 
     <script>
-        // محرك تشغيل وفتح المنسدل الذكي للألعاب بنعومة تامة وانسيابية لراحة عيون المستخدم
         function toggleGamesDropdown() {
             const trigger = document.getElementById("gamesMenuTrigger");
             const panel = document.getElementById("gamesDropdownPanel");
