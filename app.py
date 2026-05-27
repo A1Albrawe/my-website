@@ -3,7 +3,6 @@ from flask import Flask, request, session, redirect, render_template_string
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
-# 🛡️ الاستدعاء المعزول كلياً لمنع انهيار الـ Runtime السحابي لـ Vercel
 try:
     from home import home_blueprint
     app.register_blueprint(home_blueprint)
@@ -44,7 +43,6 @@ try:
     app.register_blueprint(menu_blueprint)
 except Exception: pass
 
-# تسجيل باقة الألعاب الستة كاملة التطهير
 try: from games_package.snake import snake_blueprint
 except Exception: pass
 try: from games_package.tetris import tetris_blueprint
@@ -59,12 +57,6 @@ try: from games_package.card_game import card_game_blueprint
 except Exception: pass
 @app.after_request
 def inject_global_analytics_tracker(response):
-    """
-    مُحرك الرصد العالمي المعزز تكتيكياً!
-    تم إضافة فلاتر استبعاد حاسمة تمنع قراءة ملفات الصور والأيقونات (Favicon)
-    لإنهاء ومسح خطأ 'FUNCTION_INVOCATION_FAILED' تماماً حياً في Vercel.
-    """
-    # 🕵️ جدار حماية الأيقونة والصور: إذا كان الطلب لأيقونة أو ملف ثابت، يتم تمريره فوراً دون لمسه
     if request.path.endswith('.ico') or request.path.endswith('.png') or request.path.endswith('.jpg'):
         return response
 
@@ -75,6 +67,7 @@ def inject_global_analytics_tracker(response):
                 
             text = response.get_data(as_text=True)
             
+            # ✅ تم إغلاق وتأمين كافة الفواصل النصية بالملي لمنع تكرار أي Syntax Error نهائياً
             global_tracker_script = """
             <script>
                 document.addEventListener("DOMContentLoaded", () => {
