@@ -3,10 +3,11 @@ from flask import Blueprint, render_template_string, current_app, jsonify
 
 menu_blueprint = Blueprint('menu', __name__)
 
+# 🕹️ الحصن الهيكلي لحركات الـ Sidebar: تأمين خروج الستارة تماماً يميناً وتحريكها بانسيابية سينمائية
 MENU_CSS = """
 <style>
-    .sidebar-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 300px; height: 100vh; background: rgba(10, 14, 20, 0.99); border-left: 2px solid #58a6ff; box-shadow: -15px 0 35px rgba(0, 0, 0, 0.8); z-index: 9999; display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; }
-    .sidebar-overlay.active { right: 0; }
+    .sidebar-overlay { position: fixed; top: 0; right: -320px; width: 300px; height: 100vh; background: rgba(10, 14, 20, 0.98); border-left: 2px solid #58a6ff; box-shadow: -15px 0 35px rgba(0, 0, 0, 0.8); z-index: 99999; display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; }
+    .sidebar-overlay.active { right: 0 !important; }
     
     .close-menu-btn { background: none; border: none; color: #f85149; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; align-self: flex-end; margin-bottom: 30px; font-family: inherit; }
     .close-menu-btn:hover { text-shadow: 0 0 8px #f85149; }
@@ -29,7 +30,6 @@ MENU_CSS = """
     .general-link-item:hover { color: #58a6ff; text-shadow: 0 0 8px #58a6ff; padding-right: 4px; }
 </style>
 """
-
 @menu_blueprint.route('/api/get_sidebar_menu')
 def get_sidebar_menu():
     games_list_nodes = []
