@@ -6,7 +6,7 @@ app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 # 🛡️ خوارزمية الاستدعاء المعزول كلياً لتفادي انهيار الـ Runtime السحابي لـ Vercel نهائياً
 try:
     from home import home_blueprint
-    app.register_blueprint(home_blueprint)
+    app.register_blueprint(home_blueprint)  # الواجهة الرئيسية الموحدة تفتح عند الرابط (/) تلقائياً
 except Exception: pass
 
 try:
@@ -24,6 +24,12 @@ try:
     app.register_blueprint(api_blueprint)
 except Exception: pass
 
+# 🔗 تحديث وإصلاح مسار لاحقة نطاق القائمة التلقائية المنسدلة ليتطابق بالملي مع محرك السحب بـ home.py
+try:
+    from menu import menu_blueprint
+    app.register_blueprint(menu_blueprint, url_prefix='/menu')
+except Exception: pass
+
 try:
     from about import about_blueprint
     app.register_blueprint(about_blueprint)
@@ -39,12 +45,7 @@ try:
     app.register_blueprint(scripts_blueprint)
 except Exception: pass
 
-try:
-    from menu import menu_blueprint
-    app.register_blueprint(menu_blueprint)
-except Exception: pass
-
-# تسجيل مسارات باقة الألعاب الستة التكميلية بداخل مجلد الألعاب الحركية
+# استدعاء مسارات باقة الألعاب الستة التكميلية بشكل محمي ومستقر تماماً من المجلد الفرعي
 try: from games_package.snake import snake_blueprint
 except Exception: pass
 try: from games_package.tetris import tetris_blueprint
@@ -60,15 +61,17 @@ except Exception: pass
 @app.after_request
 def inject_global_analytics_tracker(response):
     """
-    مُحرك الرصد العالمي والسيبراني المطور!
-    تم تصفية الصياغة بالكامل وتخطي ملفات الأيقونات والصور الثابتة لمنع التداخل البرمي،
-    مع حظر تتبع لوحة المسؤول والمحافظة التامة على تجميع أوقات زوار باقة ألعابك.
+    مُحرك الرصد العالمي والسيبراني المطور لعام 2026!
+    تم تنظيف الصياغة وحظر تتبع ملفات الأيقونات والصور لإنهاء ومسح خطأ الـ 500 تماماً،
+    مع المحافظة الكاملة على تجميع وقت استخدام باقة الألعاب وحظر رصد نطاق لوحة الإدارة.
     """
+    # 🕵️ جدار حماية الموارد الثابتة: تمرير ملفات الصور والـ Favicon فوراً دون لمسها لمنع الانهيار السحابي
     if request.path.endswith('.ico') or request.path.endswith('.png') or request.path.endswith('.jpg'):
         return response
 
     if response.content_type and response.content_type.startswith('text/html'):
         try:
+            # حظر الرصد تماماً إذا كان المسار المفتوح هو لوحة الأدمن لمنع التداخل والوميض
             if "albrawe-admin-panel-2026" in request.path or "albrawe-admin" in request.path:
                 return response
                 
