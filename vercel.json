@@ -1,6 +1,12 @@
 {
   "version": 2,
   "framework": "flask",
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
   "routes": [
     {
       "src": "/static/(.*)",
