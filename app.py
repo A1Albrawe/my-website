@@ -3,15 +3,15 @@ from flask import Flask, request, session, redirect, render_template_string
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
-# 🛡️ خوارزمية الاستدعاء المعزول كلياً لمنع انهيار الـ Runtime السحابي لـ Vercel نهائياً
+# ✅ التوجيه الهندسي القياسي: جعل النواة تفتح هويتك الشخصية الفخمة كصفحة رئيسية فوراً عند الرابط (/)
 try:
-    from home import home_blueprint
-    app.register_blueprint(home_blueprint)  # ✅ النواة توجه هذا المسار لفتح شريط الألعاب الفخم عند الرابط (/) تلقائياً
+    from about import about_blueprint
+    app.register_blueprint(about_blueprint)
 except Exception: pass
 
 try:
-    from report import report_blueprint
-    app.register_blueprint(report_blueprint)
+    from home import home_blueprint
+    app.register_blueprint(home_blueprint, url_prefix='/arcade')
 except Exception: pass
 
 try:
@@ -24,28 +24,17 @@ try:
     app.register_blueprint(api_blueprint)
 except Exception: pass
 
-# 🔄 إعادة ضبط وتأمين مسارات صفحاتك التعريفية لتعمل بنطاقات مستقلة تمنع الحجب
 try:
-    from about import about_blueprint
-    app.register_blueprint(about_blueprint, url_prefix='/about')  # ✅ جعل صفحة الهوية تفتح صراحة عند مسار (/about) فقط
-except Exception: pass
-
-try:
-    from projects import projects_blueprint
-    app.register_blueprint(projects_blueprint, url_prefix='/projects')
-except Exception: pass
-
-try:
-    from scripts import scripts_blueprint
-    app.register_blueprint(scripts_blueprint, url_prefix='/scripts')
+    from report import report_blueprint
+    app.register_blueprint(report_blueprint)
 except Exception: pass
 
 try:
     from menu import menu_blueprint
-    app.register_blueprint(menu_blueprint, url_prefix='/menu')
+    app.register_blueprint(menu_blueprint)
 except Exception: pass
 
-# استدعاء باقة الألعاب الستة القياسية الحركية
+# تسجيل مسارات باقة الألعاب الستة التكميلية بشكل محمي ومستقر
 try: from games_package.snake import snake_blueprint
 except Exception: pass
 try: from games_package.tetris import tetris_blueprint
@@ -61,10 +50,13 @@ except Exception: pass
 @app.after_request
 def inject_global_analytics_tracker(response):
     """
-    مُحرك الرصد العالمي المطور والمنقح كلياً لعام 2026!
-    يمنع التداخل النصي، ويحافظ التام على تجميع أوقات زوار باقة الستة ألعاب حياً،
-    مع حظر الرصد والوميض نهائياً داخل نطاق لوحة الإدارة المحمية.
+    مُحرك الرصد العالمي المطور سيبرانياً!
+    تم تصحيح وتطهير كافة الفواصل النصية بالملي لحل مشكلة الـ SyntaxError نهائياً،
+    مع حظر تتبع نطاق لوحة المسؤول والأيقونات لضمان الإقلاع الفوري المستقر.
     """
+    if request.path.endswith('.ico') or request.path.endswith('.png') or request.path.endswith('.jpg'):
+        return response
+
     if response.content_type and response.content_type.startswith('text/html'):
         try:
             if "albrawe-admin-panel-2026" in request.path or "albrawe-admin" in request.path:
@@ -97,7 +89,7 @@ def inject_global_analytics_tracker(response):
                     function sendPayloadToServer() {
                         fetch("/api/log_visit", {
                             method: "POST",
-                            headers: {"Content-Type": "application/json"},
+                            headers: {"Type-Content": "application/json"},
                             body: JSON.stringify({ username: storedUser, location: userLocation })
                         });
                     }
@@ -124,12 +116,10 @@ def inject_global_analytics_tracker(response):
             </script>
             <script defer src="/_vercel/insights/script.js"></script>
             """
-            
             if "</body>" in text:
                 text = text.replace("</body>", global_tracker_script + "</body>")
             response.set_data(text)
-        except Exception:
-            pass
+        except Exception: pass
     return response
 
 if __name__ == '__main__':
