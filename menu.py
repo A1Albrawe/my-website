@@ -1,179 +1,155 @@
-# ملف إدارة وتعديل عناصر القائمة الجانبية الموحدة والمطورة للموقع
 import os
+from flask import Blueprint, render_template_string, current_app
 
-def generate_sidebar_html():
-    """دالة توليد كود الـ HTML المطور للستارة لتقرأ أزرار الألعاب ديناميكياً وحصرياً من مجلد static/my_games"""
+home_blueprint = Blueprint('home', __name__)
+
+# عزل كافة تنسيقات النيون القياسية لعام 2026 لحمايتها تماماً من التداخل النصي لبايثون
+HOME_CSS = """
+<style>
+    body { font-family: 'Courier New', Courier, monospace; background: #06090d; color: #c9d1d9; margin: 0; padding: 15px; box-sizing: border-box; display: flex; flex-direction: column; min-height: 100vh; position: relative; overflow-x: hidden; }
+    .top-nav { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 600px; margin: 0 auto 20px auto; border-bottom: 2px solid #21262d; padding-bottom: 10px; }
     
-    # 🎯 محرك قراءة الألعاب التلقائي الحي من المجلد النصي الاستاتيكي static/my_games
-    folder_path = os.path.join('static', 'my_games')
-    games_list_html = ""
+    .brand-logo { font-size: 20px; font-weight: bold; color: #fff; text-shadow: 0 0 8px #58a6ff; font-family: monospace; }
+    .menu-btn-trigger { background: #161b22; border: 1px solid #30363d; color: #58a6ff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13.5px; display: flex; align-items: center; gap: 6px; transition: 0.2s ease; }
+    .menu-btn-trigger:hover { background: #58a6ff; color: #06090d; box-shadow: 0 0 12px #58a6ff; }
     
-    if os.path.exists(folder_path):
-        # ترتيب الملفات أبجدياً لضمان مظهر منظم داخل القائمة
-        for file_name in sorted(os.listdir(folder_path)):
-            if file_name.endswith('.txt'):
-                file_path = os.path.join(folder_path, file_name)
-                # استخراج اسم المسار البرمجي من اسم الملف (مثلاً snake.txt يصبح المسار /snake)
-                route_name = os.path.splitext(file_name)[0]
-                try:
+    .main-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+    
+    .profile-card { background: #0d1117; border: 1px solid #30363d; border-radius: 14px; width: 100%; max-width: 440px; padding: 30px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); position: relative; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; border-bottom: 4px solid #58a6ff; }
+    .avatar-wrapper { width: 120px; height: 120px; border-radius: 12px; border: 2px solid #58a6ff; overflow: hidden; box-shadow: 0 0 15px rgba(88,166,255,0.25); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; background: #04060a; }
+    .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .profile-name { font-size: 22px; font-weight: bold; color: #fff; margin: 0 0 6px 0; text-shadow: 0 0 5px rgba(255,255,255,0.2); letter-spacing: 0.5px; }
+    .profile-title { font-size: 11px; font-weight: bold; color: #58a6ff; margin: 0 0 25px 0; letter-spacing: 0.5px; max-width: 90%; line-height: 1.4; text-transform: uppercase; }
+    
+    .details-sub-box { background: #06090d; border: 1px solid #21262d; border-radius: 10px; padding: 20px; width: 100%; box-sizing: border-box; text-align: right; font-size: 13px; line-height: 1.6; display: flex; flex-direction: column; gap: 14px; }
+    .meta-item { display: block; color: #c9d1d9; }
+    .meta-label { font-weight: bold; color: #fff; }
+    .tech-highlight { color: #58a6ff; font-weight: bold; font-family: monospace; }
+</style>
+"""
+    /* 🕹️ معمارية الـ Sidebar المنزلق المستنسخ كلياً من تفاصيل لقطات شاشتك بدقة */
+    .sidebar-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 290px; height: 100vh; background: rgba(13, 17, 23, 0.97); border-left: 2px solid #58a6ff; box-shadow: -10px 0 30px rgba(0, 0, 0, 0.7); z-index: 9999; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; }
+    .sidebar-overlay.active { right: 0; }
+    
+    .close-menu-btn { background: none; border: none; color: #f85149; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; align-self: flex-end; margin-bottom: 25px; font-family: inherit; }
+    .close-menu-btn:hover { text-shadow: 0 0 8px #f85149; }
+    
+    .sidebar-links-wrapper { display: flex; flex-direction: column; text-align: right; padding-right: 5px; }
+    
+    .section-menu-divider { font-size: 15px; font-weight: bold; display: flex; align-items: center; gap: 8px; justify-content: flex-start; margin-top: 15px; margin-bottom: 12px; border-bottom: 1px dashed #21262d; padding-bottom: 6px; }
+    
+    /* محرك استعراض خطوط روابط الألعاب النيونية المضيئة */
+    .game-link-btn { text-decoration: none; font-size: 14px; font-family: inherit; padding: 8px 0; display: block; transition: 0.15s ease; width: 100%; text-align: right; font-weight: 500; }
+    .game-link-btn:hover { padding-right: 5px; text-shadow: 0 0 8px currentColor; }
+    
+    .general-link-item { text-decoration: none; font-size: 13.5px; color: #8b949e; padding: 6px 0; display: block; font-weight: bold; }
+    .general-link-item:hover { color: #fff; text-shadow: 0 0 6px #fff; }
+</style>
+"""
+@home_blueprint.route('/')
+def home_page():
+    # 🧠 الخوارزمية الذكية: تفحص ملفات static/my_games/ لإنتاج أزرار القائمة حياً وتلقائياً
+    dynamic_games_html = ""
+    try:
+        # الإشارة المباشرة لمستودع الملفات النصية المستقلة بداخل مجلد static
+        games_dir = os.path.join(current_app.root_path, 'static', 'my_games')
+        if os.path.exists(games_dir):
+            for filename in sorted(os.listdir(games_dir)):
+                if filename.endswith('.txt'):
+                    game_slug = filename.replace('.txt', '')
+                    file_path = os.path.join(games_dir, filename)
+                    
                     with open(file_path, 'r', encoding='utf-8') as f:
-                        content = f.read().split('---')
-                        if len(content) >= 3:
-                            game_title = content[0].strip()
-                            game_icon  = content[1].strip()
-                            game_color = content[2].strip()
-                            
-                            # بناء زر اللعبة وحقنه حصرياً داخل قائمة الألعاب المنسدلة
-                            games_list_html += f"""
-                            <a href="/{route_name}" class="menu-item-clean" style="color: {game_color}; font-size: 13.5px;">
-                                <i class="{game_icon}"></i> {game_title}
-                            </a>
-                            """
-                except Exception:
-                    pass
+                        lines = [line.strip() for line in f.readlines() if line.strip()]
+                        
+                    # تفكيك الأسطر الثلاثة الملقنة (الاسم المعرب، الأيقونة، كود اللون النيوني)
+                    game_name = lines[0] if len(lines) > 0 else game_slug
+                    game_icon = lines[1] if len(lines) > 1 else "fas fa-gamepad"
+                    game_color = lines[2] if len(lines) > 2 else "#fff"
+                    
+                    # ربط الزر التلقائي بالمسار البرمجي المقابل والمفعّل صراحة بداخل الـ games_package
+                    dynamic_games_html += f'<a href="/{game_slug}" class="game-link-btn" style="color: {game_color};"><i class="{game_icon}"></i> {game_name}</a>\\n'
+    except Exception:
+        dynamic_games_html = '<p style="color:#8b949e; font-size:12px;">خطأ في جلب مستودع الألعاب الذكي.</p>'
 
-    # إذا كان مجلد الألعاب فارغاً تماماً يتم عرض رسالة تنبيهية ناعمة داخل الخانة
-    if not games_list_html:
-        games_list_html = '<p style="color:#8b949e; font-size:12px; text-align:center; padding:8px 0; margin:0;">لا توجد ألعاب نشطة حالياً</p>'
+    if not dynamic_games_html:
+        dynamic_games_html = '<p style="color:#8b949e; font-size:12px;">قائمة النظام التلقائية فارغة حالياً.</p>'
 
-    html_content = f"""
-    <style>
-        /* 👥 تنسيق روابط القائمة الجانبية الأنيق والناعم */
-        .sidebar-links-wrapper {{
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding-top: 10px;
-        }}
-        
-        .menu-item-clean {{
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 14px;
-            padding: 10px 12px;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            background: transparent;
-            border: 1px solid transparent;
-            color: #c9d1d9;
-            box-sizing: border-box;
-        }}
-        
-        /* تأثير التمرير النظيف وبدون ألوان رمادية مصمتة */
-        .menu-item-clean:hover {{
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
-            padding-right: 16px; /* إزاحة جمالية عند التمرير */
-        }}
-        
-        /* 🎮 تنسيق الزر الرئيسي لقائمة الألعاب المنسدلة */
-        .dropdown-toggle-btn-clean {{
-            width: 100%;
-            text-align: right;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            background: transparent;
-            border: 1px solid transparent;
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-family: inherit;
-            color: #3fb950;
-            transition: all 0.2s ease;
-            box-sizing: border-box;
-        }}
-        
-        .dropdown-toggle-btn-clean:hover {{
-            background: rgba(63, 185, 80, 0.1);
-            border-color: rgba(63, 185, 80, 0.2);
-        }}
-        
-        /* ✨ إنميشن تحريك منسدل وسلس (Slide & Fade) لقائمة الألعاب */
-        .dropdown-sub-menu-clean {{
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            padding-right: 20px;
-            margin-right: 12px;
-            border-right: 1px dashed rgba(88, 166, 255, 0.3);
-            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-        }}
-        .dropdown-sub-menu-clean.open {{
-            max-height: 350px;
-            opacity: 1;
-            padding-top: 4px;
-            padding-bottom: 4px;
-        }}
-    </style>
+    HOME_HTML = """
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Albrawe | البوابة الرسمية الموحدة</title>
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
+    """ + HOME_CSS + """
+</head>
+<body>
 
-    <div class="sidebar-links-wrapper">
-        <!-- 📂 البوابة الرئيسية ثابتة -->
-        <a href="/" class="menu-item-clean" style="color: #c9d1d9;"><i class="fas fa-home" style="color: #8b949e;"></i> البوابة الرئيسية</a>
+    <div class="top-nav">
+        <span class="brand-logo">Albrawe</span>
+        <button class="menu-btn-trigger" onclick="toggleSidebarMenu(true)"><i class="fas fa-bars"></i> القائمة</button>
+    </div>
+
+    <!-- 🕹️ الـ Sidebar الجانبي المنزلق الملقن تلقائياً ومباشرة بمخرجات محرك فحص my_games المستقل كلياً -->
+    <div class="sidebar-overlay" id="slidingSidebarMenu">
+        <button class="close-menu-btn" onclick="toggleSidebarMenu(false)"><i class="fas fa-times"></i> إغلاق القائمة</button>
         
-        <!-- 🎮 خانة قائمة الألعاب المنسدلة الديناميكية الحركية (تقرأ كلياً وحياً وفوراً من مجلد static/my_games) -->
-        <div class="dropdown-wrapper" style="margin: 4px 0;">
-            <button class="dropdown-toggle-btn-clean" onclick="toggleGamesDropdown(event)">
-                <span><i class="fas fa-gamepad" style="margin-left: 8px;"></i> قائمة ألعاب النظام 🎮</span>
-                <i class="fas fa-chevron-down" id="dropdownArrow" style="transition: 0.3s; font-size: 11px; color: #58a6ff;"></i>
-            </button>
-            <div class="dropdown-sub-menu-clean" id="gamesSubMenu">
-                {games_list_html}
+        <div class="sidebar-links-wrapper">
+            <a href="/" class="general-link-item" style="color:#fff; margin-bottom:5px;">البوابة الرئيسية 🏠</a>
+            
+            <div class="section-menu-divider" style="color: #3fb950; border-color: #3fb950;"><i class="fas fa-gamepad"></i> قائمة ألعاب النظام</div>
+            
+            <!-- 🔥 توليد وحقن أزرار باقة ألعابك الستة تلقائياً بنسق ألوانها المضيئة القياسي -->
+            """ + dynamic_games_html + """
+            
+            <div class="section-menu-divider" style="color:#8b949e; margin-top:20px;"><i class="fas fa-folder-open"></i> مسارات إضافية</div>
+            <a href="/projects" class="general-link-item">معرض المشاريع</a>
+            <a href="/about" class="general-link-item">(About us)</a>
+            <a href="/scripts" class="general-link-item">إسكربتات بايثون</a>
+            <a href="/report" class="general-link-item" style="color:#ff7b72;">الإبلاغ عن مشكلة (صيانة)</a>
+            <a href="https://t.me" target="_blank" class="general-link-item" style="color:#388bfd;">حسابي في التليجرام</a>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="profile-card">
+            <div class="avatar-wrapper">
+                <img class="avatar-img" src="/static/avatar.png" alt="Albrawe Profile" onerror="this.src='https://flagcdn.com'">
+            </div>
+            
+            <h1 class="profile-name">Albrawe</h1>
+            <div class="profile-title">Architecture Engineer & Software Engineer</div>
+            
+            <div class="details-sub-box">
+                <span class="meta-item">
+                    ⚡ <span class="meta-label">نبذة عني:</span> بناء وتطوير تطبيقات الويب الكاملة، وتصميم وتعديل اسكريبتات البايثون مع حماية الأكواد السحابية من الثغرات البرمجية.
+                </span>
+                <span class="meta-item">
+                    🚀 <span class="meta-label">مجالات الخبرة:</span> هندسة خوادم الويب المتكاملة، معالجة البيانات المحلية، والواجهات الذكية.
+                </span>
+                <span class="meta-item" style="border-top: 1px dashed #21262d; padding-top: 10px; margin-top: 2px;">
+                    🛠️ <span class="meta-label">التقنيات الأساسية:</span>
+                    <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 5px;">
+                        <div>🔹 <span class="tech-highlight">Python (Flask)</span></div>
+                        <div>🔹 <span class="tech-highlight">JavaScript (ES6)</span></div>
+                    </div>
+                </span>
             </div>
         </div>
-        
-        <!-- 📂 بقية الخانات الثابتة والمستقلة والمقروءة مباشرة من ملفات الجذر البرمجي لمستودعك -->
-        <a href="/projects" class="menu-item-clean" style="color: #a371f7;"><i class="fas fa-project-diagram"></i> معرض المشاريع </a>
-        <a href="/about" class="menu-item-clean" style="color: #ff7b72;"><i class="fas fa-user-shield"></i> (About us)</a>
-        <a href="/scripts" class="menu-item-clean" style="color: #388bfd;"><i class="fab fa-python"></i> إسكربتات بايثون</a>
-        
-        <hr style="border: 0; border-top: 1px solid #21262d; margin: 8px 0; width: 100%;">
-        
-        <!-- روابط الدعم والصيانة ثابتة بموقعها الطبيعي -->
-        <a href="/maintenance" class="menu-item-clean" style="color: #f85149; font-size: 13px; opacity: 0.8;"><i class="fas fa-tools"></i> الإبلاغ عن مشكلة (صيانة)</a>
-        <a href="https://t.me/I_Albrawe" target="_blank" class="menu-item-clean" style="color: #58a6ff; font-size: 13px;"><i class="fab fa-telegram-plane"></i> حسابي في التليجرام</a>
     </div>
-    
-    <script>
-        function toggleGamesDropdown(event) {{
-            if(event) {{ event.stopPropagation(); event.preventDefault(); }}
-            const subMenu = document.getElementById('gamesSubMenu');
-            const arrow = document.getElementById('dropdownArrow');
-            
-            subMenu.classList.toggle('open');
-            if (subMenu.classList.contains('open')) {{
-                arrow.style.transform = 'rotate(180deg)';
-                arrow.style.color = '#3fb950';
-            }} else {{
-                arrow.style.transform = 'rotate(0deg)';
-                arrow.style.color = '#58a6ff';
-            }}
-        }}
 
-        // 🎯 المراقبة الهندسية التلقائية: قفل قائمة الألعاب فوراً وبشكل صامت عند إغلاق القائمة الرئيسية للموقع
-        const observer = new MutationObserver(() => {{
-            const curtain = document.getElementById('sidebarCurtain');
-            if (curtain && !curtain.classList.contains('active') && curtain.style.right !== '0px') {{
-                const subMenu = document.getElementById('gamesSubMenu');
-                if (subMenu && subMenu.classList.contains('open')) {{
-                    subMenu.classList.remove('open');
-                    document.getElementById('dropdownArrow').style.transform = 'rotate(0deg)';
-                    document.getElementById('dropdownArrow').style.color = '#58a6ff';
-                }}
-            }}
-        }});
-        
-        document.addEventListener("DOMContentLoaded", () => {{
-            const curtain = document.getElementById('sidebarCurtain');
-            if(curtain) observer.observe(curtain, {{ attributes: true, attributeFilter: ['class', 'style'] }});
-        }});
+    <script>
+        function toggleSidebarMenu(openState) {
+            const sidebar = document.getElementById("slidingSidebarMenu");
+            if(openState) sidebar.classList.add("active");
+            else sidebar.classList.remove("active");
+        }
     </script>
-    """
-    return html_content
+</body>
+</html>
+"""
+    return render_template_string(HOME_HTML)
