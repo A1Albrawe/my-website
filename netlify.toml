@@ -1,6 +1,12 @@
 [build]
-  command = "npm run build"
-  publish = ".next"
+  command = "pip install -r requirements.txt"
+  publish = "static" # المجلد الذي يحتوي على ملفات الـ CSS/JS والصور الثابتة
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
+[functions]
+  external_node_modules = []
+  included_files = ["*.py", "games_package/**", "static/**"]
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/index"
+  status = 200
