@@ -3,7 +3,7 @@ from flask import Blueprint, render_template_string, current_app
 
 menu_blueprint = Blueprint('menu', __name__)
 
-# عزل التنسيقات في كتل نصية مضغوطة ومحمية 100% لمنع تسريب الأكواد
+# عزل التنسيقات في كتل نصية مضغوطة ومحمية 100% لمنع تسريب الأكواد خارج صناديق النسخ
 MENU_CSS = """
 <style>
     body { font-family: 'Courier New', Courier, monospace; background: #06090d; color: #c9d1d9; text-align: center; padding: 40px 15px; margin: 0; box-sizing: border-box; display: flex; flex-direction: column; min-height: 100vh; justify-content: center; }
@@ -48,7 +48,7 @@ def menu_page():
                     game_icon = lines[1] if len(lines) > 1 else "fas fa-gamepad"
                     game_color = lines[2] if len(lines) > 2 else "#fff"
                     
-                    # حقن الروابط الصافية تماماً والمبرأة من التلف
+                    # حقن الروابط الصافية تماماً والمبرأة من التلف والـ 404
                     node_html = f'<a href="/{game_slug}" class="game-link-btn" style="color: {game_color};"><i class="{game_icon}"></i> {game_name}</a>'
                     games_list_nodes.append(node_html)
     except Exception:
