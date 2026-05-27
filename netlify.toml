@@ -1,10 +1,9 @@
 [build]
   command = "pip install -r requirements.txt"
-  publish = "static" # المجلد الذي يحتوي على ملفات الـ CSS/JS والصور الثابتة
+  publish = "static"
 
 [functions]
-  external_node_modules = []
-  included_files = ["*.py", "games_package/**", "static/**"]
+  included_files = ["*.py", "games_package/**"]
 
 [[redirects]]
   from = "/*"
