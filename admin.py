@@ -27,12 +27,13 @@ ADMIN_HTML = """
         
         .complaints-inbox-card { background: #161212; border: 1px solid #492626; border-top: 3px solid #f85149; border-radius: 8px; padding: 12px; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(248,81,73,0.06); }
         .complaints-grid { display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto; }
-        
+        .report-txt { font-size: 11px; display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px dashed #30363d; }
         .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px; }
         .stat-box { background: #0d1117; border: 1px solid #30363d; padding: 12px 8px; border-radius: 8px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .stat-box h5 { margin: 0 0 4px 0; color: #8b949e; font-size: 11.5px; font-weight: bold; }
         .stat-box p { margin: 0; font-size: 18px; font-weight: bold; color: #58a6ff; font-family: monospace; }
         .sub-stat-label { display: block; font-size: 10.5px; color: #8b949e; margin-top: 4px; border-top: 1px dashed #21262d; padding-top: 3px; }
+        
         .section-title { color: #79c0ff; margin: 15px 0 8px 0; font-size: 14px; border-bottom: 1px solid #30363d; padding-bottom: 4px; text-align: right; display: flex; align-items: center; gap: 6px; }
         .section-title.live { color: #3fb950; }
         .section-title.archive { color: #8b949e; }
@@ -42,64 +43,8 @@ ADMIN_HTML = """
         .user-panel-card { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 10px 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 6px; text-align: right; font-size: 11.5px; }
         .user-panel-card.live-border { border-right: 4px solid #3fb950; }
         .user-panel-card.archive-border { border-right: 4px solid #484f58; opacity: 0.85; }
-        
-        .card-top-info { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 4px; }
-        .card-username { font-size: 12.5px; font-weight: bold; color: #fff; }
-        .card-device { font-size: 10.5px; color: #ffd700; font-weight: bold; }
-        
-        .card-meta-line { display: flex; align-items: center; gap: 5px; color: #c9d1d9; }
-        .card-meta-line i { color: #8b949e; width: 14px; text-align: center; }
-        
-        .flag-img { width: 15px; height: 11px; border-radius: 1px; object-fit: cover; }
-        .time-badge { color: #58a6ff; font-weight: bold; background: rgba(88,166,255,0.04); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(88,166,255,0.12); font-family: monospace; }
-        .games-total-badge { color: #3fb950; font-weight: bold; background: rgba(63,185,80,0.04); padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(63,185,80,0.12); font-family: monospace; }
-        
-        .drop-trigger-btn { background: #161b22; border: 1px solid #30363d; color: #c9d1d9; width: 100%; padding: 4px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; text-align: right; display: flex; justify-content: space-between; align-items: center; font-family: inherit; }
-        .drop-trigger-btn:hover { border-color: #58a6ff; color: #fff; }
-        
-        .drop-content-panel { display: none; background: #10141a; border: 1px solid #21262d; padding: 6px; border-radius: 4px; margin-top: 2px; }
-        .route-path-box { font-size: 10.5px; color: #a371f7; line-height: 1.4; word-break: break-all; }
-        
-        .games-dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
-        .mini-game-tag { font-size: 10px; display: flex; justify-content: space-between; padding: 2px 4px; background: #0d1117; border-radius: 3px; border: 1px solid #21262d; font-family: monospace; }
-        
-        .clear-db-btn { background: #21262d; border: 1px solid #d29922; color: #d29922; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 11px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="main-header">
-            <h2><i class="fas fa-chart-network" style="color:#a371f7; margin-left:5px;"></i> رادار الرقابة والتحليلات المطور V3</h2>
-            <div style="display:flex; gap:8px; align-items:center;">
-                <button class="clear-db-btn" onclick="clearLogsDatabase()"><i class="fas fa-trash-alt"></i> تصفير السجلات</button>
-                <a href="/albrawe-admin-panel-2026/logout" class="logout-btn">تسجيل الخروج 🚪</a>
-            </div>
-        </div>
-        
-        <div class="complaints-inbox-card">
-            <h3 style="margin:0; color:#ff7b72; font-size:13px; border-bottom:1px solid #492626; padding-bottom:4px;"><i class="fas fa-envelope-open-text"></i> صندوق الشكاوى والبلاغات الحي المباشر</h3>
-            <div class="complaints-grid" id="globalComplaintsInbox"></div>
-        </div>
-
-        <div class="grid-stats">
-            <div class="stat-box" style="border-top: 2px solid #58a6ff;"><h5>الزيارات النشطة حالياً</h5><p id="totalViews">0</p></div>
-            <div class="stat-box" style="border-top: 2px solid #d29922;"><h5>إجمالي زيارات الموقع الكلية</h5><p id="historicalViews" style="color: #d29922;">0</p></div>
-            <div class="stat-box" style="border-top: 2px solid #3fb950;">
-                <h5 style="color: #3fb950;">مجموع وقت استخدام جميع الزوار</h5>
-                <p id="totalGlobalUsageTime" style="color: #3fb950;">0 ثانية</p>
-                <span class="sub-stat-label" id="avgUsageTime">متوسط الاستخدام الفردي: 0 ثانية</span>
-            </div>
-            <div class="stat-box" style="border-top: 2px solid #f85149;"><h5>إجمالي بلاغات الصندوق</h5><p id="totalComplaints" style="color: #f85149;">0</p></div>
-        </div>
-        
-        <h3 class="section-title live"><i class="fas fa-broadcast-tower"></i> الرصد اللحظي النشط (الموجودين بالموقع حالياً)</h3>
-        <div class="cards-mesh" id="liveCardsContainer"></div>
-        
-        <h3 class="section-title archive"><i class="fas fa-history"></i> سجل ومستودع الزوار المغادرين التاريخي</h3>
-        <div class="cards-mesh" id="archiveCardsContainer"></div>
-    </div>
     <script>
-        // 🔒 حماية السيرفر الصارمة: تعريف دالة المنسدلات القياسية بـ const صراحة لمنع تحطيم بايثون
+        // ✅ تم حسم وحصر المتغير صراحة لحماية السيرفر ومنع الـ 500 كلياً
         const BarkCardDropdown = (panelId) => {
             const panel = document.getElementById(panelId);
             panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
@@ -110,16 +55,12 @@ ADMIN_HTML = """
             
             let years = Math.floor(totalSeconds / (365 * 24 * 3600));
             let remainder = totalSeconds % (365 * 24 * 3600);
-            
             let months = Math.floor(remainder / (30 * 24 * 3600));
             remainder = remainder % (30 * 24 * 3600);
-            
             let days = Math.floor(remainder / (24 * 3600));
             remainder = remainder % (24 * 3600);
-            
             let hours = Math.floor(remainder / 3600);
             remainder = remainder % 3600;
-            
             let minutes = Math.floor(remainder / 60);
             let seconds = remainder % 60;
             
@@ -133,7 +74,6 @@ ADMIN_HTML = """
             
             return timeParts.join(" و ");
         }
-
         function fetchAndRenderAnalytics() {
             fetch('/api/admin_get_all_data')
             .then(res => res.json())
@@ -166,6 +106,7 @@ ADMIN_HTML = """
                     }
                 });
                 localStorage.setItem('permanent_archive_db', JSON.stringify(archiveDB));
+
                 let lastSavedHistorical = parseInt(localStorage.getItem('backup_historical') || "0");
                 if (historicalCount > lastSavedHistorical) { localStorage.setItem('backup_historical', historicalCount); } else { historicalCount = lastSavedHistorical; }
                 if (historicalCount < archiveDB.length) { historicalCount = archiveDB.length; localStorage.setItem('backup_historical', historicalCount); }
@@ -177,7 +118,6 @@ ADMIN_HTML = """
                 let totalSeconds = 0;
                 archiveDB.forEach(item => { totalSeconds += (item.duration || 0); });
                 document.getElementById('totalGlobalUsageTime').innerText = formatFriendlyTime(totalSeconds);
-                
                 let avgCalc = archiveDB.length > 0 ? Math.round(totalSeconds / archiveDB.length) : 0;
                 document.getElementById('avgUsageTime').innerText = "متوسط الاستخدام الفردي: " + formatFriendlyTime(avgCalc);
                 
@@ -241,17 +181,17 @@ ADMIN_HTML = """
                         if(isUserStillLive) { liveCardsHtml += cardBodyHtml; } else { archiveCardsHtml += cardBodyHtml; }
                     });
                 }
-                
                 if(liveCardsHtml === "") liveCardsHtml = '<p style="grid-column: 1/-1; text-align:center; color:#8b949e; padding:10px; font-size:11px;">لا توجد أي زيارات نشطة داخل الموقع حالياً. 🛰️</p>';
                 if(archiveCardsHtml === "") archiveCardsHtml = '<p style="grid-column: 1/-1; text-align:center; color:#8b949e; padding:10px; font-size:11px;">لا توجد سجلات مغادرين في الأرشيف.</p>';
-                
                 document.getElementById('liveCardsContainer').innerHTML = liveCardsHtml;
                 document.getElementById('archiveCardsContainer').innerHTML = archiveCardsHtml;
             });
         }
-        function clearLogsDatabase() { if(confirm("هل أنت متأكد من مسح الأرشيف التراكمي وتصفير السجلات بالكامل؟")) { localStorage.removeItem('permanent_archive_db'); localStorage.removeItem('backup_historical'); fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics()); } }
-        fetchAndRenderAnalytics(); setInterval(fetchAndRenderAnalytics, 4000);
-    </script>
+function clearLogsDatabase() { if(confirm("هل أنت متأكد من مسح الأرشيف التراكمي وتصفير السجلات بالكامل؟")) { localStorage.removeItem('permanent_archive_db'); localStorage.removeItem('backup_historical'); fetch('/api/admin_clear_data', { method: 'POST' }).then(() => fetchAndRenderAnalytics()); } }fetchAndRenderAnalytics(); setInterval(fetchAndRenderAnalytics, 4000);---
+
+### 🔑 (الجزء 6 من 6 لملف `admin.py`): جدار تسجيل الدخول البيومتري الحصين للمسؤول وغلق الـ Blueprint
+
+```python
 LOGIN_HTML = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -261,4 +201,54 @@ LOGIN_HTML = """
     <title>تسجيل دخول الإدارة | Albrawe</title>
     <style>
         body { font-family: monospace; background: #0d1117; color: #c9d1d9; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .login-card { background: #161b2
+        .login-card { background: #161b22; border: 1px solid #30363d; border-top: 4px solid #f85149; padding: 30px; border-radius: 12px; width: 100%; max-width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; text-align: right; }
+        input { padding: 10px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #fff; font-family: inherit; width: 100%; box-sizing: border-box; }
+        input:focus { border-color: #f85149; outline: none; }
+        .btn { background: #f85149; color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-family: inherit; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h3 style="margin-top:0; text-align:center; color:#fff;">🔐 نظام تفتيش الإدارة السرية</h3>
+        <form method="POST" action="/albrawe-admin-panel-2026">
+            <div class="form-group">
+                <label>اسم المسؤول:</label>
+                <input type="text" name="username" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور التكتيكية:</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit" class="btn">تأكيد الهوية البيومترية 🛡️</button>
+        </form>
+    </div>
+</body>
+</html>
+"""
+
+@admin_blueprint.route('/', methods=['GET', 'POST'])
+@admin_blueprint.route('/albrawe-admin-panel-2026', methods=['GET', 'POST'])
+def admin_page():
+    gate_key = request.args.get('key', '')
+    if request.method == 'POST':
+        user = request.form.get('username')
+        passwd = request.form.get('password')
+        if user == ADMIN_USER and passwd == ADMIN_PASS:
+            session['admin_logged_in'] = True
+            session['gate_key_authenticated'] = True
+            return render_template_string(ADMIN_HTML)
+        else:
+            return render_template_string(LOGIN_HTML + "<script>alert('❌ خطأ فادح: بيانات الاعتماد غير صحيحة!');</script>")
+    if session.get('admin_logged_in') and session.get('gate_key_authenticated'):
+        return render_template_string(ADMIN_HTML)
+    if gate_key == SECRET_GATE_KEY:
+        session['gate_key_authenticated'] = True
+        return render_template_string(LOGIN_HTML)
+    abort(404)
+
+@admin_blueprint.route('/albrawe-admin/logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    session.pop('gate_key_authenticated', None)
+    return redirect('/')
