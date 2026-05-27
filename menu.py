@@ -3,7 +3,6 @@ from flask import Blueprint, render_template_string, current_app, jsonify
 
 menu_blueprint = Blueprint('menu', __name__)
 
-# عزل تنسيقات الـ Sidebar المنزلق لتجنب تداخل الأقواس وانهيار السيرفر السحابي
 MENU_CSS = """
 <style>
     .sidebar-overlay { position: fixed; top: 0; right: -100%; width: 100%; max-width: 300px; height: 100vh; background: rgba(10, 14, 20, 0.99); border-left: 2px solid #58a6ff; box-shadow: -15px 0 35px rgba(0, 0, 0, 0.8); z-index: 9999; display: flex; flex-direction: column; padding: 25px 20px; box-sizing: border-box; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; }
@@ -33,7 +32,6 @@ MENU_CSS = """
 
 @menu_blueprint.route('/api/get_sidebar_menu')
 def get_sidebar_menu():
-    # 🧠 محرك التصفية وبتر الرموز والسطور المخفية قسراً لمنع ومسح الـ \n والـ 404 كلياً
     games_list_nodes = []
     try:
         games_dir = os.path.join(current_app.root_path, 'static', 'my_games')
@@ -47,14 +45,14 @@ def get_sidebar_menu():
                         raw_lines = f.readlines()
                         lines = [line.replace('\\n', '').replace('\\r', '').strip() for line in raw_lines if line.strip()]
                         
-                    game_name = lines[0] if len(lines) > 0 else game_slug
-                    game_icon = lines[1] if len(lines) > 1 else "fas fa-gamepad"
-                    game_color = lines[2] if len(lines) > 2 else "#fff"
+                    game_name = lines if len(lines) > 0 else game_slug
+                    game_icon = lines if len(lines) > 1 else "fas fa-gamepad"
+                    game_color = lines if len(lines) > 2 else "#fff"
                     
                     node_html = f'<a href="/{game_slug}" class="game-link-btn" style="color: {game_color};"><i class="{game_icon}"></i> {game_name}</a>'
                     games_list_nodes.append(node_html)
     except Exception:
-        games_list_nodes = ['<p style="color:#8b949e; font-size:12px; padding:8px 0;">خطأ في مواءمة مسارات ألعاب النظام التلقائية.</p>']
+        games_list_nodes = ['<p style="color:#8b949e; font-size:12px; padding:8px 0;">خطأ في مواءمة مسارات الألعاب.</p>']
 
     dynamic_games_html = "".join(games_list_nodes) if games_list_nodes else '<p style="color:#8b949e; font-size:12px; padding:8px 0;">لا توجد ألعاب مكتشفة حالياً.</p>'
 
