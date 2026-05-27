@@ -3,10 +3,10 @@ from flask import Flask, request, session, redirect, render_template_string
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
-# 🛡️ خوارزمية الاستدعاء المعزول كلياً لتفادي انهيار الـ Runtime السحابي لـ Vercel نهائياً
+# 🛡️ الحصانة السيبرانية: استدعاء الحزم صراحة وبدون لاحقات فرعية زائدة تسبب تدمير الروابط والـ 404
 try:
     from home import home_blueprint
-    app.register_blueprint(home_blueprint)  # الواجهة الرئيسية الموحدة تفتح عند الرابط (/) تلقائياً
+    app.register_blueprint(home_blueprint)
 except Exception: pass
 
 try:
@@ -24,10 +24,9 @@ try:
     app.register_blueprint(api_blueprint)
 except Exception: pass
 
-# 🔗 تحديث وإصلاح مسار لاحقة نطاق القائمة التلقائية المنسدلة ليتطابق بالملي مع محرك السحب بـ home.py
 try:
     from menu import menu_blueprint
-    app.register_blueprint(menu_blueprint, url_prefix='/menu')
+    app.register_blueprint(menu_blueprint)
 except Exception: pass
 
 try:
@@ -45,7 +44,7 @@ try:
     app.register_blueprint(scripts_blueprint)
 except Exception: pass
 
-# استدعاء مسارات باقة الألعاب الستة التكميلية بشكل محمي ومستقر تماماً من المجلد الفرعي
+# باقة الألعاب الستة القياسية
 try: from games_package.snake import snake_blueprint
 except Exception: pass
 try: from games_package.tetris import tetris_blueprint
@@ -58,25 +57,18 @@ try: from games_package.clicker import clicker_blueprint
 except Exception: pass
 try: from games_package.card_game import card_game_blueprint
 except Exception: pass
+
+
 @app.after_request
 def inject_global_analytics_tracker(response):
-    """
-    مُحرك الرصد العالمي والسيبراني المطور لعام 2026!
-    تم تنظيف الصياغة وحظر تتبع ملفات الأيقونات والصور لإنهاء ومسح خطأ الـ 500 تماماً،
-    مع المحافظة الكاملة على تجميع وقت استخدام باقة الألعاب وحظر رصد نطاق لوحة الإدارة.
-    """
-    # 🕵️ جدار حماية الموارد الثابتة: تمرير ملفات الصور والـ Favicon فوراً دون لمسها لمنع الانهيار السحابي
     if request.path.endswith('.ico') or request.path.endswith('.png') or request.path.endswith('.jpg'):
         return response
 
     if response.content_type and response.content_type.startswith('text/html'):
         try:
-            # حظر الرصد تماماً إذا كان المسار المفتوح هو لوحة الأدمن لمنع التداخل والوميض
             if "albrawe-admin-panel-2026" in request.path or "albrawe-admin" in request.path:
                 return response
-                
             text = response.get_data(as_text=True)
-            
             global_tracker_script = """
             <script>
                 document.addEventListener("DOMContentLoaded", () => {
@@ -85,7 +77,6 @@ def inject_global_analytics_tracker(response):
                         storedUser = "لاعب_مستمر_" + Math.floor(100 + Math.random() * 900);
                         localStorage.setItem("albrawe_tracker_username", storedUser);
                     }
-                    
                     let userLocation = "القاهرة - مصر 🇪🇬";
                     fetch("https://ipapi.co")
                     .then(res => res.json())
@@ -96,8 +87,7 @@ def inject_global_analytics_tracker(response):
                             userLocation = geo.city + " - " + geo.country_name;
                         }
                         sendPayloadToServer();
-                    })
-                    .catch(() => { sendPayloadToServer(); });
+                    }).catch(() => { sendPayloadToServer(); });
 
                     function sendPayloadToServer() {
                         fetch("/api/log_visit", {
@@ -106,16 +96,13 @@ def inject_global_analytics_tracker(response):
                             body: JSON.stringify({ username: storedUser, location: userLocation })
                         });
                     }
-                    
                     let currentPath = window.location.pathname.replace("/", "") || "site";
                     let localDuration = 0;
-                    
                     setInterval(() => {
                         if (typeof isPaused !== "undefined" && isPaused) return;
                         if (typeof isGameOver !== "undefined" && isGameOver) return;
                         localDuration += 5;
                     }, 5000);
-                    
                     window.addEventListener("beforeunload", () => {
                         if (localDuration > 0) {
                             navigator.sendBeacon("/api/update_duration", JSON.stringify({ 
