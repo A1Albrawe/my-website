@@ -2,7 +2,7 @@ from flask import Blueprint, render_template_string
 
 home_blueprint = Blueprint('home', __name__)
 
-# حقن وعزل التنسيقات النيونية والهوية السينمائية لعام 2026 المطابقة للصورة تماماً
+# حقن وعزل التنسيقات النيونية والهوية السينمائية لعام 2026 المطابقة للصورة المعتمدة تماماً
 HOME_CSS = """
 <style>
     body { font-family: 'Courier New', Courier, monospace; background: #06090d; color: #c9d1d9; margin: 0; padding: 15px; box-sizing: border-box; display: flex; flex-direction: column; min-height: 100vh; }
@@ -14,7 +14,7 @@ HOME_CSS = """
     
     .main-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
     
-    /* 🛡️ تصميم كرت الهوية الرقمي النيوني الفخم المطابق للصورة */
+    /* 🛡️ تصميم كرت الهوية الرقمي النيوني الفخم المطابق للواجهة الأصلية */
     .profile-card { background: #0d1117; border: 1px solid #30363d; border-radius: 14px; width: 100%; max-width: 440px; padding: 30px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); position: relative; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; border-bottom: 4px solid #58a6ff; }
     
     .avatar-wrapper { width: 120px; height: 120px; border-radius: 12px; border: 2px solid #58a6ff; overflow: hidden; box-shadow: 0 0 15px rgba(88,166,255,0.25); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; background: #04060a; }
@@ -23,7 +23,7 @@ HOME_CSS = """
     .profile-name { font-size: 22px; font-weight: bold; color: #fff; margin: 0 0 6px 0; text-shadow: 0 0 5px rgba(255,255,255,0.2); letter-spacing: 0.5px; }
     .profile-title { font-size: 11px; font-weight: bold; color: #58a6ff; margin: 0 0 25px 0; letter-spacing: 0.5px; max-width: 90%; line-height: 1.4; text-transform: uppercase; }
     
-    /* 📝 صندوق المحتوى التفصيلي الداخلي */
+    /* 📝 صندوق المحتوى التفصيلي الداخلي المضاء نيون */
     .details-sub-box { background: #06090d; border: 1px solid #21262d; border-radius: 10px; padding: 20px; width: 100%; box-sizing: border-box; text-align: right; font-size: 13px; line-height: 1.6; display: flex; flex-direction: column; gap: 14px; }
     
     .meta-item { display: block; color: #c9d1d9; }
@@ -39,13 +39,13 @@ HOME_HTML = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Albrawe | الصفحة الرئيسية الموحدة</title>
     
-    <!-- استدعاء باقة الأيقونات الفاخرة المشعة حياً -->
+    <!-- استدعاء باقة الأيقونات الفاخرة المشعة حياً لـ FontAwesome -->
     <link rel="stylesheet" href="https://cloudflare.com">
     
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
 
-    <!-- وسوم الـ Open Graph للصورة المصغرة والشعار على السوشيال ميديا -->
+    <!-- وسوم الـ Open Graph للصورة المصغرة والشعار على وسائل التواصل المحدثة لعام 2026 -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://vercel.app">
     <meta property="og:title" content="Albrawe Arcade & Cyber Analytics">
@@ -63,11 +63,11 @@ HOME_HTML = """
     </div>
 
     <div class="main-container">
-        <!-- 🛡️ كرت الهوية التعريفي النيوني الفخم المطابق للصورة بالبكسل -->
+        <!-- 🛡️ كرت الهوية التعريفي النيوني الفخم المطابق لتصميمك المستقر بالبكسل -->
         <div class="profile-card">
             
             <div class="avatar-wrapper">
-                <!-- جلب صورة الهكر المحصنة والمرفوعة بداخل مجلد الموارد الثابتة -->
+                <!-- جلب صورة الهكر المرفوعة بداخل مجلد الموارد الثابتة الخاص بك -->
                 <img class="avatar-img" src="/static/avatar.png" alt="Albrawe Profile" onerror="this.src='https://flagcdn.com'">
             </div>
             
