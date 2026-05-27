@@ -3,7 +3,7 @@ from flask import Flask, request, session, redirect, render_template_string
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
-# 🛡️ خوارزمية الاستدعاء المعزول كلياً لتفادي انهيار الـ Runtime السحابي لـ Vercel نهائياً
+# 🛡️ خوارزمية الاستدعاء المعزول كلياً لمنع انهيار الـ Runtime السحابي لـ Vercel نهائياً
 try:
     from home import home_blueprint
     app.register_blueprint(home_blueprint)
@@ -29,7 +29,7 @@ try:
 except Exception:
     pass
 
-# استدعاء باقة الألعاب الستة المحدثة بشكل آمن ومحمي تماماً
+# استدعاء باقة الألعاب الستة المحدثة بشكل آمن ومحمي تماماً من التداخل
 try:
     from games_package.snake import snake_blueprint
     app.register_blueprint(snake_blueprint)
@@ -59,27 +59,11 @@ try:
     from games_package.card_game import card_game_blueprint
     app.register_blueprint(card_game_blueprint)
 except Exception: pass
-try:
-    from projects import projects_blueprint
-    app.register_blueprint(projects_blueprint)
-except Exception: pass
-
-try:
-    from about import about_blueprint
-    app.register_blueprint(about_blueprint)
-except Exception: pass
-
-try:
-    from scripts import scripts_blueprint
-    app.register_blueprint(scripts_blueprint)
-except Exception: pass
-
-
 @app.after_request
 def inject_global_analytics_tracker(response):
     """
-    مُحرك الرصد العالمي المطور والمنقح كلياً!
-    تم كتابته بصيغة String تمنع تداخل النصوص وارتباك بيئة البناء لـ Vercel،
+    مُحرك الرصد العالمي المطور والمنقح كلياً لعام 2026!
+    تم تنظيف صياغته الخرسانية تماماً لحل تعارض 'could not import app.py'،
     مع المحافظة التامة على تجميع أوقات زوار باقة الستة ألعاب حياً وحظر تتبع لوحة المسؤول.
     """
     if response.content_type and response.content_type.startswith('text/html'):
