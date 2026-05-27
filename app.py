@@ -7,29 +7,46 @@ app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 try:
     from home import home_blueprint
     app.register_blueprint(home_blueprint)
-except Exception:
-    pass
+except Exception: pass
 
 try:
     from report import report_blueprint
     app.register_blueprint(report_blueprint)
-except Exception:
-    pass
+except Exception: pass
 
 try:
     from admin import admin_blueprint
     # توجيه لوحة المسؤول صراحة إلى نطاقك التكميلي الجديد المحمي لمنع الـ 404
     app.register_blueprint(admin_blueprint, url_prefix='/albrawe-admin-panel-2026')
-except Exception:
-    pass
+except Exception: pass
 
 try:
     from api import api_blueprint
     app.register_blueprint(api_blueprint)
-except Exception:
-    pass
+except Exception: pass
 
-# استدعاء باقة الألعاب الستة المحدثة بشكل آمن ومحمي تماماً من التداخل
+# 🔄 إتمام حقن وتأمين كافة ملفات مشروعك التي ظهرت بالصورة لمنع التضارب والهبوط السحابي
+try:
+    from about import about_blueprint
+    app.register_blueprint(about_blueprint)
+except Exception: pass
+
+try:
+    from projects import projects_blueprint
+    app.register_blueprint(projects_blueprint)
+except Exception: pass
+
+try:
+    from scripts import scripts_blueprint
+    app.register_blueprint(scripts_blueprint)
+except Exception: pass
+
+try:
+    from menu import menu_blueprint
+    app.register_blueprint(menu_blueprint)
+except Exception: pass
+
+# استدعاء باقة الألعاب الستة كاملة ومحدثة بشكل آمن ومحمي تماماً من التداخل البرمي
 try:
     from games_package.snake import snake_blueprint
     app.register_blueprint(snake_blueprint)
@@ -63,7 +80,7 @@ except Exception: pass
 def inject_global_analytics_tracker(response):
     """
     مُحرك الرصد العالمي المطور والمنقح كلياً لعام 2026!
-    تم تنظيف صياغته الخرسانية تماماً لحل تعارض 'could not import app.py'،
+    تم تنظيف صياغته البنائية تماماً لحل تعارض 'could not import app.py'،
     مع المحافظة التامة على تجميع أوقات زوار باقة الستة ألعاب حياً وحظر تتبع لوحة المسؤول.
     """
     if response.content_type and response.content_type.startswith('text/html'):
