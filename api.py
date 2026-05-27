@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify
 
 api_blueprint = Blueprint('api', __name__)
 
-# 🔒 الذاكرة المركزية الصلبة المستقرة لتفادي تنظيف ذاكرة Vercel وتصفير الأجهزة
+# 🔒 الذاكرة السحابية الصلبة لمنع تصفير الأرشيف التراكمي في بيئة خوادم Vercel
 if not hasattr(api_blueprint, 'CENTRAL_ANALYTICS_SERVER_DB'):
     api_blueprint.CENTRAL_ANALYTICS_SERVER_DB = []
 
@@ -20,7 +20,7 @@ def log_visit():
     user_agent = request.headers.get('User-Agent', 'غير معروف')
     location = data.get('location', 'جاري جلب الموقع...').strip()
     
-    # 📱 الرصد والفرز الدقيق لموديلات الهواتف والكمبيوتر حياً
+    # 📱 محرك فرز ورصد موديلات أجهزة زوار الموقع حياً وبدقة
     device_model = "كمبيوتر / غير معروف"
     ua_lower = user_agent.lower()
     if "android" in ua_lower:
@@ -63,7 +63,7 @@ def update_duration():
     if username:
         user_entry = next((item for item in api_blueprint.CENTRAL_ANALYTICS_SERVER_DB if item["username"] == username), None)
         if user_entry:
-            # 🎮 ربط وفرز مدد أوقات باقة الألعاب الستة كاملة التجميع
+            # 🎮 قيد الفرز الحركي وتجميع ثواني زوار باقة الستة ألعاب كاملة
             if game_type == 'snake': user_entry["snakeTime"] += inc
             elif game_type == 'tetris': user_entry["tetrisTime"] += inc
             elif game_type == 'xo': user_entry["xoTime"] += inc
