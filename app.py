@@ -3,9 +3,10 @@ from flask import Flask, request, session, redirect, render_template_string
 app = Flask(__name__)
 app.secret_key = "ALBRAWE_FINAL_LOCKED_2026"
 
+# 🛡️ خوارزمية الاستدعاء المعزول كلياً لمنع انهيار الـ Runtime السحابي لـ Vercel نهائياً
 try:
     from home import home_blueprint
-    app.register_blueprint(home_blueprint)
+    app.register_blueprint(home_blueprint)  # ✅ النواة توجه هذا المسار لفتح شريط الألعاب الفخم عند الرابط (/) تلقائياً
 except Exception: pass
 
 try:
@@ -23,26 +24,28 @@ try:
     app.register_blueprint(api_blueprint)
 except Exception: pass
 
+# 🔄 إعادة ضبط وتأمين مسارات صفحاتك التعريفية لتعمل بنطاقات مستقلة تمنع الحجب
 try:
     from about import about_blueprint
-    app.register_blueprint(about_blueprint)
+    app.register_blueprint(about_blueprint, url_prefix='/about')  # ✅ جعل صفحة الهوية تفتح صراحة عند مسار (/about) فقط
 except Exception: pass
 
 try:
     from projects import projects_blueprint
-    app.register_blueprint(projects_blueprint)
+    app.register_blueprint(projects_blueprint, url_prefix='/projects')
 except Exception: pass
 
 try:
     from scripts import scripts_blueprint
-    app.register_blueprint(scripts_blueprint)
+    app.register_blueprint(scripts_blueprint, url_prefix='/scripts')
 except Exception: pass
 
 try:
     from menu import menu_blueprint
-    app.register_blueprint(menu_blueprint)
+    app.register_blueprint(menu_blueprint, url_prefix='/menu')
 except Exception: pass
 
+# استدعاء باقة الألعاب الستة القياسية الحركية
 try: from games_package.snake import snake_blueprint
 except Exception: pass
 try: from games_package.tetris import tetris_blueprint
@@ -57,9 +60,11 @@ try: from games_package.card_game import card_game_blueprint
 except Exception: pass
 @app.after_request
 def inject_global_analytics_tracker(response):
-    if request.path.endswith('.ico') or request.path.endswith('.png') or request.path.endswith('.jpg'):
-        return response
-
+    """
+    مُحرك الرصد العالمي المطور والمنقح كلياً لعام 2026!
+    يمنع التداخل النصي، ويحافظ التام على تجميع أوقات زوار باقة الستة ألعاب حياً،
+    مع حظر الرصد والوميض نهائياً داخل نطاق لوحة الإدارة المحمية.
+    """
     if response.content_type and response.content_type.startswith('text/html'):
         try:
             if "albrawe-admin-panel-2026" in request.path or "albrawe-admin" in request.path:
@@ -67,7 +72,6 @@ def inject_global_analytics_tracker(response):
                 
             text = response.get_data(as_text=True)
             
-            # ✅ تم إغلاق وتأمين كافة الفواصل النصية بالملي لمنع تكرار أي Syntax Error نهائياً
             global_tracker_script = """
             <script>
                 document.addEventListener("DOMContentLoaded", () => {
